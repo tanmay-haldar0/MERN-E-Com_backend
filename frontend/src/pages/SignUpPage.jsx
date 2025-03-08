@@ -9,24 +9,36 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [image, setImage] = useState(null);
+  const [passwordError, setPasswordError] = useState('');
+
   const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
-  };
+  // const handleImageChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setImage(file);
+  //     setImagePreview(URL.createObjectURL(file));
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+    // if (password !== confirmPassword) {
+    //   alert("Passwords do not match!");
+    //   return;
+    // };
+    setPasswordError(''); // Reset password error message
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters long.');
       return;
-    };
-    const config = { headers: { "Content-Type": "multipart/form-data" } }
+    }
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+      setPasswordError('Password must contain at least one special character.');
+      return;
+    }
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
+
     const newForm = new FormData();
     newForm.append('name', name);
     newForm.append('email', email);
@@ -38,7 +50,7 @@ function SignUpPage() {
       // console.log(res);
       if (res.data.status == 'success') {
         alert("User created successfully!");
-        navigate("/");
+        navigate("/login");
       }
     }).catch((err) => {
       console.log(err);
@@ -83,7 +95,12 @@ function SignUpPage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          {password !== confirmPassword ? (<p className='mt-2 text-left text-xs text-red-500'>Password didn't match</p>) : " "}
+          {password !== confirmPassword ? (
+            <p className='mt-2 text-left text-xs text-red-500'>Password didn't match</p>
+          ) : (
+            passwordError && <p className='mt-2 text-left text-xs text-red-500'>{passwordError}</p>
+          )}
+
 
           <p className='mt-4 text-center text-sm text-slate-500'>Already have an account? <Link to={"/login"}><span className='text-blue-500 cursor-pointer'>LogIn</span></Link></p>
         </div>
