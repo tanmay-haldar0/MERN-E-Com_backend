@@ -1,12 +1,14 @@
-import errorHandler from "../utils/errorHandler";
 
-const errorHandler = errorHandler();
+import errorHandler from "../utils/errorHandler.js";
 
-module.exports = (err, req, res, next) => {
+export default (err, req, res, next) => {
+
   err.statusCode = err.statusCode || 500;
   err.message = err.message || "Internal Server Error";
 
   // MongoDb Id not found error
+  const handler = new errorHandler();
+ 
 
   if (err.name == "CastError") {
     const message = `Resources not found with this id.. invalid ${err.path}`;
@@ -14,7 +16,6 @@ module.exports = (err, req, res, next) => {
   }
 
   // Duplicate Error
-
   if (err.code == 11000) {
     const message = `Duplicate Value ${Object.keys(err.keyValue)} Entered`;
     err = new errorHandler(message, 400);
