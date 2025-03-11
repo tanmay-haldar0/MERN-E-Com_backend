@@ -29,7 +29,9 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const activationToken = createActivationToken(user);
     const activationUrl = `http://localhost:5173/activation/${activationToken}`;
 
+    console.log("Received request to activate user:", user.email);
     console.log("Activation URL generated:", activationUrl);
+
 
     try {
       await sendMail({
@@ -60,7 +62,7 @@ router.post(
   catchAsyncError(async (req, res, next) => {
     const { activationToken } = req.body;
 
-    console.log("Received activation token:", activationToken);
+    // console.log("Received activation token:", activationToken);
 
     // Verify the token
     try {
@@ -69,7 +71,7 @@ router.post(
         process.env.ACTIVATION_SECRET
       );
 
-      console.log("Decoded user from token:", decodedUser);
+      // console.log("Decoded user from token:", decodedUser);
 
       if (!decodedUser) {
         return next(new errorHandler("Invalid Token", 400));
@@ -79,6 +81,8 @@ router.post(
       const { name, email, password } = decodedUser;
 
       // Check if user already exists (to avoid re-activation)
+      // console.log("Checking if user already exists for activation:", email);
+
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         return next(new errorHandler("User already activated.", 400));

@@ -19,17 +19,17 @@ const ActivationPage = () => {
           });
 
           const data = res.data;
-          console.log(res);
+          console.log(res.data);
           setLoading(false);
 
-          // if (data.success) {
-          // setMessage("Your account has been activated successfully.");
+          if (data.success) {
+          setMessage("Your account has been activated successfully.");
 
-          // } else {
-          //   setError(true);
-          // setMessage(data.message || "Activation could not be completed. Please try again.");
+          } else {
+            setError(true);
+          setMessage(data.message || "Activation could not be completed. Please try again.");
 
-          // }
+          }
         } catch (error) {
           setLoading(false);
           setError(true);
