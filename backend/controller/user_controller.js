@@ -24,7 +24,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       password: password,
     };
 
-    console.log(user);
+    // console.log(user);
 
     const activationToken = createActivationToken(user);
     const activationUrl = `http://localhost:5173/activation/${activationToken}`;

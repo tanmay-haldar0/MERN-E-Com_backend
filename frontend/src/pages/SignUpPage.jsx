@@ -47,7 +47,8 @@ function SignUpPage() {
       newForm.append('file', image);
     }
     await axios.post(`${server}/user/create-user/`, newForm, config).then((res) => {
-      console.log(res);     
+      // console.log(res.data.message);
+      alert(res.data.message);
     }).catch((err) => {
       console.log(err);
     })
