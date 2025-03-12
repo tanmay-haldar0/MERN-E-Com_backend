@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { server } from "../server";
 
 const ActivationPage = () => {
   const { activation_token } = useParams(); // Extract from URL parameters
-
+  const navigate = useNavigate();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(""); // State for messages
 
   useEffect(() => {
     if (activation_token) {
@@ -23,17 +23,21 @@ const ActivationPage = () => {
           setLoading(false);
 
           if (data.success) {
-          setMessage("Your account has been activated successfully.");
-
+            setError(false);
+            setMessage("Your account has been activated successfully."); // Update message on success
+            // alert("Your account has been activated successfully.");
+            console.log("Message set to: Your account has been activated successfully."); // Log message for debugging
+            // navigate('/login');
           } else {
             setError(true);
-          setMessage(data.message || "Activation could not be completed. Please try again.");
-
+            setMessage(data.message || "Activation could not be completed. Please try again."); // Set error message
+            console.log("Message set to:", data.message || "Activation could not be completed. Please try again."); // Log message for debugging
           }
         } catch (error) {
           setLoading(false);
           setError(true);
-          setMessage(error.response?.data?.message || "An error occurred. Please try again.");
+          setMessage(error.response?.data?.message || "An error occurred. Please try again."); // Set error message on catch
+          console.log("Message set to:", error.response?.data?.message || "An error occurred. Please try again."); // Log message for debugging
         }
       };
 
@@ -46,9 +50,19 @@ const ActivationPage = () => {
       {loading ? (
         <p className="text-lg">Loading...</p>
       ) : error ? (
-        <p className="text-lg text-red-600">{message}</p>
+        <div className="flex flex-col text-center">
+          <p className="text-lg text-red-600">{message} (Error)</p>
+          <Link to={"/signup"}>
+            <button className="btn bg-primary text-white px-3 p-1 font-semibold rounded-md">SignUp</button>
+          </Link>
+        </div>
       ) : (
-        <p className="text-lg text-green-600">{message}</p>
+        <div className="flex flex-col text-center">
+          <p className="text-lg text-green-600">{message} (Success)</p>
+          <Link to={"/login"}>
+            <button className="btn bg-primary text-white px-3 p-1 font-semibold rounded-md">Login</button>
+          </Link>
+        </div>
       )}
     </div>
   );

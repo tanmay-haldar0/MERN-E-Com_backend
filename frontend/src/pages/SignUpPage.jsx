@@ -48,7 +48,13 @@ function SignUpPage() {
     }
     await axios.post(`${server}/user/create-user/`, newForm, config).then((res) => {
       // console.log(res.data.message);
-      alert(res.data.message);
+      
+      if (res.data.message != "User already exists") {
+        alert(res.data.message);
+        navigate("/");
+      }else{
+        alert(res.data.message + ". Please Login");
+      }
     }).catch((err) => {
       console.log(err);
     })

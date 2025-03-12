@@ -15,7 +15,11 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const { name, email, password } = req.body;
     const userEmail = await User.findOne({ email });
     if (userEmail) {
-      return next(new errorHandler("User already exists", 400));
+      res.status(201).json({
+        status: "fail",
+        message: "User already exists",
+      })
+      return next(new errorHandler("User already exists", 400))
     }
 
     const user = {
@@ -24,7 +28,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       password: password,
     };
 
-    // console.log(user);
+    console.log(user);
 
     const activationToken = createActivationToken(user);
     const activationUrl = `http://localhost:5173/activation/${activationToken}`;
@@ -85,6 +89,7 @@ router.post(
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
+        // console.log("user already activated: ", existingUser); 
         return next(new errorHandler("User already activated.", 400));
       }
 
