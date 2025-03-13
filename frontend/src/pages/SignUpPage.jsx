@@ -95,9 +95,9 @@ function SignUpPage() {
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             >
               {isPasswordVisible ? (
-                <AiFillEyeInvisible size={20} />
+                <AiFillEyeInvisible size={20} className="text-primary" />
               ) : (
-                <AiFillEye size={20} />
+                <AiFillEye size={20} className="text-slate-600"/>
               )}
             </span>
           </div>
