@@ -5,11 +5,12 @@ import upload from "../multer.js";
 import errorHandler from "../utils/errorHandler.js";
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
-import catchAsyncError from "../middleware/cacheAsyncError.js"
-import sendToken from "../utils/jwtToken.js"
+import catchAsyncError from "../middleware/cacheAsyncError.js";
+import sendToken from "../utils/jwtToken.js";
 
 const router = express.Router();
 
+// SignUp User
 router.post("/create-user", upload.single("file"), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -18,8 +19,8 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       res.status(201).json({
         status: "fail",
         message: "User already exists",
-      })
-      return next(new errorHandler("User already exists", 400))
+      });
+      return next(new errorHandler("User already exists", 400));
     }
 
     const user = {
@@ -35,7 +36,6 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
 
     console.log("Received request to activate user:", user.email);
     console.log("Activation URL generated:", activationUrl);
-
 
     try {
       await sendMail({
@@ -61,6 +61,7 @@ const createActivationToken = (user) => {
   });
 };
 
+// Activate the User
 router.post(
   "/activation",
   catchAsyncError(async (req, res, next) => {
@@ -89,10 +90,10 @@ router.post(
 
       let existingUser = await User.findOne({ email });
       if (existingUser) {
-        // console.log("user already activated: ", existingUser); 
+        // console.log("user already activated: ", existingUser);
         res.status(400).json({
-          success:false,
-          message:"User is already Activated",
+          success: false,
+          message: "User is already Activated",
         });
         return next(new errorHandler("User already activated.", 400));
       }
@@ -121,4 +122,29 @@ router.post(
   })
 );
 
+// Login the User
+router.post(
+  "/login",
+  catchAsyncError(async (req, res, next) => {
+    const { email, password } = req.body;
+    try {
+      if (!email || !password) {
+        return next(new errorHandler("Please Fill all the feilds.", 400));
+      }
+      const user = await User.findOne({ email }).select("+password");
+      if (!user) {
+        return next(
+          new errorHandler("User does not exist. Please SignUp", 401)
+        );
+      }
+      const isPasswordValid = await user.conparePassword(password);
+      if (!isPasswordValid) {
+      return next(new errorHandler("Invalid Password", 401));
+      }
+      sendToken(user, 200, res);
+    } catch (error) {
+      return next(new errorHandler(error.message, 500));
+    }
+  })
+);
 export default router;

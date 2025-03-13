@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../server.js";
 import { toast } from "react-toastify";
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+
 
 function SignUpPage() {
   const [name, setName] = useState("");
@@ -13,8 +15,8 @@ function SignUpPage() {
   const [passwordError, setPasswordError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
- 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPasswordError(""); // Reset password error message
@@ -43,7 +45,7 @@ function SignUpPage() {
         if (res.data.message != "User already exists") {
           toast.success(res.data.message);
           navigate("/login");
-        }else{
+        } else {
           setErrorMessage(res.data.message);
           toast.error(res.data.message);
         }
@@ -51,7 +53,6 @@ function SignUpPage() {
         setName("");
         setEmail("");
         setPassword("");
-
       })
       .catch((err) => {
         toast.error(err);
@@ -81,13 +82,25 @@ function SignUpPage() {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <input
-            type="password"
-            required
-            placeholder="Password"
-            className="p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none"
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="relative mt-3">
+            <input
+              type={isPasswordVisible ? "text" : "password"}
+              required
+              placeholder="Password"
+              className="p-2 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none pr-10"
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <span
+              className="absolute right-3 top-3 cursor-pointer text-slate-500"
+              onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            >
+              {isPasswordVisible ? (
+                <AiFillEyeInvisible size={20} />
+              ) : (
+                <AiFillEye size={20} />
+              )}
+            </span>
+          </div>
 
           <input
             type="password"
