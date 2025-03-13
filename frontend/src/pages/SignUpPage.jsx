@@ -12,18 +12,9 @@ function SignUpPage() {
   const [image, setImage] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  // const [imagePreview, setImagePreview] = useState('');
   const navigate = useNavigate();
 
-  // const handleImageChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     setImage(file);
-  //     setImagePreview(URL.createObjectURL(file));
-  //   }
-  // };
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPasswordError(""); // Reset password error message
@@ -56,6 +47,11 @@ function SignUpPage() {
           setErrorMessage(res.data.message);
           toast.error(res.data.message);
         }
+
+        setName("");
+        setEmail("");
+        setPassword("");
+
       })
       .catch((err) => {
         toast.error(err);
