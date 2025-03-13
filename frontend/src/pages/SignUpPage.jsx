@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../server.js";
+import { toast } from "react-toastify";
 
 function SignUpPage() {
   const [name, setName] = useState("");
@@ -49,13 +50,15 @@ function SignUpPage() {
         // console.log(res.data.message);
 
         if (res.data.message != "User already exists") {
-          alert(res.data.message);
-          navigate("/");
+          toast.success(res.data.message);
+          navigate("/login");
         }else{
           setErrorMessage(res.data.message);
+          toast.error(res.data.message);
         }
       })
       .catch((err) => {
+        toast.error(err);
         console.log(err);
       });
   };

@@ -45,7 +45,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       });
       res.status(200).json({
         success: true,
-        message: `email send successfully. Please check your mail ${user.email} to activate your account.`,
+        message: `Please check your mail ${user.email} to activate your account.`,
       });
     } catch (error) {
       return next(new errorHandler(error.message, 500));
@@ -92,7 +92,7 @@ router.post(
         // console.log("user already activated: ", existingUser); 
         res.status(400).json({
           success:false,
-          message:"User already exists",
+          message:"User is already Activated",
         });
         return next(new errorHandler("User already activated.", 400));
       }
