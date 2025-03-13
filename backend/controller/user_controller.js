@@ -57,7 +57,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
 
 const createActivationToken = (user) => {
   return jwt.sign(user, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
+    expiresIn: "6h",
   });
 };
 
@@ -87,21 +87,25 @@ router.post(
       // Check if user already exists (to avoid re-activation)
       // console.log("Checking if user already exists for activation:", email);
 
-      const existingUser = await User.findOne({ email });
+      let existingUser = await User.findOne({ email });
       if (existingUser) {
         // console.log("user already activated: ", existingUser); 
+        res.status(400).json({
+          success:false,
+          message:"User already exists",
+        });
         return next(new errorHandler("User already activated.", 400));
       }
 
       // Create the user in the database
-      const createdUser = await User.create({
+      const user = await User.create({
         name,
         email,
         password,
       });
 
       // Generate token and send response
-      sendToken(createdUser, 201, res);
+      sendToken(user, 201, res);
 
       res.status(201).json({
         success: true,
