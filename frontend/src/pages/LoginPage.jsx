@@ -1,14 +1,39 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { ClipLoader } from 'react-spinners'; // Import a loading spinner
+
+import { Link, useNavigate } from 'react-router-dom';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+import axios from 'axios';
+import { server } from '../server';
+import { toast } from 'react-toastify';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Add loading state
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     // Handle form submission
+    e.preventDefault();
+    setIsLoading(true);  // Set loading to true on submit
+    await axios.post(`${server}/user/login`, {
+
+      email: email,
+      password: password
+    }).then((res) => {
+      console.log(res);
+      toast.success("Login Successful.");
+      setIsLoading(false); // Reset loading state on success
+
+      navigate("/")
+    }).catch((err) => {
+      setIsLoading(false); // Reset loading state on error
+      toast.error(err.response?.data?.message);
+
+    })
   };
 
   return (
@@ -54,8 +79,11 @@ const LoginPage = () => {
           onClick={handleSubmit}
           type='button'
           className='hover:bg-blue-400 mt-2 w-full transition-all ease-out bg-primary text-white p-2 rounded-md'
+          disabled={isLoading} // Disable button while loading
+
         >
-          Login
+          {isLoading ? <ClipLoader size={20} color="#ffffff" /> : 'Login'} // Show loading spinner
+
         </button>
       </div>
     </div>

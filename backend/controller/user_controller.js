@@ -127,22 +127,30 @@ router.post(
   "/login",
   catchAsyncError(async (req, res, next) => {
     const { email, password } = req.body;
+    // console.log(req.body);
     try {
       if (!email || !password) {
         return next(new errorHandler("Please Fill all the feilds.", 400));
       }
       const user = await User.findOne({ email }).select("+password");
       if (!user) {
+        // console.log(user);
         return next(
           new errorHandler("User does not exist. Please SignUp", 401)
         );
       }
-      const isPasswordValid = await user.conparePassword(password);
+      const isPasswordValid = await user.comparePassword(password);
       if (!isPasswordValid) {
-      return next(new errorHandler("Invalid Password", 401));
+        // console.log(isPasswordValid);
+        res.status(401).json({
+          success: false,
+          message: "Invalid password",
+        })
+        return next(new errorHandler("Invalid Password", 401));
       }
       sendToken(user, 200, res);
     } catch (error) {
+      console.log(error);
       return next(new errorHandler(error.message, 500));
     }
   })
