@@ -73,7 +73,7 @@ const Navbar = () => {
         </button>
 
         {isLogedIn ? (
-          <Link to={'/signup'}>
+          <Link to={'/dashboard'}>
             <div className='flex items-center justify-between sm:p-2 cursor-pointer'>
               <div className='m-2 rounded-full w-10 h-10 flex items-center justify-center bg-blue-100'>
                 {profilePic ? (
