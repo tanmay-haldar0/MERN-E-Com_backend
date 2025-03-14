@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ClipLoader } from 'react-spinners'; // Import a loading spinner
 
 import { Link, useNavigate } from 'react-router-dom';
@@ -14,6 +14,8 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
+  
+  
 
   const handleSubmit = async (e) => {
     // Handle form submission
@@ -23,7 +25,7 @@ const LoginPage = () => {
 
       email: email,
       password: password
-    }).then((res) => {
+    },{withCredentials:true}).then((res) => {
       console.log(res);
       toast.success("Login Successful.");
       setIsLoading(false); // Reset loading state on success
@@ -82,7 +84,7 @@ const LoginPage = () => {
           disabled={isLoading} // Disable button while loading
 
         >
-          {isLoading ? <ClipLoader size={20} color="#ffffff" /> : 'Login'} // Show loading spinner
+          {isLoading ? <ClipLoader size={20} color="#ffffff" /> : 'Login'}
 
         </button>
       </div>

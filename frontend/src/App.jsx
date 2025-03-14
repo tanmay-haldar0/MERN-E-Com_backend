@@ -1,4 +1,7 @@
 import "./App.css";
+import { useEffect } from "react";
+import axios from "axios";
+import { server } from "./server.js";
 import Navbar from "./Components/Navbar";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home.jsx";
@@ -14,6 +17,7 @@ import { ToastContainer, Bounce } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css"
 
 function App() {
+  
   return (
     <div>
       <Router>
