@@ -3,7 +3,6 @@ import path from "path";
 import User from "../model/user.js";
 import upload from "../multer.js";
 import ErrorHandler from "../utils/errorHandler.js";
-
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
@@ -17,21 +16,15 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
     const userEmail = await User.findOne({ email });
+
     if (userEmail) {
-      res.status(201).json({
-        status: "fail",
+      return res.status(400).json({
+        success: false,
         message: "User already exists",
       });
-      return next(new ErrorHandler("User already exists", 400));
     }
 
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-    };
-
-    console.log(user);
+    const user = { name, email, password };
 
     const activationToken = createActivationToken(user);
     const activationUrl = `http://localhost:5173/activation/${activationToken}`;
@@ -42,25 +35,24 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     try {
       await sendMail({
         email: user.email,
-        subject: "Activation your Account on ClassiCustom",
-        message: `Hello ${user.name}. Please click on this link to activate your account: ${activationUrl} `,
+        subject: "Activate your Account on ClassiCustom",
+        message: `Hello ${user.name}, click this link to activate your account: ${activationUrl}`,
       });
-      res.status(200).json({
+
+      return res.status(200).json({
         success: true,
-        message: `Please check your mail ${user.email} to activate your account.`,
+        message: `Check your email ${user.email} to activate your account.`,
       });
     } catch (error) {
-      return next(new errorHandler(error.message, 500));
+      return next(new ErrorHandler(error.message, 500));
     }
   } catch (error) {
-    return next(new errorHandler(error.message), 400);
+    return next(new ErrorHandler(error.message, 400));
   }
 });
 
 const createActivationToken = (user) => {
-  return jwt.sign(user, process.env.ACTIVATION_SECRET, {
-    expiresIn: "6h",
-  });
+  return jwt.sign(user, process.env.ACTIVATION_SECRET, { expiresIn: "6h" });
 };
 
 // Activate the User
@@ -70,11 +62,7 @@ router.post(
     const { activationToken } = req.body;
 
     try {
-      const decodedUser = jwt.verify(
-        activationToken,
-        process.env.ACTIVATION_SECRET
-      );
-
+      const decodedUser = jwt.verify(activationToken, process.env.ACTIVATION_SECRET);
       if (!decodedUser) {
         return next(new ErrorHandler("Invalid Token", 400));
       }
@@ -83,25 +71,15 @@ router.post(
 
       let existingUser = await User.findOne({ email });
       if (existingUser) {
-        res.status(400).json({
+        return res.status(400).json({
           success: false,
-          message: "User is already Activated",
+          message: "User is already activated",
         });
-        return next(new ErrorHandler("User already activated.", 400));
       }
 
-      const user = await User.create({
-        name,
-        email,
-        password,
-      });
+      const user = await User.create({ name, email, password });
 
-      sendToken(user, 201, res);
-
-      res.status(201).json({
-        success: true,
-        message: "Your account has been activated successfully.",
-      });
+      sendToken(user, 201, res); // Ensuring this sends only one response
     } catch (error) {
       console.error("Token verification error:", error.message);
       return res.status(400).json({
@@ -112,73 +90,66 @@ router.post(
   })
 );
 
-// Login the User
+// Login User
 router.post(
   "/login",
   catchAsyncError(async (req, res, next) => {
     const { email, password } = req.body;
-    try {
-      if (!email || !password) {
-        res.status(400).json({
-          message: "Please enter all the fields",
-          success: false,
-        });
-        return next(new ErrorHandler("Please Fill all the fields.", 400));
-      }
-      const user = await User.findOne({ email }).select("+password");
-      if (!user) {
-        res.status(404).json({
-          success: false,
-          message: "User not found. Please SignUp",
-        });
-        return next(new ErrorHandler("User does not exist. Please SignUp", 401));
-      }
-      const isPasswordValid = await user.comparePassword(password);
-      if (!isPasswordValid) {
-        res.status(401).json({
-          success: false,
-          message: "Invalid password",
-        });
-        return next(new ErrorHandler("Invalid Password", 401));
-      }
-      const userData = user._doc; // Store user data
-      delete userData.password; // Exclude password
-
-      res.status(200).json({
-        success: true,
-        user: userData, // Send user data without password
-        token: sendToken(user, 200, res) // Send token along with user data
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter all fields",
       });
-
-    } catch (error) {
-      console.log(error);
-      res.status(500).json(new ErrorHandler(error.message, 500).formatResponse());
     }
-  })
-);
 
-router.get("/get-user", isAuthenticated, catchAsyncError(async (req, res, next) => {
-  try {
-    const user = await User.findById(req.user.id).select("-password"); // Exclude password
-
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found",
+        message: "User not found. Please sign up.",
       });
     }
 
-    return res.status(200).json({
-      success: true,
-      user,
-    });
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid password",
+      });
+    }
 
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-}));
+    const userData = user.toObject();
+    delete userData.password; // Exclude password before sending response
+
+    sendToken(user, 200, res);
+  })
+);
+
+// Get Logged-In User
+router.get(
+  "/get-user",
+  isAuthenticated,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const user = await User.findById(req.user.id).select("-password"); // Exclude password
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        user,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  })
+);
 
 export default router;
