@@ -56,6 +56,7 @@ const userSchema = new mongoose.Schema({
     },
     url: {
       type: String,
+      default:""
       // required: true, 
     },
 

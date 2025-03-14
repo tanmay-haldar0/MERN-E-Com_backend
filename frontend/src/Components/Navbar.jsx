@@ -31,7 +31,10 @@ const Navbar = () => {
       }, [])
 
   const getInitials = (fullName) => {
+    if (!fullName || fullName.trim() === '') return ''; // Check if fullName is defined and not empty
     const names = fullName.split(' ');
+
+
     const firstName = names[0];
     const lastName = names.length > 1 ? names[names.length - 1] : '';
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();

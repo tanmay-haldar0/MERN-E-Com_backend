@@ -5,7 +5,15 @@ class ErrorHandler extends Error {
 
     Error.captureStackTrace(this, this.constructor);
   }
+
+  // Method to format the error response
+  formatResponse() {
+    return {
+      success: false,
+      message: this.message,
+      statusCode: this.statuscode,
+    };
+  }
 }
 
 export default ErrorHandler;
- 

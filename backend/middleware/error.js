@@ -33,8 +33,6 @@ export default (err, req, res, next) => {
     err = new errorHandler(message, 400);
   }
 
-  res.status(err.statusCode).json({
-    success: false,
-    message: err.message,
-  });
+  res.status(err.statusCode).json(err.formatResponse());
+
 };
