@@ -22,7 +22,7 @@ export const isAuthenticated = catchAsyncError(async (req, res, next) => {
 });
 
 export const isSellerAuthenticated = catchAsyncError(async (req, res, next) => {
-  const token = req.cookies.token;
+  const token = req.cookies.seller_token;
 
   if (!token) {
     return res

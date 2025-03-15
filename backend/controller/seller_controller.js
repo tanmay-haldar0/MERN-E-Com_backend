@@ -6,7 +6,7 @@ import ErrorHandler from "../utils/errorHandler.js";
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
-import sendToken from "../utils/jwtToken.js";
+import sendSellerToken from "../utils/jwtSellerToken.js";
 import {isSellerAuthenticated} from "../middleware/auth.js";
 
 const router = express.Router();
@@ -79,7 +79,7 @@ router.post(
 
       const user = await Seller.create({ name, shopName, phoneNumber, email, password});
 
-      sendToken(user, 201, res); // Ensuring this sends only one response
+      sendSellerToken(user, 201, res); // Ensuring this sends only one response
     } catch (error) {
       console.error("Token verification error:", error.message);
       return res.status(400).json({
@@ -121,7 +121,7 @@ router.post(
     const userData = user.toObject();
     delete userData.password; // Exclude password before sending response
 
-    sendToken(user, 200, res);
+    sendSellerToken(user, 200, res);
   })
 );
 
