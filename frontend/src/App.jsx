@@ -15,6 +15,9 @@ import ActivationPage from "./pages/ActivationPage.jsx";
 import { ToastContainer, Bounce } from 'react-toastify';
 
 import "react-toastify/dist/ReactToastify.css"
+import SellerSignUpPage from "./pages/SellerSignUpPage.jsx";
+import SellerActivationPage from "./pages/SellerActivationPage.jsx";
+import SellerLoginPage from "./pages/SellerLoginPage.jsx";
 
 function App() {
   
@@ -27,12 +30,18 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/seller/signup" element={<SellerSignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/seller/login" element={<SellerLoginPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/dashboard" element={<AccountPage />} />
           <Route
             path="/activation/:activation_token"
             element={<ActivationPage />}
+          />
+          <Route
+            path="seller/activation/:activation_token"
+            element={<SellerActivationPage />}
           />
         </Routes>
         <ToastContainer

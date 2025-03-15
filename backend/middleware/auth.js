@@ -3,18 +3,35 @@
 import jwt from "jsonwebtoken";
 import catchAsyncError from "./cacheAsyncError.js";
 import User from "../model/user.js";
+import Seller from "../model/seller.js";
 
-const isAuthenticated = catchAsyncError(async (req, res, next) => {
-    const token = req.cookies.token;
 
-    if(!token){
-        return res.status(401).json({error: "Please login to access this resource"});
-    }
+export const isAuthenticated = catchAsyncError(async (req, res, next) => {
+  const token = req.cookies.token;
 
-    const decodedUser = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  if (!token) {
+    return res
+      .status(401)
+      .json({ error: "Please login to access this resource" });
+  }
 
-    req.user = await User.findById(decodedUser.id);
-    next();
-})
+  const decodedUser = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-export default isAuthenticated;
+  req.user = await User.findById(decodedUser.id);
+  next();
+});
+
+export const isSellerAuthenticated = catchAsyncError(async (req, res, next) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res
+      .status(401)
+      .json({ error: "Please login to access this resource" });
+  }
+
+  const decodedUser = jwt.verify(token, process.env.JWT_SECRET_KEY);
+
+  req.user = await Seller.findById(decodedUser.id);
+  next();
+});

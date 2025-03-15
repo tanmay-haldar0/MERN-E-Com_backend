@@ -1,21 +1,21 @@
 import express from "express";
 import path from "path";
-import User from "../model/user.js";
+import Seller from "../model/seller.js";
 import upload from "../multer.js";
 import ErrorHandler from "../utils/errorHandler.js";
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
 import sendToken from "../utils/jwtToken.js";
-import {isAuthenticated} from "../middleware/auth.js";
+import {isSellerAuthenticated} from "../middleware/auth.js";
 
 const router = express.Router();
 
 // SignUp User
 router.post("/create-user", upload.single("file"), async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
-    const userEmail = await User.findOne({ email });
+    const { name, shopName, phoneNumber, email, password } = req.body;
+    const userEmail = await Seller.findOne({ email });
 
     if (userEmail) {
       return res.status(400).json({
@@ -24,10 +24,10 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
       });
     }
 
-    const user = { name, email, password };
+    const user = { name, shopName, phoneNumber, email, password};
 
     const activationToken = createActivationToken(user);
-    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+    const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
 
     console.log("Received request to activate user:", user.email);
     console.log("Activation URL generated:", activationUrl);
@@ -35,13 +35,13 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     try {
       await sendMail({
         email: user.email,
-        subject: "Activate your Account on ClassiCustom",
-        message: `Hello ${user.name}, click this link to activate your account: ${activationUrl}`,
+        subject: "Activate your Seller Account on ClassiCustom",
+        message: `Hello ${user.name}, click this link to activate your Seller account: ${activationUrl}`,
       });
 
       return res.status(200).json({
         success: true,
-        message: `Check your email ${user.email} to activate your account.`,
+        message: `Check your email ${user.email} to activate your Seller account.`,
       });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
@@ -67,9 +67,9 @@ router.post(
         return next(new ErrorHandler("Invalid Token", 400));
       }
 
-      const { name, email, password } = decodedUser;
+      const { name, shopName, phoneNumber, email, password} = decodedUser;
 
-      let existingUser = await User.findOne({ email });
+      let existingUser = await Seller.findOne({ email });
       if (existingUser) {
         return res.status(400).json({
           success: false,
@@ -77,7 +77,7 @@ router.post(
         });
       }
 
-      const user = await User.create({ name, email, password });
+      const user = await Seller.create({ name, shopName, phoneNumber, email, password});
 
       sendToken(user, 201, res); // Ensuring this sends only one response
     } catch (error) {
@@ -102,14 +102,14 @@ router.post(
       });
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await Seller.findOne({ email }).select("+password");
     if (!user) {
       return res.status(404).json({
         success: false,
         message: "User not found. Please sign up.",
       });
     }
-
+    // console.log(user)
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -117,7 +117,7 @@ router.post(
         message: "Invalid password",
       });
     }
-
+    // console.log(isPasswordValid)
     const userData = user.toObject();
     delete userData.password; // Exclude password before sending response
 
@@ -128,10 +128,10 @@ router.post(
 // Get Logged-In User
 router.get(
   "/get-user",
-  isAuthenticated,
+  isSellerAuthenticated,
   catchAsyncError(async (req, res, next) => {
     try {
-      const user = await User.findById(req.user.id).select("-password"); // Exclude password
+      const user = await Seller.findById(req.user.id).select("-password"); // Exclude password
       if (!user) {
         return res.status(404).json({
           success: false,

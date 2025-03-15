@@ -4,7 +4,11 @@ import bcrypt from "bcrypt";
 
 import jwt from "jsonwebtoken";
 
-const userSchema = new mongoose.Schema({
+const sellerSchema = new mongoose.Schema({
+  shopName: {
+    type: String,
+    required: [true, "Please enter your Shop name!"],
+  },
   name: {
     type: String,
     required: [true, "Please enter your name!"],
@@ -21,6 +25,10 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: Number,
+    required: true,
+  },
+  descriptions: {
+    type: String,
   },
   addresses: [
     {
@@ -46,7 +54,7 @@ const userSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    default: "user",
+    default: "seller",
   },
   avatar: {
     public_id: {
@@ -68,7 +76,7 @@ const userSchema = new mongoose.Schema({
 });
 
 //  Hash & salting password
-userSchema.pre("save", async function (next) {
+sellerSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
@@ -83,15 +91,15 @@ userSchema.pre("save", async function (next) {
 });
 
 // Generate JWT token
-userSchema.methods.getJwtToken = function () {
+sellerSchema.methods.getJwtToken = function () {
   return jwt.sign({ id: this._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES,
   });
 };
 
 // Compare password
-userSchema.methods.comparePassword = async function (enteredPassword) {
+sellerSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-export default mongoose.model("User", userSchema);
+export default mongoose.model("Seller", sellerSchema);

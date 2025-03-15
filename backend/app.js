@@ -4,6 +4,7 @@ import errorHandler from "./utils/errorHandler.js";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import user from "./controller/user_controller.js";
+import seller from "./controller/seller_controller.js";
 import cors from "cors"
 
 // import fileUpload from "express-fileupload";
@@ -29,6 +30,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 }
 
 app.use("/api/v2/user",user);
+app.use("/api/v2/seller",seller);
 
 // For Error Handling
 app.use((err, req, res, next) => {

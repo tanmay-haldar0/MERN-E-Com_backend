@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { loadUser } from '../redux/actions/user';
+import { loadSeller, loadUser } from '../redux/actions/user';
 
 import { ClipLoader } from 'react-spinners'; // Import a loading spinner
 
@@ -10,7 +10,7 @@ import axios from 'axios';
 import  {server}  from '../server';
 import { toast } from 'react-toastify';
 
-const LoginPage = () => {
+const SellerLoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -22,15 +22,15 @@ const LoginPage = () => {
     // Handle form submission
     e.preventDefault();
     setIsLoading(true);  // Set loading to true on submit
-    await axios.post(`${server}/user/login`, {
+    await axios.post(`${server}/seller/login`, {
       email: email,
       password: password
     }, { withCredentials: true }).then((res) => {
       console.log(res);
       toast.success("Login Successful.");
-      dispatch(loadUser()); // Dispatch loadUser action
+      dispatch(loadSeller()); // Dispatch loadUser action
       setIsLoading(false); // Reset loading state on success
-      navigate("/");
+      // navigate("/");
     }).catch((err) => {
       setIsLoading(false); // Reset loading state on error
       toast.error(err.response?.data?.message);
@@ -40,7 +40,7 @@ const LoginPage = () => {
   return (
     <div className='mt-5 flex h-screen justify-center items-center'>
       <div className='w-1/4 h-3/6 rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between'>
-        <h1 className='mt-2 text-2xl font-bold text-center'>Login</h1>
+        <h1 className='mt-2 text-2xl font-bold text-center'>Seller Login</h1>
         <div className='text-center input-box w-full p-3'>
           <input
             type='email'
@@ -89,4 +89,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SellerLoginPage;
