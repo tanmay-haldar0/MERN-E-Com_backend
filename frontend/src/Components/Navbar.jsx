@@ -81,7 +81,8 @@ const Navbar = () => {
         </button>
 
         {isAuthenticated ? (
-          <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard"}>
+          <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard"} className="hidden sm:block">
+
             <div className="flex items-center justify-between sm:p-2 cursor-pointer">
               <div className="m-2 rounded-full w-10 h-10 flex items-center justify-center bg-blue-100">
                 {profilePic ? (

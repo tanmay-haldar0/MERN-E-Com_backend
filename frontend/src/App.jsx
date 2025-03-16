@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { server } from "./server.js";
 import Navbar from "./Components/Navbar";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Cart from "./pages/Cart.jsx";
 import Shop from "./pages/Shop.jsx";
@@ -21,14 +21,24 @@ import SellerLoginPage from "./pages/SellerLoginPage.jsx";
 import { useSelector } from "react-redux";
 import { loadSeller, loadUser } from "./redux/actions/user.js";
 import store from "./redux/store.js";
+import LoadingScreen from "./Components/Loading.jsx";
 
 function App() {
-  // const {loading, isAuthenticated} = useSelector((state) => state.user);
+  const { isAuthenticated, role, loading } = useSelector((state) => ({
+    isAuthenticated: state.user.isAuthenticated || state.seller.isAuthenticated,
+    role: state.user.role || state.seller.role,
+    loading: state.user.loading || state.seller.loading, // Track loading state
+  }));
+
   useEffect(() => {
     store.dispatch(loadUser());
     store.dispatch(loadSeller());
-  },[]);
-  
+  }, []);
+
+  if (loading) {
+    return <LoadingScreen/>;
+  }
+
   return (
     <div>
       <Router>
@@ -42,16 +52,23 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/seller/login" element={<SellerLoginPage />} />
           <Route path="/product/:id" element={<ProductPage />} />
-          <Route path="/dashboard" element={<AccountPage />} />
+          
+          {/* Wait for loading to complete before checking authentication */}
           <Route
-            path="/activation/:activation_token"
-            element={<ActivationPage />}
+            path="/dashboard"
+            element={
+              isAuthenticated && role === "user" ? (
+                <AccountPage />
+              ) : (
+                <Navigate to="/seller/dashboard" />
+              )
+            }
           />
-          <Route
-            path="seller/activation/:activation_token"
-            element={<SellerActivationPage />}
-          />
+
+          <Route path="/activation/:activation_token" element={<ActivationPage />} />
+          <Route path="seller/activation/:activation_token" element={<SellerActivationPage />} />
         </Routes>
+
         <ToastContainer
           position="bottom-center"
           autoClose={5000}
