@@ -23,16 +23,16 @@ export const loadUser = () => async (dispatch) => {
 export const loadSeller = () => async (dispatch) => {
     try {
         dispatch({
-            type: "LoadUserRequest",
+            type: "LoadSellerRequest",
         });
         const {data} = await axios.get(`${server}/seller/get-user`,{withCredentials:true});
         dispatch({
-            type: "LoadUserSuccess",
+            type: "LoadSellerSuccess",
             payload: data.user,
         });
     } catch (error) {
         dispatch({
-            type: "LoadUserFail",
+            type: "LoadSellerFail",
             payload: error.response.data.message,
         });
     }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; // Import useState and useEffect
 import { useSelector } from "react-redux";
 
 import { IoCartOutline } from "react-icons/io5";
@@ -6,16 +6,32 @@ import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { Link } from "react-router-dom";
 import { MdSearch } from "react-icons/md";
 import logo from "../assets/logo.png"; // Import the logo image
-import { server } from "../server";
 import { toast } from "react-toastify";
-import axios from "axios";
 
 const Navbar = () => {
-  const { isAuthenticated, user } = useSelector((state) => state.user);
-  const name = user ? user.name : "";
-  const role = user ? user.role : "";
-  const profilePic = user && user.avatar ? user.avatar.url : "";
+  const { isAuthenticated, user, seller } = useSelector((state) => ({
+    isAuthenticated: state.user.isAuthenticated || state.seller.isAuthenticated, // ✅ Use both user and seller authentication states
+    user: state.user.user,
+    seller: state.seller.user,
+  }));
 
+  // console.log("Navbar - isAuthenticated:", isAuthenticated); // ✅ Debug log
+
+  // console.log("Seller data:", seller); // Debugging line to log seller data
+
+  const name = user ? user.name : "" || seller ? seller.name : "";
+  // const [loading, setLoading] = useState(true); // Add loading state
+
+  const role = user ? user.role : "" || seller ? seller.role : "";
+  const profilePic =
+    user && user.avatar
+      ? user.avatar.url
+      : "" || (seller && seller.avatar)
+      ? seller.avatar.url
+      : "";
+
+  // console.log(name + ", ",role + ", ",profilePic, + ", ");
+  // console.log(isAuthenticated);
   const getInitials = (fullName) => {
     if (!fullName || fullName.trim() === "") return ""; // Check if fullName is defined and not empty
     const names = fullName.split(" ");
@@ -25,7 +41,8 @@ const Navbar = () => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
 
-  return (
+
+  return  ( // Show loading state
     <div className="w-full fixed top-0 left-0 py-2 z-50 flex items-center justify-between px-5 shadow-lg bg-white">
       <div className="flex items-center justify-center h-full">
         <Link to={"/"}>
@@ -64,7 +81,7 @@ const Navbar = () => {
         </button>
 
         {isAuthenticated ? (
-          <Link to={role == "seller" ? "/seller/dashboard" : "/dashboard"}>
+          <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard"}>
             <div className="flex items-center justify-between sm:p-2 cursor-pointer">
               <div className="m-2 rounded-full w-10 h-10 flex items-center justify-center bg-blue-100">
                 {profilePic ? (
@@ -81,8 +98,12 @@ const Navbar = () => {
               </div>
               <div className="hidden sm:hidden md:flex lg:flex items-center justify-center group cursor-pointer">
                 <h3 className="text-sm font-medium text-slate-800 group-hover:text-primary">
-                  {name.split(" ")[0]} {/* Display first name */}
+                  {name.split(" ")[0]} {/* Display only the first name */}
+                  {role === "seller" && (
+                    <span className="text-xs text-gray-500"> Seller</span>
+                  )}
                 </h3>
+
                 <MdOutlineKeyboardArrowDown className="text-sm text-gray-600 group-hover:text-primary" />
               </div>
             </div>

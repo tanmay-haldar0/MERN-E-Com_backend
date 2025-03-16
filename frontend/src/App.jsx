@@ -18,8 +18,16 @@ import "react-toastify/dist/ReactToastify.css"
 import SellerSignUpPage from "./pages/SellerSignUpPage.jsx";
 import SellerActivationPage from "./pages/SellerActivationPage.jsx";
 import SellerLoginPage from "./pages/SellerLoginPage.jsx";
+import { useSelector } from "react-redux";
+import { loadSeller, loadUser } from "./redux/actions/user.js";
+import store from "./redux/store.js";
 
 function App() {
+  // const {loading, isAuthenticated} = useSelector((state) => state.user);
+  useEffect(() => {
+    store.dispatch(loadUser());
+    store.dispatch(loadSeller());
+  },[]);
   
   return (
     <div>
