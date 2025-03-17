@@ -1,11 +1,28 @@
 import React, { useState } from "react";
-import { FaUser, FaBox, FaMapMarkerAlt, FaHeart, FaHistory, FaSignOutAlt, FaEdit, FaGlobe, FaEnvelope, FaCalendar } from "react-icons/fa";
+import {
+  FaUser,
+  FaBox,
+  FaMapMarkerAlt,
+  FaHeart,
+  FaHistory,
+  FaSignOutAlt,
+  FaEdit,
+  FaGlobe,
+  FaEnvelope,
+  FaCalendar,
+} from "react-icons/fa";
 import PersonalInformation from "../Components/UserInfo";
 import TrackOrder from "../Components/TrackOrder";
-
-
+import { useSelector } from "react-redux";
+import Addresses from "../Components/UserAddress";
+import SavedDesigns from "../Components/SaveDesigns";
+import OrderHistory from "../Components/OrderHistory";
 
 const AccountDashboard = () => {
+  const { user } = useSelector((state) => ({
+    user: state.user.user,
+  }));
+
   const [activeSection, setActiveSection] = useState("Personal Information");
 
   const renderSection = () => {
@@ -19,9 +36,9 @@ const AccountDashboard = () => {
       case "Order History":
         return <OrderHistory />;
       case "Edit Account":
-        return <EditAccount />;
+        return <PersonalInformation name={user.name} email={user.email} id={user._id}  />;
       default:
-        return <PersonalInformation />;
+        return <PersonalInformation name={user.name} email={user.email} id={user._id} />;
     }
   };
 
@@ -29,16 +46,27 @@ const AccountDashboard = () => {
     <div className="max-w-7xl mx-auto p-8 mt-12 min-h-[90vh] flex flex-col md:flex-row">
       <aside className="w-full md:w-1/4 bg-white p-6 rounded-xl shadow-md">
         <div className="flex flex-col items-center">
-          <div className="w-20 h-20 bg-gray-300 rounded-full mb-3"></div>
-          <h1 className="text-xl font-bold text-gray-800">Irakli Talavadze</h1>
-          <p className="text-gray-500 text-sm">ikakodesign@gmail.com</p>
+          <div className="w-20 h-20 bg-gray-300 rounded-full mb-3">
+            <img src={user.avatar.url} alt="" className="w-full rounded-full h-full" />
+          </div>
+          <h1 className="text-xl font-bold text-gray-800">{user?.name}</h1>
+          <p className="text-gray-500 text-sm">{user?.email}</p>
         </div>
         <nav className="mt-6 space-y-4">
-          {["Personal Information", "Track Order", "Addresses", "Saved Designs", "Order History", "Edit Account"].map((item) => (
+          {[
+            "Personal Information",
+            "Track Order",
+            "Addresses",
+            "Saved Designs",
+            "Order History",
+            "Edit Account",
+          ].map((item) => (
             <button
               key={item}
               className={` w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${
-                activeSection === item ? "text-primary font-semibold" : "text-gray-500 hover:text-gray-700"
+                activeSection === item
+                  ? "text-primary font-semibold"
+                  : "text-gray-500 hover:text-gray-700"
               }`}
               onClick={() => setActiveSection(item)}
             >

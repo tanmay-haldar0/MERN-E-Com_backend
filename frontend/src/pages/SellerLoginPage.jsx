@@ -24,11 +24,11 @@ const SellerLoginPage = () => {
       email: email,
       password: password
     }, { withCredentials: true }).then((res) => {
-      console.log(res);
       toast.success("Login Successful.");
+      console.log(res);
       dispatch(loadSeller()); // Dispatch loadUser action
       setIsLoading(false); // Reset loading state on success
-      // navigate("/");
+      navigate("/seller/dashboard");
     }).catch((err) => {
       setIsLoading(false); // Reset loading state on error
       console.error("Login error:", err); // Log the error for debugging

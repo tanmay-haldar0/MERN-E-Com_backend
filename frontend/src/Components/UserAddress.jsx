@@ -8,4 +8,4 @@ const Addresses = () => (
   );
   
 
-export default UserAddress
+export default Addresses;

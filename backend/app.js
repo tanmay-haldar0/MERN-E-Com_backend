@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({
     path: "./backend/config/.env",
   });
-}
+} 
 
 app.use("/api/v2/user",user);
 app.use("/api/v2/seller",seller);

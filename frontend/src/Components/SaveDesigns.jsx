@@ -7,4 +7,4 @@ const SavedDesigns = () => (
     </div>
   );
 
-export default SaveDesigns
+export default SavedDesigns;
