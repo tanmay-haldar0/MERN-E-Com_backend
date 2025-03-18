@@ -20,16 +20,15 @@ import SavedDesigns from "../Components/SaveDesigns";
 import OrderHistory from "../Components/OrderHistory";
 
 const AccountDashboard = () => {
-  const { user } = useSelector((state) => ({
-    user: state.user.user,
+  const { seller } = useSelector((state) => ({
+    seller: state.seller.user,
   }));
 
-  const [activeSection, setActiveSection] = useState("Personal Information");
-  const [profileImage, setProfileImage] = useState(user?.avatar?.url || ""); // Current profile image
-  const [newImage, setNewImage] = useState(null); // Preview of uploaded image
+  const [profileImage, setProfileImage] = useState(seller?.avatar?.url || ""); // Current image
+  const [newImage, setNewImage] = useState(null); // Preview image before confirmation
 
-  // Function to handle image upload
-  const handleImageChange = (e) => {
+  // Handle image upload preview
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -40,17 +39,17 @@ const AccountDashboard = () => {
     }
   };
 
-  // Function to confirm image change
-  const handleUpdateImage = () => {
+  // Confirm and update the profile image
+  const handleConfirmUpload = () => {
     if (newImage) {
-      setProfileImage(newImage); // Apply new image
-      setNewImage(null); // Reset preview after update
+      setProfileImage(newImage); // Apply the new image
+      setNewImage(null); // Clear preview
     }
   };
 
-  // Function to extract initials from name
+  // Extract initials from seller name
   const getInitials = (name) => {
-    if (!name) return "U"; // Default initial
+    if (!name) return "S"; // Default initial
     const nameParts = name.split(" ");
     return nameParts
       .map((part) => part[0].toUpperCase())
@@ -70,11 +69,19 @@ const AccountDashboard = () => {
         return <OrderHistory />;
       case "Edit Account":
         return (
-          <PersonalInformation name={user.name} email={user.email} id={user._id} />
+          <PersonalInformation
+            name={user.name}
+            email={user.email}
+            id={user._id}
+          />
         );
       default:
         return (
-          <PersonalInformation name={user.name} email={user.email} id={user._id} />
+          <PersonalInformation
+            name={user.name}
+            email={user.email}
+            id={user._id}
+          />
         );
     }
   };
@@ -85,9 +92,17 @@ const AccountDashboard = () => {
         <div className="flex flex-col items-center">
           <div className="relative w-24 h-24 bg-gray-300 rounded-full mb-3 flex items-center justify-center overflow-hidden group">
             {newImage ? (
-              <img src={newImage} alt="New Profile Preview" className="w-full h-full rounded-full object-cover border-2 border-blue-500" />
+              <img
+                src={newImage}
+                alt="New Profile Preview"
+                className="w-full h-full rounded-full object-cover border-2 border-blue-500"
+              />
             ) : profileImage ? (
-              <img src={profileImage} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              <img
+                src={profileImage}
+                alt="Profile"
+                className="w-full h-full rounded-full object-cover"
+              />
             ) : (
               <span className="text-2xl font-semibold text-gray-700">
                 {getInitials(user?.name)}

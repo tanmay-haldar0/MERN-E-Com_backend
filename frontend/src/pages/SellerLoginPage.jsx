@@ -25,7 +25,7 @@ const SellerLoginPage = () => {
       password: password
     }, { withCredentials: true }).then((res) => {
       toast.success("Login Successful.");
-      console.log(res);
+      // console.log(res);
       dispatch(loadSeller()); // Dispatch loadUser action
       setIsLoading(false); // Reset loading state on success
       navigate("/seller/dashboard");

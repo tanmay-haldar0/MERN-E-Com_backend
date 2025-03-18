@@ -16,6 +16,7 @@ import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import AccountPage from "./pages/AccountPage.jsx";
+import SellerAccountPage from "./pages/SellerAccountPage.jsx";
 import ActivationPage from "./pages/ActivationPage.jsx";
 import { ToastContainer, Bounce, toast } from "react-toastify";
 
@@ -125,6 +126,20 @@ function App() {
                 )
               ) : (
                 <RedirectWithToast message="You are not logged in." to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/seller/dashboard"
+            element={
+              isAuthenticated ? (
+                role === "seller" ? (
+                  <SellerAccountPage />
+                ) : (
+                  <Navigate to="/dashboard" />
+                )
+              ) : (
+                <RedirectWithToast message="You are not logged in." to="/seller/login" />
               )
             }
           />
