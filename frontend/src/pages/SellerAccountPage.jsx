@@ -95,7 +95,8 @@ const SellerAccountPage = () => {
           )}
         </div>
 
-        <h2 className="text-xl font-semibold text-gray-800 mt-4 text-center">{seller?.name || "Seller Name"}</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mt-4 text-center">{seller?.shopName || "Seller Name"}</h2>
+        <h5 className="text-sm  text-gray-400 text-center">{seller?.name || "Seller Name"}</h5>
         <nav className="mt-6 space-y-4">
           {["Dashboard", "Add Product", "All Products", "Orders", "Analytics", "Profile Settings"].map((item) => (
             <button
