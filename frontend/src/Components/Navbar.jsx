@@ -46,7 +46,7 @@ const Navbar = () => {
       <div className="w-auto h-10 flex sm:flex md:flex items-center justify-center">
         {isAuthenticated && role === "seller" ? (
           <div className="flex gap-4">
-            <Link to="/seller/add-product" className="flex flex-col items-center text-gray-700 hover:text-primary">
+            <Link to="/seller/create-product" className="flex flex-col items-center text-gray-700 hover:text-primary">
               <MdAddBusiness className="text-2xl text-slate-500 hover:scale-110 transition-transform" />
               <span className="text-[11px] text-slate-500">Create</span>
             </Link>

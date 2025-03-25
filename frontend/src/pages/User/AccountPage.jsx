@@ -12,12 +12,12 @@ import {
   FaCalendar,
   FaCamera,
 } from "react-icons/fa";
-import PersonalInformation from "../Components/UserInfo";
-import TrackOrder from "../Components/TrackOrder";
+import PersonalInformation from "../../Components/UserInfo";
+import TrackOrder from "../../Components/TrackOrder";
 import { useSelector } from "react-redux";
-import Addresses from "../Components/UserAddress";
-import SavedDesigns from "../Components/SaveDesigns";
-import OrderHistory from "../Components/OrderHistory";
+import Addresses from "../../Components/UserAddress";
+import SavedDesigns from "../../Components/SaveDesigns";
+import OrderHistory from "../../Components/OrderHistory";
 
 const AccountDashboard = () => {
   const { seller } = useSelector((state) => ({

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { loadUser } from '../redux/actions/user';
+import { loadUser } from '../../redux/actions/user';
 
 import { ClipLoader } from 'react-spinners'; // Import a loading spinner
 
 import { Link, useNavigate } from 'react-router-dom';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import axios from 'axios';
-import  {server}  from '../server';
+import  {server}  from '../../server';
 import { toast } from 'react-toastify';
 
 const LoginPage = () => {

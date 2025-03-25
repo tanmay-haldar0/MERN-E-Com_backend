@@ -12,22 +12,24 @@ import {
 import Home from "./pages/Home.jsx";
 import Cart from "./pages/Cart.jsx";
 import Shop from "./pages/Shop.jsx";
-import SignUpPage from "./pages/SignUpPage.jsx";
-import LoginPage from "./pages/LoginPage.jsx";
+import SignUpPage from "./pages/User/SignUpPage.jsx";
+import LoginPage from "./pages/User/LoginPage.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
-import AccountPage from "./pages/AccountPage.jsx";
-import SellerAccountPage from "./pages/SellerAccountPage.jsx";
-import ActivationPage from "./pages/ActivationPage.jsx";
+import AccountPage from "./pages/User/AccountPage.jsx";
+// import SellerAccountPage from "./pages/Seller/SellerAccountPage.jsx";
+import ActivationPage from "./pages/User/ActivationPage.jsx";
 import { ToastContainer, Bounce, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
-import SellerSignUpPage from "./pages/SellerSignUpPage.jsx";
-import SellerActivationPage from "./pages/SellerActivationPage.jsx";
-import SellerLoginPage from "./pages/SellerLoginPage.jsx";
+import SellerSignUpPage from "./pages/Seller/SellerSignUpPage.jsx";
+import SellerActivationPage from "./pages/Seller/SellerActivationPage.jsx";
+import SellerLoginPage from "./pages/Seller/SellerLoginPage.jsx";
 import { useSelector } from "react-redux";
 import { loadSeller, loadUser } from "./redux/actions/user.js";
 import store from "./redux/store.js";
 import LoadingScreen from "./Components/Loading.jsx";
+import SellerDashboard from "./pages/Seller/SellerDashboard.jsx";
+import CreateProduct from "./pages/Seller/CreateProduct.jsx";
 
 function RedirectWithToast({ message, to }) {
   useEffect(() => {
@@ -84,6 +86,19 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route
+            path="/seller"
+            element={
+              isAuthenticated ? (
+                role === "seller" ? (
+                  <Navigate to="/seller/dashboard" />
+                ) : (
+                  <RedirectWithToast message="You are not a seller." to="/" />
+                )
+              ) : (
+                <Navigate to="/seller/login" />
+              )
+            }/>
           <Route path="/seller/signup" element={<SellerSignUpPage />} />
           <Route
             path="/login"
@@ -106,7 +121,8 @@ function App() {
                 role === "user" ? (
                   <RedirectWithToast message="You are already logged in." to="/" />
                 ) : (
-                  <Navigate to="/seller/login" />
+                  <RedirectWithToast message="You are already logged in." to="/seller/dashboard"/>
+                  
                 )
               ) : (
                 <SellerLoginPage />
@@ -134,7 +150,7 @@ function App() {
             element={
               isAuthenticated ? (
                 role === "seller" ? (
-                  <SellerAccountPage />
+                  <SellerDashboard />
                 ) : (
                   <Navigate to="/dashboard" />
                 )
@@ -146,6 +162,7 @@ function App() {
 
           <Route path="/activation/:activation_token" element={<ActivationPage />} />
           <Route path="/seller/activation/:activation_token" element={<SellerActivationPage />} />
+          <Route path="/seller/create-product" element={<CreateProduct />} />
         </Routes>
       </Router>
     </div>
