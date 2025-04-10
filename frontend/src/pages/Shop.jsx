@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from '../Components/ProductCard';
+import Footer from "../Components/Footer.jsx"
 
 const Shop = () => {
   const products = [
@@ -218,6 +219,7 @@ const Shop = () => {
   const categories = ['All', 'Pizza', 'Burger', 'Appetizer', 'Salad', 'Beverage', 'Desserts', 'Drinks', 'Snacks'];
 
   return (
+    <>
     <div className='max-w-[1200px] mx-auto p-4 rounded-lg'>
       <h1 className='text-3xl font-semibold text-gray-800 mb-8 text-center'>Our Menu</h1>
       <div className='flex flex-col md:flex-row gap-6'>
@@ -293,6 +295,8 @@ const Shop = () => {
         </div>
       </div>
     </div>
+      <Footer/>
+      </>
   );
 };
 

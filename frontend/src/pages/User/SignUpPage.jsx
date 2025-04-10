@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server.js";
 import { toast } from "react-toastify";
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook, FaApple } from "react-icons/fa";
 
 function SignUpPage() {
   const [name, setName] = useState("");
@@ -14,12 +15,13 @@ function SignUpPage() {
   const [image, setImage] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setPasswordError(""); // Reset password error message
+    setPasswordError("");
+
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters long.");
       return;
@@ -28,42 +30,38 @@ function SignUpPage() {
       setPasswordError("Password must contain at least one special character.");
       return;
     }
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
 
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
     const newForm = new FormData();
     newForm.append("name", name);
     newForm.append("email", email);
     newForm.append("password", password);
-    if (image) {
-      newForm.append("file", image);
+    if (image) newForm.append("file", image);
+
+    try {
+      const res = await axios.post(`${server}/user/create-user/`, newForm, config);
+      if (res.data.message !== "User already exists") {
+        toast.success(res.data.message);
+        navigate("/login");
+      } else {
+        setErrorMessage(res.data.message);
+        toast.error(res.data.message);
+      }
+    } catch (err) {
+      toast.error("Something went wrong. Please try again.");
+      console.log(err);
     }
-    await axios
-      .post(`${server}/user/create-user/`, newForm, config)
-      .then((res) => {
-        // console.log(res.data.message);
 
-        if (res.data.message != "User already exists") {
-          toast.success(res.data.message);
-          navigate("/login");
-        } else {
-          setErrorMessage(res.data.message);
-          toast.error(res.data.message);
-        }
-
-        setName("");
-        setEmail("");
-        setPassword("");
-      })
-      .catch((err) => {
-        toast.error(err);
-        console.log(err);
-      });
+    setName("");
+    setEmail("");
+    setPassword("");
   };
 
   return (
     <div className="mt-5 flex h-screen justify-center items-center">
-      <div className="w-1/4  rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between">
+      <div className="w-1/4 rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between">
         <h1 className="mt-2 text-2xl font-bold text-center">SignUp</h1>
+
         <div className="text-center input-box w-full p-3">
           <input
             type="text"
@@ -97,7 +95,7 @@ function SignUpPage() {
               {isPasswordVisible ? (
                 <AiFillEyeInvisible size={20} className="text-primary" />
               ) : (
-                <AiFillEye size={20} className="text-slate-600"/>
+                <AiFillEye size={20} className="text-slate-600" />
               )}
             </span>
           </div>
@@ -113,23 +111,15 @@ function SignUpPage() {
           />
 
           {password !== confirmPassword ? (
-            <p className="mt-2 text-left text-xs text-red-500">
-              Password didn't match
-            </p>
+            <p className="mt-2 text-left text-xs text-red-500">Password didn't match</p>
           ) : (
             passwordError && (
-              <p className="mt-2 text-left text-xs text-red-500">
-                {passwordError}
-              </p>
+              <p className="mt-2 text-left text-xs text-red-500">{passwordError}</p>
             )
           )}
 
-          {errorMessage ? (
-            <p className="mt-2 text-left text-xs text-red-500">
-              {errorMessage}
-            </p>
-          ) : (
-            ""
+          {errorMessage && (
+            <p className="mt-2 text-left text-xs text-red-500">{errorMessage}</p>
           )}
 
           <p className="mt-4 text-center text-sm text-slate-500">
@@ -139,14 +129,6 @@ function SignUpPage() {
             </Link>
           </p>
         </div>
-        <div className="w-full mb-8 h-12">
-          {/* <div className="flex items-center">
-            {imagePreview && <img src={imagePreview} alt="Image Preview" className="mt-3 w-16 h-16 rounded-md mr-2" />}
-            <input type="file" accept="image/*" onChange={handleImageChange} className="mt-3 text-xs" />
-          </div> */}
-
-          {/* Social Logins */}
-        </div>
         <form onSubmit={handleSubmit} className="w-full">
           <button
             type="submit"
@@ -155,6 +137,41 @@ function SignUpPage() {
             SignUp
           </button>
         </form>
+
+        {/* Social Logins */}
+        <div className="w-full mt-2">
+          <div className="flex items-center justify-center mb-2">
+            <div className="h-px w-1/3 bg-gray-300"></div>
+            <span className="text-xs text-gray-500"> or sign up with </span>
+            <div className="h-px w-1/3 bg-gray-300"></div>
+          </div>
+
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => toast.info("Google sign-up not implemented yet.")}
+              type="button"
+              className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
+            >
+              <FcGoogle size={24} />
+            </button>
+            <button
+              onClick={() => toast.info("Facebook sign-up not implemented yet.")}
+              type="button"
+              className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
+            >
+              <FaFacebook size={24} color="#1877f2" />
+            </button>
+            <button
+              onClick={() => toast.info("Apple sign-up not implemented yet.")}
+              type="button"
+              className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
+            >
+              <FaApple size={24} className="text-black" />
+            </button>
+          </div>
+        </div>
+
+        
       </div>
     </div>
   );

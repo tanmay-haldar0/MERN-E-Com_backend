@@ -121,7 +121,7 @@ const CreateProduct = () => {
       if (indexToRemove === -1) return prevData;
 
       // Filter out the file at the same index
-      const newFiles = prevData.images.filter(
+      const newFiles = prevData.images.filter( 
         (_, index) => index !== indexToRemove
       );
 
