@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import Cookies from "js-cookie"; // Import Cookies library
 import {
@@ -12,12 +12,17 @@ import {
   FaCamera,
   FaBars,
 } from "react-icons/fa";
+import { server } from "../server";
+import { loadSeller } from "../redux/actions/user";
+import { toast } from "react-toastify";
 
 const SideNav = () => {
   const { seller, orders } = useSelector((state) => ({
     seller: state.seller.user,
     orders: state.orders?.list || [],
   }));
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const [profileImage, setProfileImage] = useState(seller?.avatar?.url || "");
@@ -55,9 +60,30 @@ const SideNav = () => {
     navigate(path);
   };
 
-  const handleSignOut = () => {
-    
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(`${server}/seller/logout`, {
+        method: "GET",
+        credentials: "include", // VERY IMPORTANT: to send cookies
+      });
+  
+      const data = await res.json();
+  
+      if (data.success) {
+        // Optional: redirect to login or home
+        toast.success("Logged Out Successfully");
+        // console.log("Logged out:", data.message);
+        navigate("/seller");
+        dispatch(loadSeller());
+      } else {
+        toast.error("Logout failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
+  
 
   return (
     <div className="fixed min-h-screen mt-16">
@@ -128,7 +154,7 @@ const SideNav = () => {
 
         {/* Sign Out Button */}
         <button
-          onClick={handleSignOut}
+          onClick={handleLogout}
           className="mt-6 w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-md flex items-center justify-center space-x-2"
         >
           <FaSignOutAlt />

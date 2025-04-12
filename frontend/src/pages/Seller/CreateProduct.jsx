@@ -52,7 +52,17 @@ const CreateProduct = () => {
     if (error) toast.error(error);
     if (success) {
       toast.success("Product Created Successfully.");
-      navigate("/dashboard");
+
+      if (window.confirm("Product created! Do you want to add another one?")) {
+        // just reset form
+        setProductData({ ...initialData });
+        setImagePreviews([]);
+        setTagInput("");
+        dispatch(resetProductState());
+      } else {
+        dispatch(resetProductState());
+        navigate("/dashboard");
+      }
     }
   }, [dispatch, success, error, navigate]);
 
@@ -184,7 +194,7 @@ const CreateProduct = () => {
     dispatch(createProduct(newForm));
   };
 
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleImageChange,
     accept: {
       "image/jpeg": [],
@@ -199,6 +209,7 @@ const CreateProduct = () => {
     },
     multiple: true,
   });
+
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -371,17 +382,32 @@ const CreateProduct = () => {
             <label className="block text-gray-700 font-semibold">
               Product Images
             </label>
+
+            {/* Upload Dropzone with Hover + Drag Effect */}
             <div
               {...getRootProps()}
-              className="w-full mt-4 p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer text-center"
+              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out
+      ${isDragActive
+                  ? "border-blue-500 bg-blue-50 shadow-lg"
+                  : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+                }`}
             >
               <input {...getInputProps()} />
-              <FaCloudUploadAlt className="mx-auto text-4xl text-gray-500" />
-              <p className="mt-2 text-gray-600">
-                Drag and drop images here, or click to select
+              <FaCloudUploadAlt
+                className={`mx-auto text-4xl transition-colors duration-300 ${isDragActive ? "text-blue-500" : "text-gray-500 group-hover:text-blue-500"
+                  }`}
+              />
+              <p
+                className={`mt-2 text-gray-600 transition-colors duration-300 ${isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
+                  }`}
+              >
+                {isDragActive
+                  ? "Drop the files here..."
+                  : "Drag and drop images here, or click to select"}
               </p>
             </div>
 
+            {/* Image Previews */}
             <div className="flex flex-wrap gap-4 mt-4">
               {imagePreviews.map((image) => (
                 <SortableImage
@@ -392,11 +418,12 @@ const CreateProduct = () => {
               ))}
             </div>
 
+            {/* Clear All Button */}
             {imagePreviews.length > 0 && (
               <button
                 type="button"
                 onClick={handleClearAllImages}
-                className="mt-4 text-xs px-3 py-1 bg-red-500 text-white rounded-full"
+                className="mt-4 text-xs px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-all"
               >
                 Clear All Images
               </button>

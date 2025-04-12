@@ -152,4 +152,24 @@ router.get(
   })
 );
 
+// Logout User
+router.get(
+  "/logout",
+  isAuthenticated,
+  catchAsyncError(async (req, res, next) => {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  })
+);
+
+
 export default router;

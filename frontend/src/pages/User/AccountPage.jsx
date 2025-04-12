@@ -11,15 +11,22 @@ import {
 } from "react-icons/fa";
 import PersonalInformation from "../../Components/UserInfo";
 import TrackOrder from "../../Components/TrackOrder";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Addresses from "../../Components/UserAddress";
 import SavedDesigns from "../../Components/SaveDesigns";
 import OrderHistory from "../../Components/OrderHistory";
+import { server } from "../../server";
+import { useNavigate } from "react-router-dom";
+import { loadUser } from "../../redux/actions/user";
+import { toast } from "react-toastify";
 
 const AccountDashboard = () => {
   const { user } = useSelector((state) => ({
     user: state.user.user,
   }));
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [activeSection, setActiveSection] = useState("Personal Information"); // Fix
   const [profileImage, setProfileImage] = useState(user?.avatar?.url || "");
@@ -34,6 +41,30 @@ const AccountDashboard = () => {
         setNewImage(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  //Logout
+  const handleLogout = async () => {
+    try {
+      const res = await fetch(`${server}/user/logout`, {
+        method: "GET",
+        credentials: "include", // VERY IMPORTANT: to send cookies
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Optional: redirect to login or home
+        // console.log("Logged out:", data.message);
+        toast.success("Logged Out Successfull");
+        navigate("/login");
+        dispatch(loadUser());
+      } else {
+        toast.error("Logout failed:", data.message);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
     }
   };
 
@@ -112,9 +143,8 @@ const AccountDashboard = () => {
           ].map((item) => (
             <button
               key={item}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${
-                activeSection === item ? "text-primary font-semibold" : "text-gray-500 hover:text-gray-700"
-              }`}
+              className={`w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${activeSection === item ? "text-primary font-semibold" : "text-gray-500 hover:text-gray-700"
+                }`}
               onClick={() => setActiveSection(item)}
             >
               {item === "Personal Information" && <FaUser />}
@@ -128,7 +158,9 @@ const AccountDashboard = () => {
           ))}
         </nav>
 
-        <button className="mt-6 w-full bg-primary hover:bg-orange-600 text-white py-2 rounded-md flex items-center justify-center space-x-2">
+        <button className="mt-6 w-full bg-primary hover:bg-orange-600 text-white py-2 rounded-md flex items-center justify-center space-x-2"
+          onClick={handleLogout}
+        >
           <FaSignOutAlt /> <span>Sign Out</span>
         </button>
       </aside>

@@ -1,43 +1,57 @@
 import express from "express";
 import dotenv from "dotenv";
-import errorHandler from "./utils/errorHandler.js";
+import path from "path";
+import { fileURLToPath } from "url";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
+import cors from "cors";
+
+import errorHandler from "./utils/errorHandler.js";
 import user from "./controller/user_controller.js";
 import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
-import cors from "cors"
-
-// import fileUpload from "express-fileupload";
 
 const app = express();
- 
 
+// Set __dirname in ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use("/", express.static("uploads"))
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: "http://localhost:5173",
-  credentials: true,
-}));
-// app.use(fileUpload({useTempFiles: true}))
-
+// Load environment variables
 if (process.env.NODE_ENV !== "PRODUCTION") {
   dotenv.config({
     path: "./backend/config/.env",
   });
-} 
+}
 
-app.use("/api/v2/user",user);
-app.use("/api/v2/seller",seller);
-app.use("/api/v2/product",product);
- 
-// For Error Handling
+// Middlewares
+app.use(express.json());
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// CORS
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend
+    credentials: true,
+  })
+);
+
+// Static file serving for uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// Routes
+app.use("/api/v2/user", user);
+app.use("/api/v2/seller", seller);
+app.use("/api/v2/product", product);
+
+// Global Error Handler
 app.use((err, req, res, next) => {
-  const handler = new errorHandler(err.message, err.statusCode);
-  // Handle the error response here
+  const handler = new errorHandler(err.message || "Server Error", err.statusCode || 500);
+  res.status(handler.statusCode).json({
+    success: false,
+    message: handler.message,
+  });
 });
 
-export default app; 
+export default app;
