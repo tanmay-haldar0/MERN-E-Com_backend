@@ -1,35 +1,18 @@
-import PropTypes from "prop-types"; // Optional but recommended
+import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import SideNav from "../../Components/SideNav";
 import { FaCloudUploadAlt, FaTrash } from "react-icons/fa";
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { v4 as uuidv4 } from "uuid";
+import { useDropzone } from "react-dropzone";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { createProduct } from "../../redux/actions/product";
 
 // Sortable Image Component
 const SortableImage = ({ image, onRemove }) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: image.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className="relative group cursor-grab"
-    >
+    <div className="relative group cursor-grab">
       <img
         src={image.preview}
         alt="Preview"
@@ -39,7 +22,7 @@ const SortableImage = ({ image, onRemove }) => {
         type="button"
         className="absolute -top-2 -right-2 bg-red-500 text-white w-6 h-6 items-center justify-center rounded-full text-sm hidden group-hover:flex transition-all"
         onClick={(e) => {
-          e.stopPropagation(); // Prevent triggering drag when clicking delete
+          e.stopPropagation();
           onRemove(image.id);
         }}
       >
@@ -49,7 +32,6 @@ const SortableImage = ({ image, onRemove }) => {
   );
 };
 
-// PropTypes for SortableImage (optional but recommended)
 SortableImage.propTypes = {
   image: PropTypes.shape({
     id: PropTypes.string.isRequired,
@@ -58,19 +40,37 @@ SortableImage.propTypes = {
   onRemove: PropTypes.func.isRequired,
 };
 
+const category = ["mobile", "laptop", "camera", "watch", "headphone"];
+
 const CreateProduct = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const seller = useSelector((state) => state.seller.user);
+  const { success, error } = useSelector((state) => state.product);
+
+  useEffect(() => {
+    if (error) toast.error(error);
+    if (success) {
+      toast.success("Product Created Successfully.");
+      navigate("/dashboard");
+    }
+  }, [dispatch, success, error, navigate]);
+
   const [productData, setProductData] = useState({
     name: "",
     price: "",
+    salePrice: "",
     description: "",
     stock: "",
     category: "",
     images: [],
+    tags: [],
+    isCustomizable: false,
   });
 
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [tagInput, setTagInput] = useState("");
 
-  // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
       imagePreviews.forEach((img) => URL.revokeObjectURL(img.preview));
@@ -78,93 +78,127 @@ const CreateProduct = () => {
   }, [imagePreviews]);
 
   const handleChange = (e) => {
-    setProductData({ ...productData, [e.target.name]: e.target.value });
+    const { name, value, type, checked } = e.target;
+    setProductData({
+      ...productData,
+      [name]: type === "checkbox" ? checked : value,
+    });
   };
 
-  // Handle Image Upload
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+  const handleImageChange = (acceptedFiles) => {
+    const validImages = acceptedFiles.filter((file) =>
+      file.type.startsWith("image/")
+    );
 
-    const newImages = files.map((file) => ({
-      id: uuidv4(),
-      file,
-      preview: URL.createObjectURL(file),
-    }));
+    const newImages = validImages.map((file) => {
+      const previewUrl = URL.createObjectURL(file);
+      return {
+        id: uuidv4(),
+        file,
+        preview: previewUrl,
+      };
+    });
 
     setImagePreviews((prev) => [...prev, ...newImages]);
+
     setProductData((prev) => ({
       ...prev,
-      images: [...prev.images, ...files], // Store just the File objects
+      images: [...prev.images, ...validImages],
     }));
   };
 
-  // Remove single image
   const handleRemoveImage = (id) => {
     setImagePreviews((prevPreviews) => {
-      // Find the image to remove
       const imageToRemove = prevPreviews.find((img) => img.id === id);
       if (!imageToRemove) return prevPreviews;
 
-      // Revoke the object URL
       URL.revokeObjectURL(imageToRemove.preview);
 
-      // Filter out the image
-      return prevPreviews.filter((img) => img.id !== id);
-    });
+      const newPreviews = prevPreviews.filter((img) => img.id !== id);
 
-    setProductData((prevData) => {
-      // Find the corresponding file by matching the previews
-      const currentPreviews = imagePreviews;
-      const indexToRemove = currentPreviews.findIndex((img) => img.id === id);
+      setProductData((prevData) => {
+        const newFiles = prevData.images.filter(
+          (_, index) => index !== prevPreviews.findIndex((img) => img.id === id)
+        );
+        return {
+          ...prevData,
+          images: newFiles,
+        };
+      });
 
-      if (indexToRemove === -1) return prevData;
-
-      // Filter out the file at the same index
-      const newFiles = prevData.images.filter( 
-        (_, index) => index !== indexToRemove
-      );
-
-      return {
-        ...prevData,
-        images: newFiles,
-      };
+      return newPreviews;
     });
   };
 
-  // Clear all images
   const handleClearAllImages = () => {
-    // Revoke all object URLs
     imagePreviews.forEach((img) => URL.revokeObjectURL(img.preview));
-
     setImagePreviews([]);
     setProductData((prev) => ({ ...prev, images: [] }));
   };
 
-  // Handle Drag & Drop Sorting
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = imagePreviews.findIndex((img) => img.id === active.id);
-    const newIndex = imagePreviews.findIndex((img) => img.id === over.id);
-
-    if (oldIndex === newIndex) return;
-
-    // Reorder both previews and files arrays
-    const newPreviews = arrayMove(imagePreviews, oldIndex, newIndex);
-    const newFiles = arrayMove(productData.images, oldIndex, newIndex);
-
-    setImagePreviews(newPreviews);
-    setProductData((prev) => ({ ...prev, images: newFiles }));
+  const handleTagInput = (e) => {
+    if (
+      e.key === "Enter" &&
+      tagInput.trim() !== "" &&
+      productData.tags.length < 15
+    ) {
+      e.preventDefault();
+      if (!productData.tags.includes(tagInput.trim())) {
+        setProductData({
+          ...productData,
+          tags: [...productData.tags, tagInput.trim()],
+        });
+      }
+      setTagInput("");
+    }
   };
 
+  const removeTag = (tagToRemove) => {
+    setProductData({
+      ...productData,
+      tags: productData.tags.filter((tag) => tag !== tagToRemove),
+    });
+  };
+
+  const clearAllTags = () => {
+    setProductData({ ...productData, tags: [] });
+  };
+
+  // console.log(seller);
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Product Data Submitted:", productData);
-    // Here you would typically send the data to your backend
-    // Don't forget to revoke URLs after upload if needed
+
+    const newForm = new FormData();
+    productData.images.forEach((image) => newForm.append("images", image));
+    newForm.append("name", productData.name);
+    newForm.append("price", productData.price);
+    newForm.append("salePrice", productData.salePrice);
+    newForm.append("description", productData.description);
+    newForm.append("stock", productData.stock);
+    newForm.append("category", productData.category);
+    newForm.append("isCustomizable", productData.isCustomizable);
+    newForm.append("shopId", seller._id);
+    productData.tags.forEach((tag) => newForm.append("tags", tag));
+
+    // Dispatch product creation here, e.g.:
+    dispatch(createProduct(newForm));
   };
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop: handleImageChange,
+    accept: {
+      "image/jpeg": [],
+      "image/jpg": [],
+      "image/png": [],
+      "image/webp": [],
+    },
+    onDropRejected: (fileRejections) => {
+      fileRejections.forEach((rejection) => {
+        toast.error(`Skipped "${rejection.file.name}": Invalid file type.`);
+      });
+    },
+    multiple: true,
+  });
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -189,9 +223,29 @@ const CreateProduct = () => {
                 name="name"
                 value={productData.name}
                 onChange={handleChange}
-                className="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold">
+                Product Category
+              </label>
+              <select
+                name="category"
+                value={productData.category}
+                onChange={handleChange}
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
+                required
+              >
+                <option value="">-- Select a Category --</option>
+                {category.map((cat, index) => (
+                  <option key={index} value={cat}>
+                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
@@ -203,68 +257,160 @@ const CreateProduct = () => {
                 name="price"
                 value={productData.price}
                 onChange={handleChange}
-                className="w-full p-3 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
                 required
               />
             </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold">
+                Sale Price ($)
+              </label>
+              <input
+                type="number"
+                name="salePrice"
+                value={productData.salePrice}
+                onChange={handleChange}
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold">Stock</label>
+              <input
+                type="number"
+                name="stock"
+                value={productData.stock}
+                onChange={handleChange}
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold">Tags</label>
+              <input
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagInput}
+                placeholder="Type and press Enter"
+                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
+                disabled={productData.tags.length >= 15}
+              />
+              <div className="flex flex-wrap mt-2 gap-2">
+                {productData.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm flex items-center gap-2"
+                  >
+                    {tag}
+                    <button
+                      type="button"
+                      onClick={() => removeTag(tag)}
+                      className="text-blue-500 hover:text-red-500"
+                    >
+                      &times;
+                    </button>
+                  </span>
+                ))}
+              </div>
+              {productData.tags.length >= 15 && (
+                <p className="text-xs text-red-500 mt-2">
+                  Tag limit reached (15 max)
+                </p>
+              )}
+              {productData.tags.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearAllTags}
+                  className="mt-4 text-xs px-3 py-1 bg-red-500 text-white rounded-full"
+                >
+                  Clear All Tags
+                </button>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold">
+                &nbsp;
+              </label>
+              <label className="inline-flex items-center mt-2">
+                <span className="relative">
+                  <input
+                    type="checkbox"
+                    name="isCustomizable"
+                    checked={productData.isCustomizable}
+                    onChange={handleChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-12 h-6 bg-gray-300 rounded-full peer-checked:bg-blue-500 transition-all duration-300"></div>
+                  <div className="absolute left-0 top-0 w-6 h-6 bg-white border rounded-full shadow peer-checked:translate-x-full transition-all duration-300"></div>
+                </span>
+                <span className="ml-3 text-gray-600">Enable Customization</span>
+              </label>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <label className="block text-gray-700 font-semibold">
+              Product Description
+            </label>
+            <textarea
+              name="description"
+              value={productData.description}
+              onChange={handleChange}
+              className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
+              rows="4"
+              required
+            ></textarea>
           </div>
 
           <div className="mt-6">
             <label className="block text-gray-700 font-semibold">
               Product Images
             </label>
-            <div className="mt-2 border-dashed border-2 border-gray-300 p-6 text-center bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition relative">
+            <div
+              {...getRootProps()}
+              className="w-full mt-4 p-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer text-center"
+            >
+              <input {...getInputProps()} />
               <FaCloudUploadAlt className="mx-auto text-4xl text-gray-500" />
-              <p className="text-gray-600 mt-2">Click or Drag & Drop Images</p>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="absolute inset-0 opacity-0 cursor-pointer"
-              />
+              <p className="mt-2 text-gray-600">
+                Drag and drop images here, or click to select
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-4 mt-4">
+              {imagePreviews.map((image) => (
+                <SortableImage
+                  key={image.id}
+                  image={image}
+                  onRemove={handleRemoveImage}
+                />
+              ))}
             </div>
 
             {imagePreviews.length > 0 && (
-              <div className="mt-4">
-                <DndContext
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
-                  <SortableContext
-                    items={imagePreviews.map((img) => img.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {imagePreviews.map((img) => (
-                        <SortableImage
-                          key={img.id}
-                          image={img}
-                          onRemove={handleRemoveImage}
-                        />
-                      ))}
-                    </div>
-                  </SortableContext>
-                </DndContext>
-
-                {/* 🚀 Added "Clear All" Button */}
-                <button
-                  type="button"
-                  className="mt-4 bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 transition"
-                  onClick={handleClearAllImages}
-                >
-                  🗑️ Clear All Images
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleClearAllImages}
+                className="mt-4 text-xs px-3 py-1 bg-red-500 text-white rounded-full"
+              >
+                Clear All Images
+              </button>
             )}
           </div>
 
-          <button
-            type="submit"
-            className="mt-6 w-full bg-blue-500 text-white py-3 rounded-lg shadow-md hover:bg-blue-600 transition"
-          >
-            🚀 Add Product
-          </button>
+          <div className="mt-8 text-center">
+            <button
+              type="submit"
+              className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all"
+            >
+              Save Product
+            </button>
+          </div>
         </form>
       </div>
     </div>
