@@ -48,19 +48,7 @@ const CreateProduct = () => {
   const seller = useSelector((state) => state.seller.user);
   const { success, error } = useSelector((state) => state.product);
 
-  useEffect(() => {
-    // Reset success flag when the component is loaded again
-    dispatch({ type: "resetProductCreate" });
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (error) toast.error(error);
-    if (success) {
-      toast.success("Product Created Successfully.");
-      dispatch({ type: "resetProductCreate" });
-      navigate("/dashboard"); // no need for reload
-    }
-  }, [dispatch, success, error, navigate]);
+  
 
 
   const [productData, setProductData] = useState({
@@ -197,6 +185,20 @@ const CreateProduct = () => {
     dispatch(createProduct(newForm));
   };
 
+  useEffect(() => {
+    // Reset success flag when the component is loaded again
+    dispatch({ type: "resetProductCreate" });
+  
+    if (error) toast.error(error);
+  
+    if (success) {
+      toast.success("Product Created Successfully.");
+      // Reset success state after showing the toast to prevent it from triggering again
+      dispatch({ type: "resetProductCreate" });
+      navigate("/seller/all-products"); // Uncomment if needed for redirection after success
+    }
+  }, [dispatch, success, error, navigate]);
+  
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleImageChange,
     accept: {

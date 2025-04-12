@@ -15,6 +15,7 @@ const AllProducts = () => {
 
     useEffect(() => {
         dispatch(getAllProducts(seller._id));
+        // dispatch({ type: "resetProductCreate" });
     }, [dispatch, seller._id]);
 
     useEffect(() => {
@@ -35,7 +36,8 @@ const AllProducts = () => {
                     {/* Add Product Button */}
                     <div className="mb-6">
                         <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
-                        onClick={() => navigate("/seller/create-product")}
+                        onClick={() => window.location.href = "/seller/create-product"}
+
                        >
                            + Add Product
                         </button>

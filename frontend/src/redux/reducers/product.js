@@ -35,6 +35,7 @@ export const productReducer = createReducer(initialState, (builder) => {
         .addCase("resetProductCreate", (state) => {
             state.success = false;
             state.product = null;
+            state.error = null;
         })
 
         .addCase("clearErrors", (state) => {
