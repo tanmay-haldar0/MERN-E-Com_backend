@@ -25,10 +25,18 @@ router.post(
       ? req.body.tags
       : req.body.tags?.split(",") || [];
 
+    // Validate price fields
+    const originalPrice = parseFloat(req.body.price);
+    const salePrice = parseFloat(req.body.salePrice);
+
+    if (isNaN(originalPrice)) {
+      return res.status(400).json({ message: "Invalid original price" });
+    }
+
+    // Prepare product data
     const productData = {
       name: req.body.name,
-      originalPrice: parseFloat(req.body.price),
-      salePrice: parseFloat(req.body.salePrice),
+      originalPrice,
       description: req.body.description,
       stock: parseInt(req.body.stock),
       category: req.body.category,
@@ -36,24 +44,43 @@ router.post(
       tags: tags,
       images: imageUrls,
       shopId: shop._id.toString(),
-      shop: {
-        _id: shop._id,
-        shopName: shop.shopName,
-        avatar: shop.avatar,
-        name: shop.name,
-        email: shop.email,
-        phoneNumber: shop.phoneNumber,
-      },
+      shop: shop
     };
+
+    // Only add salePrice if it's a valid number
+    if (!isNaN(salePrice)) {
+      productData.salePrice = salePrice;
+    }
 
     try {
       const product = await Product.create(productData);
-      res.status(200).json({ success: true, product });
+      return res.status(201).json({ success: true, product });
     } catch (error) {
       console.error("Error creating product:", error);
-      res.status(400).json({ success: false, message: error.message });
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Something went wrong while creating the product",
+      });
     }
   })
-);
+); 
+
+// Get all product of a seller
+router.get("/get-seller-all-products/:id", catchAsyncError( async (req, res, next) => {
+  try {
+    const products = await Product.find({shopId: req.params.id}).select("-shop");
+
+    if (!products){
+      return res.status(404).json({message:"No Products Found"});
+    }else{
+      return res.status(201).json({success: true, products});
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}))
 
 export default router;

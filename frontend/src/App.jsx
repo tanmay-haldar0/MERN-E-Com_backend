@@ -30,6 +30,7 @@ import store from "./redux/store.js";
 import LoadingScreen from "./Components/Loading.jsx";
 import SellerDashboard from "./pages/Seller/SellerDashboard.jsx";
 import CreateProduct from "./pages/Seller/CreateProduct.jsx";
+import AllProducts from "./pages/Seller/AllProducts.jsx";
 
 function RedirectWithToast({ message, to }) {
   useEffect(() => {
@@ -163,6 +164,7 @@ function App() {
           <Route path="/activation/:activation_token" element={<ActivationPage />} />
           <Route path="/seller/activation/:activation_token" element={<SellerActivationPage />} />
           <Route path="/seller/create-product" element={<CreateProduct />} />
+          <Route path="/seller/all-products" element={<AllProducts />} />
         </Routes>
       </Router>
     </div>

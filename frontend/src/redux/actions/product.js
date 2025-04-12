@@ -27,3 +27,28 @@ export const createProduct = (newForm) => async (dispatch) => {
     });
   }
 };
+
+
+// get all Products
+
+export const getAllProducts = (id) => async (dispatch) => {
+  try {
+    dispatch({
+      type: "getAllProductsRequest",
+    });
+ 
+    // Updated URL with the correct path
+    const { data } = await axios.get(`${server}/product/get-seller-all-products/${id}`);
+
+    dispatch({
+      type: "getAllProductsSuccess",
+      payload: data.products,
+    });
+    // console.log(data);
+  } catch (error) {
+    dispatch({
+      type: "getAllProductsFailed", // ✅ fixed spelling here
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};

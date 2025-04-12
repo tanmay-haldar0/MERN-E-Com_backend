@@ -49,22 +49,19 @@ const CreateProduct = () => {
   const { success, error } = useSelector((state) => state.product);
 
   useEffect(() => {
+    // Reset success flag when the component is loaded again
+    dispatch({ type: "resetProductCreate" });
+  }, [dispatch]);
+
+  useEffect(() => {
     if (error) toast.error(error);
     if (success) {
       toast.success("Product Created Successfully.");
-
-      if (window.confirm("Product created! Do you want to add another one?")) {
-        // just reset form
-        setProductData({ ...initialData });
-        setImagePreviews([]);
-        setTagInput("");
-        dispatch(resetProductState());
-      } else {
-        dispatch(resetProductState());
-        navigate("/dashboard");
-      }
+      dispatch({ type: "resetProductCreate" });
+      navigate("/dashboard"); // no need for reload
     }
   }, [dispatch, success, error, navigate]);
+
 
   const [productData, setProductData] = useState({
     name: "",
@@ -182,13 +179,19 @@ const CreateProduct = () => {
     productData.images.forEach((image) => newForm.append("images", image));
     newForm.append("name", productData.name);
     newForm.append("price", productData.price);
-    newForm.append("salePrice", productData.salePrice);
     newForm.append("description", productData.description);
     newForm.append("stock", productData.stock);
     newForm.append("category", productData.category);
     newForm.append("isCustomizable", productData.isCustomizable);
     newForm.append("shopId", seller._id);
     productData.tags.forEach((tag) => newForm.append("tags", tag));
+
+    const salePrice = productData.salePrice && !isNaN(parseFloat(productData.salePrice));
+
+    if (salePrice) {
+      newForm.append("salePrice", parseFloat(productData.salePrice));
+    }
+
 
     // Dispatch product creation here, e.g.:
     dispatch(createProduct(newForm));
@@ -283,7 +286,6 @@ const CreateProduct = () => {
                 value={productData.salePrice}
                 onChange={handleChange}
                 className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
-                required
               />
             </div>
 
