@@ -47,9 +47,13 @@ const CreateProduct = () => {
   const navigate = useNavigate();
   const seller = useSelector((state) => state.seller.user);
   const { success, error } = useSelector((state) => state.product);
+  const [didSubmit, setDidSubmit] = useState(false);
 
-  
 
+  useEffect(() => {
+    // console.log(success);
+    dispatch({ type: "resetProductCreate" });
+  }, [dispatch]);
 
   const [productData, setProductData] = useState({
     name: "",
@@ -162,6 +166,7 @@ const CreateProduct = () => {
   // console.log(seller);
   const handleSubmit = (e) => {
     e.preventDefault();
+    setDidSubmit(true);
 
     const newForm = new FormData();
     productData.images.forEach((image) => newForm.append("images", image));
@@ -173,32 +178,26 @@ const CreateProduct = () => {
     newForm.append("isCustomizable", productData.isCustomizable);
     newForm.append("shopId", seller._id);
     productData.tags.forEach((tag) => newForm.append("tags", tag));
-
-    const salePrice = productData.salePrice && !isNaN(parseFloat(productData.salePrice));
-
-    if (salePrice) {
+    if (productData.salePrice && !isNaN(parseFloat(productData.salePrice))) {
       newForm.append("salePrice", parseFloat(productData.salePrice));
     }
 
-
-    // Dispatch product creation here, e.g.:
     dispatch(createProduct(newForm));
   };
 
   useEffect(() => {
-    // Reset success flag when the component is loaded again
-    dispatch({ type: "resetProductCreate" });
-  
-    if (error) toast.error(error);
-  
+    if (!didSubmit) return;
+
+    if (error) {
+      toast.error(error);
+    }
+
     if (success) {
       toast.success("Product Created Successfully.");
-      // Reset success state after showing the toast to prevent it from triggering again
-      dispatch({ type: "resetProductCreate" });
-      navigate("/seller/all-products"); // Uncomment if needed for redirection after success
+      navigate("/seller/all-products");
     }
-  }, [dispatch, success, error, navigate]);
-  
+  }, [success, error, didSubmit, navigate]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleImageChange,
     accept: {
@@ -214,7 +213,6 @@ const CreateProduct = () => {
     },
     multiple: true,
   });
-
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -391,19 +389,24 @@ const CreateProduct = () => {
             <div
               {...getRootProps()}
               className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out
-      ${isDragActive
-                  ? "border-blue-500 bg-blue-50 shadow-lg"
-                  : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
-                }`}
+      ${
+        isDragActive
+          ? "border-blue-500 bg-blue-50 shadow-lg"
+          : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+      }`}
             >
               <input {...getInputProps()} />
               <FaCloudUploadAlt
-                className={`mx-auto text-4xl transition-colors duration-300 ${isDragActive ? "text-blue-500" : "text-gray-500 group-hover:text-blue-500"
-                  }`}
+                className={`mx-auto text-4xl transition-colors duration-300 ${
+                  isDragActive
+                    ? "text-blue-500"
+                    : "text-gray-500 group-hover:text-blue-500"
+                }`}
               />
               <p
-                className={`mt-2 text-gray-600 transition-colors duration-300 ${isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
-                  }`}
+                className={`mt-2 text-gray-600 transition-colors duration-300 ${
+                  isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
+                }`}
               >
                 {isDragActive
                   ? "Drop the files here..."

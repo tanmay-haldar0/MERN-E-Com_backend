@@ -36,7 +36,7 @@ const AllProducts = () => {
                     {/* Add Product Button */}
                     <div className="mb-6">
                         <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
-                        onClick={() => window.location.href = "/seller/create-product"}
+                        onClick={() => navigate("/seller/create-product")}
 
                        >
                            + Add Product
