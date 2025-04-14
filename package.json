@@ -5,9 +5,22 @@
   "main": "backend/server.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon backend/server.js",
-    "start": "node backend/server.js"
+    "dev": "nodemon backend/server.js",                     
+ 
+    "start": "node backend/server.js",                      
+   
+    "client": "npm run dev --prefix frontend",              
+   
+    "client:build": "npm run build --prefix frontend",      
+   
+    "client:install": "npm install --prefix frontend",      
+   
+    "build": "npm run client:build",                        
+    
+    "install:all": "npm install && npm run client:install", 
+    
+    "heroku-postbuild": "npm run build"                     
+    
   },
   "author": "Tanmay Haldar",
   "license": "ISC",
