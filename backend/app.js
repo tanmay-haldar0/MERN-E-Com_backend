@@ -48,13 +48,16 @@ app.use("/api/v2/product", product);
 // Global Error Handler
 app.use((err, req, res, next) => {
   let handler;
-  
+
   if (err instanceof ErrorHandler) {
     // If the error is an instance of ErrorHandler
     handler = err;
   } else {
     // If it's a generic error, create an instance of ErrorHandler
-    handler = new ErrorHandler(err.message || "Server Error", err.statusCode || 500);
+    handler = new ErrorHandler(
+      err.message || "Server Error",
+      err.statusCode || 500
+    );
   }
 
   res.status(handler.statusCode).json({
@@ -63,5 +66,13 @@ app.use((err, req, res, next) => {
   });
 });
 
+if (process.env.NODE_ENV === "PRODUCTION") {
+  // Serve static files from the React dist directory
+  app.use(express.static(path.join(__dirname, "../frontend/dist"))); // Path to the dist folder
+
+  // For any routes that don't match the API, serve the React index.html file
+  app.get("*", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 export default app;
- 

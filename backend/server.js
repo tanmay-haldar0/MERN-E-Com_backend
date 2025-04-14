@@ -11,6 +11,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
   });
 }
 
+
 // Handle Uncaught error Exception
 process.on("uncaughtException", (err) => {
   console.log(`Error: ${err.message}`);
