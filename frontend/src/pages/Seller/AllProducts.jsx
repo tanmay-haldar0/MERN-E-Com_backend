@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const AllProducts = () => {
     const [allProducts, setAllProducts] = useState([]);
+    const [loading, setLoading] = useState(false); // Add loading state
 
     const { products } = useSelector((state) => state.product);
     const seller = useSelector((state) => state.seller.user);
@@ -14,13 +15,14 @@ const AllProducts = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        setLoading(true); // Set loading to true when starting to fetch
         dispatch(getAllProducts(seller._id));
-        // dispatch({ type: "resetProductCreate" });
     }, [dispatch, seller._id]);
 
     useEffect(() => {
         if (products) {
             setAllProducts(products);
+            setLoading(false); // Set loading to false after fetching
         }
     }, [products]);
 
@@ -37,48 +39,53 @@ const AllProducts = () => {
                     <div className="mb-6">
                         <button className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
                         onClick={() => navigate("/seller/create-product")}
-
                        >
                            + Add Product
                         </button>
                     </div>
                 </div>
 
-                {/* Product List Layout */}
-                <div className="space-y-4">
-                    {allProducts.length > 0 ? (
-                        allProducts.map((product) => (
-                            <div
-                                key={product._id}
-                                className="bg-white rounded-lg shadow-lg p-4 flex justify-between items-center hover:shadow-xl transition-all duration-300"
-                            >
-                                <div className="flex items-center space-x-4">
-                                    <img
-                                        src={`http://localhost:5000/uploads/${product.images[0]}`}
-                                        alt={product.name}
-                                        className="w-16 h-16 object-cover rounded-lg"
-                                    />
-                                    <div>
-                                        <h2 className="text-md font-bold text-gray-800">{product.name}</h2>
-                                        <p className="text-sm text-gray-600">{product.category}</p>
+                {/* Loading Spinner */}
+                {loading ? (
+                    <div className="flex justify-center items-center h-96">
+                        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {allProducts.length > 0 ? (
+                            allProducts.map((product) => (
+                                <div
+                                    key={product._id}
+                                    className="bg-white rounded-lg shadow-lg p-4 flex justify-between items-center hover:shadow-xl transition-all duration-300"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <img
+                                            src={`http://localhost:5000/uploads/${product.images[0]}`}
+                                            alt={product.name}
+                                            className="w-16 h-16 object-cover rounded-lg"
+                                        />
+                                        <div>
+                                            <h2 className="text-md font-bold text-gray-800">{product.name}</h2>
+                                            <p className="text-sm text-gray-600">{product.category}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Update and Delete Buttons */}
+                                    <div className="flex space-x-4">
+                                        <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-all duration-300">
+                                            Update
+                                        </button>
+                                        <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all duration-300">
+                                            Delete
+                                        </button>
                                     </div>
                                 </div>
-
-                                {/* Update and Delete Buttons */}
-                                <div className="flex space-x-4">
-                                    <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-all duration-300">
-                                        Update
-                                    </button>
-                                    <button className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-all duration-300">
-                                        Delete
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No products available</p>
-                    )}
-                </div>
+                            ))
+                        ) : (
+                            <p>No products available</p>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

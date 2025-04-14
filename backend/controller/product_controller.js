@@ -44,7 +44,7 @@ router.post(
       tags: tags,
       images: imageUrls,
       shopId: shop._id.toString(),
-      shop: shop
+      shop: shop,
     };
 
     // Only add salePrice if it's a valid number
@@ -59,28 +59,56 @@ router.post(
       console.error("Error creating product:", error);
       return res.status(500).json({
         success: false,
-        message: error.message || "Something went wrong while creating the product",
+        message:
+          error.message || "Something went wrong while creating the product",
       });
     }
   })
-); 
+);
 
 // Get all product of a seller
-router.get("/get-seller-all-products/:id", catchAsyncError( async (req, res, next) => {
-  try {
-    const products = await Product.find({shopId: req.params.id}).select("-shop");
+router.get(
+  "/get-seller-all-products/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const products = await Product.find({ shopId: req.params.id }).select(
+        "-shop"
+      );
 
-    if (!products){
-      return res.status(404).json({message:"No Products Found"});
-    }else{
-      return res.status(201).json({success: true, products});
+      if (!products) {
+        return res.status(404).json({ message: "No Products Found" });
+      } else {
+        return res.status(201).json({ success: true, products });
+      }
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
     }
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message,
+  })
+);
+ 
+router.get(
+  "/get-all-products",
+  catchAsyncError(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    const total = await Product.countDocuments();
+    const products = await Product.find()
+      .select("-shop")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      products,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
     });
-  }
-}))
+  })
+);
 
 export default router;

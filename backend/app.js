@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import cors from "cors";
 
-import errorHandler from "./utils/errorHandler.js";
+import ErrorHandler from "./utils/ErrorHandler.js";
 import user from "./controller/user_controller.js";
 import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
@@ -47,7 +47,16 @@ app.use("/api/v2/product", product);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
-  const handler = new errorHandler(err.message || "Server Error", err.statusCode || 500);
+  let handler;
+  
+  if (err instanceof ErrorHandler) {
+    // If the error is an instance of ErrorHandler
+    handler = err;
+  } else {
+    // If it's a generic error, create an instance of ErrorHandler
+    handler = new ErrorHandler(err.message || "Server Error", err.statusCode || 500);
+  }
+
   res.status(handler.statusCode).json({
     success: false,
     message: handler.message,
