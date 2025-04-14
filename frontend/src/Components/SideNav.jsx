@@ -42,7 +42,7 @@ const SideNav = () => {
     {
       name: "Profile Settings",
       icon: <FaUserCog />,
-      path: "/seller/profile-settings",
+      path: "/seller/profile",
     },
   ];
 

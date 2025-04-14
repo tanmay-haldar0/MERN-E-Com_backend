@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
+import { FaChevronDown } from "react-icons/fa";
 
 // Sortable Image Component
 const SortableImage = ({ image, onRemove }) => {
@@ -48,7 +49,6 @@ const CreateProduct = () => {
   const seller = useSelector((state) => state.seller.user);
   const { success, error } = useSelector((state) => state.product);
   const [didSubmit, setDidSubmit] = useState(false);
-
 
   useEffect(() => {
     // console.log(success);
@@ -152,6 +152,10 @@ const CreateProduct = () => {
     }
   };
 
+  // Add state at the top of your component
+  const [categorySearch, setCategorySearch] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const removeTag = (tagToRemove) => {
     setProductData({
       ...productData,
@@ -246,25 +250,59 @@ const CreateProduct = () => {
               <label className="block text-gray-700 font-semibold">
                 Product Category
               </label>
-              <select
-                name="category"
-                value={productData.category}
-                onChange={handleChange}
-                className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
-                required
-              >
-                <option value="">-- Select a Category --</option>
-                {category.map((cat, index) => (
-                  <option key={index} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="w-full p-3 mt-2 border rounded-lg flex justify-between items-center focus:ring-blue-400 bg-white"
+                >
+                  {productData.category
+                    ? productData.category
+                    : "-- Select a Category --"}
+                  <FaChevronDown className="text-gray-500" />
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute z-10 bg-white border w-full mt-2 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    <input
+                      type="text"
+                      placeholder="Search category..."
+                      value={categorySearch}
+                      onChange={(e) => setCategorySearch(e.target.value)}
+                      className="w-full px-3 py-2 border-b focus:outline-none"
+                    />
+                    {category
+                      .filter((cat) =>
+                        cat.toLowerCase().includes(categorySearch.toLowerCase())
+                      )
+                      .map((cat, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            setProductData({ ...productData, category: cat });
+                            setIsDropdownOpen(false);
+                            setCategorySearch("");
+                          }}
+                          className="px-4 py-2 hover:bg-blue-100 cursor-pointer"
+                        >
+                          {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </div>
+                      ))}
+                    {category.filter((cat) =>
+                      cat.toLowerCase().includes(categorySearch.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-4 py-2 text-gray-400">
+                        No categories found
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div>
               <label className="block text-gray-700 font-semibold">
-                Price ($)
+                New Price ($)
               </label>
               <input
                 type="number"
@@ -278,7 +316,7 @@ const CreateProduct = () => {
 
             <div>
               <label className="block text-gray-700 font-semibold">
-                Sale Price ($)
+                Old Price ($)
               </label>
               <input
                 type="number"

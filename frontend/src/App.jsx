@@ -32,6 +32,9 @@ import SellerDashboard from "./pages/Seller/SellerDashboard.jsx";
 import CreateProduct from "./pages/Seller/CreateProduct.jsx";
 import AllProducts from "./pages/Seller/AllProducts.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import Orders from "./pages/Seller/Orders.jsx";
+import Analytics from "./pages/Seller/Analytics.jsx";
+import ProfileSettings from "./pages/Seller/ProfileSettings.jsx";
 
 function RedirectWithToast({ message, to }) {
   useEffect(() => {
@@ -133,6 +136,9 @@ function App() {
           />
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
+          <Route path="/seller/orders" element={<Orders />} />
+          <Route path="/seller/analytics" element={<Analytics />} />
+          <Route path="/seller/profile" element={<ProfileSettings />} />
 
           <Route
             path="/dashboard"

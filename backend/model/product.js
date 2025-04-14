@@ -30,6 +30,10 @@ const productSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  rating:{
+    type:Number,
+    default:4.0,
+  },
   stock: {
     type: Number,
     required: [true, "Please enter the stock"],
