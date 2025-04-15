@@ -32,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // CORS
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend
+    origin: "https://classiccustom-frontend.onrender.com", // frontend
     credentials: true,
   })
 );
