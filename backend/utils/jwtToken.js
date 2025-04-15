@@ -15,3 +15,6 @@ const sendToken = (user, statusCode, res) => {
         token,
     });
 };
+
+
+export default sendToken;
