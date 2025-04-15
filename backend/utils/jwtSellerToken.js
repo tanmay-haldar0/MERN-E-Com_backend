@@ -7,7 +7,7 @@ const sendSellerToken = (user, statusCode, res) => {
       expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       httpOnly: true,
       secure: isProduction, // only over HTTPS in production
-      sameSite: isProduction ? "None" : "Lax", // must be "None" for cross-origin
+      sameSite:"None", // must be "None" for cross-origin
     };
   
     res.status(statusCode)
