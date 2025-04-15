@@ -109,7 +109,7 @@ const Shop = () => {
                   filteredProducts.map((product) => (
                     <ProductCard
                       key={product._id}
-                      imgSrc={`${imgServer}/uploads/${product.images[0]}`}
+                      imgSrc={`${imgServer}${product.images[0]}`}
                       productName={product.name}
                       isSale={product.salePrice ? true : false}
                       price={product.originalPrice}
