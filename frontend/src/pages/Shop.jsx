@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "../Components/ProductCard";
 import Footer from "../Components/Footer.jsx";
-import { server } from "../server.js";
+import { server, imgServer } from "../server.js";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
@@ -109,7 +109,7 @@ const Shop = () => {
                   filteredProducts.map((product) => (
                     <ProductCard
                       key={product._id}
-                      imgSrc={`http://localhost:5000/uploads/${product.images[0]}`}
+                      imgSrc={`${imgServer}/uploads/${product.images[0]}`}
                       productName={product.name}
                       isSale={product.salePrice ? true : false}
                       price={product.originalPrice}

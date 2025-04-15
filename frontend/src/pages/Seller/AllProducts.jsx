@@ -5,6 +5,7 @@ import { getAllProducts } from "../../redux/actions/product";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
 import { MdEdit, MdOutlineDelete  } from "react-icons/md";
+import {imgServer} from "../../server.js"
 
 const AllProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -101,7 +102,7 @@ const AllProducts = () => {
                 >
                   <div className="flex items-center space-x-4">
                     <img
-                      src={`http://localhost:5000/uploads/${product.images[0]}`}
+                      src={`${imgServer}${product.images[0]}`}
                       alt={product.name}
                       className="w-16 h-16 object-cover rounded-lg"
                     />
