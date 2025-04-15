@@ -2,7 +2,7 @@ import express from "express";
 import path from "path";
 import Seller from "../model/seller.js";
 import {upload} from "../multer.js";
-import ErrorHandler from "../utils/errorHandler.js";
+import ErrorHandler from "../utils/ErrorHandler.js";
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 import catchAsyncError from "../middleware/cacheAsyncError.js";

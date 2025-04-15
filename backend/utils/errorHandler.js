@@ -1,18 +1,10 @@
+// backend/utils/ErrorHandler.js
 class ErrorHandler extends Error {
-  constructor(message, statuscode) {
+  constructor(message, statusCode) {
     super(message);
-    this.statuscode = statuscode;
+    this.statusCode = statusCode;
 
     Error.captureStackTrace(this, this.constructor);
-  }
-
-  // Method to format the error response
-  formatResponse() {
-    return {
-      success: false,
-      message: this.message,
-      statusCode: this.statuscode,
-    };
   }
 }
 
