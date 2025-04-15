@@ -40,7 +40,7 @@ const handleUploadAndCompress = async (req, res, next) => {
   try {
     if (!req.files || req.files.length === 0) return next();
 
-    const uploadDir = path.join(__dirname, "..", "uploads");
+    const uploadDir = path.join(__dirname, "../uploads");
     if (!fs.existsSync(uploadDir)) {
       fs.mkdirSync(uploadDir);
     }
