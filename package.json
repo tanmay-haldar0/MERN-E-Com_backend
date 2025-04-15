@@ -6,13 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon backend/server.js",                     
-    "start": "node backend/server.js",                      
-    "client": "npm run dev --prefix frontend",              
-    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend",      
-    "client:install": "npm install --prefix frontend",                               
-    "install": "npm install && npm run client:install", 
-    "heroku-postbuild": "npm run build"                     
-    
+    "start": "node backend/server.js",                                 
+    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"                        
   },
   "author": "Tanmay Haldar",
   "license": "ISC",
