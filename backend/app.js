@@ -66,13 +66,13 @@ app.use((err, req, res, next) => {
   });
 });
 
-if (process.env.NODE_ENV === "PRODUCTION") {
-  // Serve static files from the React dist directory
-  app.use(express.static(path.join(__dirname, "../frontend/dist"))); // Path to the dist folder
+// if (process.env.NODE_ENV === "PRODUCTION") {
+//   // Serve static files from the React dist directory
+//   app.use(express.static(path.join(__dirname, "../frontend/dist"))); // Path to the dist folder
 
-  // For any routes that don't match the API, serve the React index.html file
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
-  });
-}
+//   // For any routes that don't match the API, serve the React index.html file
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.resolve(__dirname, "../frontend", "dist", "index.html"));
+//   });
+// }
 export default app;
