@@ -48,12 +48,12 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="mt-5 flex h-screen justify-center items-center">
-      <div className="w-1/4 h-auto rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between">
-        <h1 className="mt-2 text-2xl font-bold text-center">Login</h1>
+    <div className="mt-14 flex justify-center items-center h-screen">
+      <div className="w-full max-w-md rounded-lg shadow-lg p-5">
+        <h1 className="text-2xl font-bold text-center">Login</h1>
 
         {/* Email/Password Form */}
-        <div className="text-center input-box w-full p-3">
+        <div className="text-center w-full p-3">
           <input
             type="email"
             required
@@ -96,6 +96,7 @@ const LoginPage = () => {
             </Link>
           </p>
         </div>
+
         {/* Login Button */}
         <button
           onClick={handleSubmit}
@@ -110,7 +111,7 @@ const LoginPage = () => {
         <div className="w-full mb-2 mt-5">
           <div className="flex items-center justify-center mb-2">
             <div className="h-px w-1/3 bg-gray-300"></div>
-            <span className="px-3 text-xs text-gray-500">or login with</span>
+            <span className="px-3 text-xs text-center text-gray-500">or login with</span>
             <div className="h-px w-1/3 bg-gray-300"></div>
           </div>
 

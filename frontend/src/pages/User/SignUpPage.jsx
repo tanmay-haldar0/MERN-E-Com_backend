@@ -58,9 +58,9 @@ function SignUpPage() {
   };
 
   return (
-    <div className="mt-5 flex h-screen justify-center items-center">
-      <div className="w-1/4 rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between">
-        <h1 className="mt-2 text-2xl font-bold text-center">SignUp</h1>
+    <div className="mt-20 flex justify-center items-center h-screen px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl p-5">
+        <h1 className="text-2xl font-bold text-center">SignUp</h1>
 
         <div className="text-center input-box w-full p-3">
           <input
@@ -122,13 +122,14 @@ function SignUpPage() {
             <p className="mt-2 text-left text-xs text-red-500">{errorMessage}</p>
           )}
 
-          <p className="mt-4 text-center text-sm text-slate-500">
+          <p className="mt-4 text-left text-[13.5px] text-slate-500">
             Already have an account?{" "}
             <Link to={"/login"}>
               <span className="text-blue-500 cursor-pointer">LogIn</span>
             </Link>
           </p>
         </div>
+
         <form onSubmit={handleSubmit} className="w-full">
           <button
             type="submit"
@@ -142,7 +143,7 @@ function SignUpPage() {
         <div className="w-full mt-2">
           <div className="flex items-center justify-center mb-2">
             <div className="h-px w-1/3 bg-gray-300"></div>
-            <span className="text-xs text-gray-500"> or sign up with </span>
+            <span className="text-xs text-center text-gray-500"> or sign up with </span>
             <div className="h-px w-1/3 bg-gray-300"></div>
           </div>
 
@@ -170,8 +171,6 @@ function SignUpPage() {
             </button>
           </div>
         </div>
-
-        
       </div>
     </div>
   );

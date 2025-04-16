@@ -12,75 +12,69 @@ const Checkout = () => {
   const finalTotalPrice = (totalPrice + deliveryCharge).toFixed(2);
 
   return (
-    <div className='max-w-[800px] mx-auto p-4 rounded-lg'>
-      <h1 className='text-3xl font-semibold text-gray-800 mb-4 text-center'>
+    <div className="p-3 rounded-lg bg-white shadow-sm w-full">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">
         Checkout
-      </h1>
+      </h2>
 
-      {/* Calculation Breakdown */}
-      <div className='bg-white shadow-md rounded-lg overflow-hidden'>
-        {/* Desktop Table View */}
-        <table className='min-w-full hidden md:table'>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <table className="w-full text-sm">
           <thead>
-            <tr className='bg-blue-200 text-gray-700'>
-              <th className='py-3 px-4 text-left'>Item</th>
-              <th className='py-3 px-4 text-left'>Price (₹)</th>
-              <th className='py-3 px-4 text-left'>Quantity</th>
-              <th className='py-3 px-4 text-left'>Total (₹)</th>
+            <tr className="bg-blue-100 text-gray-700">
+              <th className="py-2 px-2 text-left">Item</th>
+              <th className="py-2 px-2 text-left">Price</th>
+              <th className="py-2 px-2 text-left">Qty</th>
+              <th className="py-2 px-2 text-left">Total</th>
             </tr>
           </thead>
-          <tbody className='text-gray-700'>
+          <tbody className="text-gray-700">
             {cartItems.map((item, index) => (
-              <tr key={index} className='border-b border-gray-300 hover:bg-gray-200'>
-                <td className='py-3 px-4'>{item.name}</td>
-                <td className='py-3 px-4'>₹{item.price.toFixed(2)}</td>
-                <td className='py-3 px-4'>{item.quantity}</td>
-                <td className='py-3 px-4'>₹{(item.price * item.quantity).toFixed(2)}</td>
+              <tr key={index} className="border-b">
+                <td className="py-2 px-2">{item.name}</td>
+                <td className="py-2 px-2">₹{item.price.toFixed(2)}</td>
+                <td className="py-2 px-2">{item.quantity}</td>
+                <td className="py-2 px-2">₹{(item.price * item.quantity).toFixed(2)}</td>
               </tr>
             ))}
-            <tr className='font-semibold'>
-              <td colSpan="3" className='py-3 px-4 text-right'>Subtotal:</td>
-              <td className='py-3 px-4'>₹{totalPrice.toFixed(2)}</td>
+            <tr className="font-medium">
+              <td colSpan="3" className="py-2 px-2 text-right">Subtotal:</td>
+              <td className="py-2 px-2">₹{totalPrice.toFixed(2)}</td>
             </tr>
             <tr>
-              <td colSpan="3" className='py-3 px-4 text-right'>Delivery Charge:</td>
-              <td className='py-3 px-4'>₹{deliveryCharge.toFixed(2)}</td>
+              <td colSpan="3" className="py-2 px-2 text-right">Delivery:</td>
+              <td className="py-2 px-2">₹{deliveryCharge.toFixed(2)}</td>
             </tr>
-            <tr className='font-bold text-2xl text-red-500'>
-              <td colSpan="3" className='py-3 px-4 text-right'>Total:</td>
-              <td className='py-3 px-4'>₹{finalTotalPrice}</td>
+            <tr className="font-bold text-red-600">
+              <td colSpan="3" className="py-2 px-2 text-right">Total:</td>
+              <td className="py-2 px-2">₹{finalTotalPrice}</td>
             </tr>
           </tbody>
         </table>
+      </div>
 
-        {/* Mobile View */}
-        <div className='md:hidden w-[90vw]'>
-          {cartItems.map((item, index) => (
-            <div key={index} className='border-b border-gray-300 p-4'>
-              <h3 className='font-semibold'>{item.name}</h3>
-              <p className='text-gray-700'>Price: ₹{item.price.toFixed(2)}</p>
-              <p className='text-gray-700'>Quantity: {item.quantity}</p>
-              <p className='font-bold'>Total: ₹{(item.price * item.quantity).toFixed(2)}</p>
-            </div>
-          ))}
-          <div className='font-semibold p-4 border-t border-gray-300'>
-            <p className='text-right'>Subtotal: ₹{totalPrice.toFixed(2)}</p>
+      {/* Mobile Summary */}
+      <div className="md:hidden">
+        {cartItems.map((item, index) => (
+          <div key={index} className="border-b py-2">
+            <p className="font-medium">{item.name}</p>
+            <p className="text-sm text-gray-700">₹{item.price.toFixed(2)} × {item.quantity}</p>
+            <p className="text-sm font-semibold">Total: ₹{(item.price * item.quantity).toFixed(2)}</p>
           </div>
-          <div className='p-4 border-t border-gray-300'>
-            <p className='text-right'>Delivery Charge: ₹{deliveryCharge.toFixed(2)}</p>
-          </div>
-          <div className='font-bold text-2xl text-red-500 p-4 border-t border-gray-300'>
-            <p className='text-right'>Total: ₹{finalTotalPrice}</p>
-          </div>
+        ))}
+        <div className="text-sm font-medium mt-2">
+          <p className="text-right">Subtotal: ₹{totalPrice.toFixed(2)}</p>
+          <p className="text-right">Delivery: ₹{deliveryCharge.toFixed(2)}</p>
+          <p className="text-right text-red-600 text-lg font-bold mt-1">
+            Total: ₹{finalTotalPrice}
+          </p>
         </div>
       </div>
 
       {/* Checkout Button */}
-      <div className='flex justify-center mt-5'>
-        <button className='bg-blue-600 text-white font-semibold px-6 py-2 sm:px-8 sm:py-3 rounded-md shadow-md hover:bg-blue-700 transition duration-200 transform hover:scale-105 w-full'>
-          Proceed to Payment
-        </button>
-      </div>
+      <button className="w-full mt-4 bg-blue-600 text-white py-2 text-sm rounded hover:bg-blue-700 transition-all">
+        Proceed to Payment
+      </button>
     </div>
   );
 };
