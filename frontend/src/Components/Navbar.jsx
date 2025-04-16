@@ -23,7 +23,7 @@ import { Link } from "react-router-dom";
 import { MdSearch } from "react-icons/md";
 import logo from "../assets/logo.png";
 import { server } from "../server";
-import { loadUser } from "../redux/actions/user";
+import { loadSeller, loadUser } from "../redux/actions/user";
 import { toast } from "react-toastify";
 import { FaAngleDown } from "react-icons/fa";
 import { CiShop } from "react-icons/ci";
@@ -44,6 +44,9 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
+      
+      const tempRole = role;
+
       const res = await fetch(`${server}/${role}/logout`, {
         method: "GET",
         credentials: "include",
@@ -54,7 +57,12 @@ const Navbar = () => {
       if (data.success) {
         toast.success("Logged Out Successfully");
         navigate("/login");
-        dispatch(loadUser());
+        if (tempRole == "user") {
+          dispatch(loadUser());
+        }
+        if (tempRole == "seller") {
+          dispatch(loadSeller());
+        }
       } else {
         toast.error("Logout failed:", data.message);
       }
