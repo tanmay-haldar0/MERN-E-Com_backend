@@ -5,6 +5,7 @@ import Footer from "../Components/Footer.jsx";
 import { server, imgServer } from "../server.js";
 import { AiOutlineClose } from "react-icons/ai";
 import { FaBarsStaggered } from "react-icons/fa6";
+import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 const Shop = () => {
   const [products, setProducts] = useState([]);
@@ -113,13 +114,13 @@ const Shop = () => {
             )}
 
             {/* Pagination */}
-            <div className="flex flex-col sm:flex-row justify-center items-center mt-6 sm:mt-8 gap-2 text-sm sm:text-base">
+            <div className="flex  sm:flex-row justify-center items-center mt-6 sm:mt-8 gap-2 text-sm sm:text-base">
               <button
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                 onClick={() => setCurrentPage(currentPage - 1)}
                 disabled={currentPage === 1}
               >
-                Previous
+                <FaAngleLeft />
               </button>
               <span className="px-2 text-center">
                 Page {currentPage} of {totalPages}
@@ -129,7 +130,7 @@ const Shop = () => {
                 onClick={() => setCurrentPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
               >
-                Next
+                <FaAngleRight />
               </button>
             </div>
           </div>

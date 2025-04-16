@@ -3,18 +3,19 @@ import { useSelector } from "react-redux";
 import { IoCartOutline } from "react-icons/io5";
 import {
   MdOutlineKeyboardArrowDown,
-  MdShoppingCart ,
+  MdShoppingCart,
   MdAddBusiness,
   MdReceiptLong,
   MdCardGiftcard,
   MdHome,
   MdLogin,
   MdPersonAdd,
-  MdDashboard ,
-  MdAddShoppingCart ,
-  MdMenu,
-  MdLogout ,
+  MdDashboard,
+  MdAddShoppingCart,
+  MdMenu,  // Hamburger icon
+  MdLogout,
   MdClose,
+  MdOutlineSpaceDashboard,
 } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,6 +25,8 @@ import logo from "../assets/logo.png";
 import { server } from "../server";
 import { loadUser } from "../redux/actions/user";
 import { toast } from "react-toastify";
+import { FaAngleDown } from "react-icons/fa";
+import { CiShop } from "react-icons/ci";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -31,6 +34,13 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+
+  function getFirstName(fullName) {
+    if (!fullName || typeof fullName !== "string") return "";
+
+    const parts = fullName.trim().split(" ");
+    return parts[0]; // First word
+  }
 
   const handleLogout = async () => {
     try {
@@ -74,9 +84,8 @@ const Navbar = () => {
   const getInitials = (fullName) => {
     if (!fullName || fullName.trim() === "") return "";
     const names = fullName.split(" ");
-    return `${names[0].charAt(0)}${
-      names.length > 1 ? names[names.length - 1].charAt(0) : ""
-    }`.toUpperCase();
+    return `${names[0].charAt(0)}${names.length > 1 ? names[names.length - 1].charAt(0) : ""
+      }`.toUpperCase();
   };
 
   // Close drawer when clicking outside
@@ -113,9 +122,11 @@ const Navbar = () => {
           <MdSearch className="absolute text-gray-600 right-3 text-xl hover:text-primary" />
         </div>
 
-        <div className="w-auto h-10 flex  sm:flex md:flex items-center justify-center">
+        <div className="w-auto h-10 flex sm:flex md:flex items-center justify-center">
+
+
           {isAuthenticated && role === "seller" ? (
-            <div className=" hidden sm:flex gap-4">
+            <div className="hidden sm:flex gap-4">
               <Link
                 to="/seller/create-product"
                 className="flex flex-col items-center text-gray-700 hover:text-primary"
@@ -164,7 +175,7 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <div className="relative">
-              <button onClick={toggleDrawer}>
+              <button onClick={() => navigate("/dashboard")} className="flex justify-center items-center">
                 <div className="m-2 rounded-full w-10 h-10 flex items-center justify-center bg-blue-100">
                   {profilePic ? (
                     <img
@@ -178,33 +189,43 @@ const Navbar = () => {
                     </span>
                   )}
                 </div>
+                <div className="text-sm hidden sm:flex justify-center items-center">
+                  <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard"}>
+                    <div className="flex items-center gap-1 hover:text-primary">
+                      <div className="">
+                        <span>{getFirstName(user?.name || seller?.name)} </span>
+                        <span className="text-xs text-gray-400">{seller ? "Seller" : ""}</span>
+                      </div>
+                      <FaAngleDown />
+                    </div>
+                  </Link>
+                </div>
               </button>
             </div>
           ) : (
-            <div className="text-center text-sm sm:text-md text-gray-700">
+            <button className="bg-primary p-2 text-white rounded-md text-center text-sm sm:text-md mr-1">
               <Link to={"/signup"}>
                 <span className="hover:text-blue-500 cursor-pointer">
                   SignUp{" "}
                 </span>
               </Link>
-              /{" "}
-              <Link to={"/login"}>
-                <span className="hover:text-blue-500 cursor-pointer">
-                  {" "}
-                  Login
-                </span>
-              </Link>
-            </div>
+            </button>
           )}
+          {/* Hamburger Icon for Mobile */}
+          <button
+            onClick={toggleDrawer}
+            className="sm:hidden flex items-center justify-center rounded-md"
+          >
+            <MdMenu className="text-2xl text-gray-700 hover:text-primary" />
+          </button>
         </div>
       </div>
 
       {/* Side Drawer */}
       <div
         ref={drawerRef}  // Set the ref here
-        className={`fixed top-0 left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-50 ${
-          drawerOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 sm:hidden left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-50 ${drawerOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="flex justify-between items-center px-4 py-3 border-b">
           <h2 className="text-lg font-semibold">Menu</h2>
@@ -217,9 +238,8 @@ const Navbar = () => {
           <Link
             to="/"
             onClick={toggleDrawer}
-            className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-              isActive("/") && "text-primary font-semibold"
-            }`}
+            className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/") && "text-primary font-semibold"
+              }`}
           >
             <MdHome /> Home
           </Link>
@@ -229,29 +249,26 @@ const Navbar = () => {
               <Link
                 to="/seller/dashboard"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                  isActive("/seller/dashboard") && "text-primary font-semibold"
-                }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/dashboard") && "text-primary font-semibold"
+                  }`}
               >
                 <MdDashboard /> Dashboard
               </Link>
               <Link
                 to="/seller/create-product"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                  isActive("/seller/create-product") &&
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/create-product") &&
                   "text-primary font-semibold"
-                }`}
+                  }`}
               >
                 <MdAddShoppingCart /> Create Product
               </Link>
               <Link
                 to="/seller/all-products"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                  isActive("/seller/all-products") &&
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/all-products") &&
                   "text-primary font-semibold"
-                }`}
+                  }`}
               >
                 <MdAddShoppingCart /> All Product
               </Link>
@@ -259,15 +276,32 @@ const Navbar = () => {
           )}
 
           {(!role || role === "user") && (
-            <Link
-              to="/cart"
-              onClick={toggleDrawer}
-              className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                isActive("/cart") && "text-primary font-semibold"
-              }`}
-            >
-              <MdShoppingCart /> Cart
-            </Link>
+            <>
+              <Link
+                to="/cart"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/cart") && "text-primary font-semibold"
+                  }`}
+              >
+                <MdShoppingCart /> Cart
+              </Link>
+              <Link
+                to="/dashboard"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/dashboard") && "text-primary font-semibold"
+                  }`}
+              >
+                <MdOutlineSpaceDashboard /> Dashboard
+              </Link>
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"
+                  }`}
+              >
+                <CiShop /> Shop
+              </Link>
+            </>
           )}
 
           {!isAuthenticated ? (
@@ -275,9 +309,8 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                  isActive("/login") && "text-primary font-semibold"
-                }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/login") && "text-primary font-semibold"
+                  }`}
               >
                 <MdLogin /> Login
               </Link>
@@ -285,9 +318,8 @@ const Navbar = () => {
               <Link
                 to="/signup"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${
-                  isActive("/signup") && "text-primary font-semibold"
-                }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/signup") && "text-primary font-semibold"
+                  }`}
               >
                 <MdPersonAdd /> Signup
               </Link>
