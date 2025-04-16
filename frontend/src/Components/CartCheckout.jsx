@@ -45,7 +45,7 @@ const Checkout = () => {
               <td colSpan="3" className="py-2 px-2 text-right">Delivery:</td>
               <td className="py-2 px-2">₹{deliveryCharge.toFixed(2)}</td>
             </tr>
-            <tr className="font-bold text-red-600">
+            <tr className="font-bold md:text-xl text-red-600">
               <td colSpan="3" className="py-2 px-2 text-right">Total:</td>
               <td className="py-2 px-2">₹{finalTotalPrice}</td>
             </tr>

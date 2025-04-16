@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../../server.js";
 import { toast } from "react-toastify";
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
 function SellerSignUpPage() {
   const [name, setName] = useState("");
@@ -16,163 +15,147 @@ function SellerSignUpPage() {
   const [image, setImage] = useState(null);
   const [passwordError, setPasswordError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const navigate = useNavigate();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setPasswordError(""); // Reset password error message
+    setPasswordError("");
+
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters long.");
       return;
     }
+
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       setPasswordError("Password must contain at least one special character.");
       return;
     }
-    const config = { headers: { "Content-Type": "multipart/form-data" } };
 
+    const config = { headers: { "Content-Type": "multipart/form-data" } };
     const newForm = new FormData();
     newForm.append("name", name);
     newForm.append("email", email);
     newForm.append("password", password);
     newForm.append("shopName", shopName);
     newForm.append("phoneNumber", phoneNumber);
-    if (image) {
-      newForm.append("file", image);
+    if (image) newForm.append("file", image);
+
+    try {
+      const res = await axios.post(`${server}/seller/create-user/`, newForm, config);
+
+      if (res.data.message !== "User already exists") {
+        toast.success(res.data.message);
+        navigate("/login");
+      } else {
+        setErrorMessage(res.data.message);
+        toast.error(res.data.message);
+      }
+
+      setName("");
+      setEmail("");
+      setPassword("");
+    } catch (err) {
+      toast.error("Something went wrong. Try again.");
+      console.log(err);
     }
-    await axios
-      .post(`${server}/seller/create-user/`, newForm, config)
-      .then((res) => {
-        // console.log(res.data.message);
-
-        if (res.data.message != "User already exists") {
-          toast.success(res.data.message);
-          navigate("/login");
-        } else {
-          setErrorMessage(res.data.message);
-          toast.error(res.data.message);
-        }
-
-        setName("");
-        setEmail("");
-        setPassword("");
-      })
-      .catch((err) => {
-        toast.error(err);
-        console.log(err);
-      });
   };
 
   return (
-    <div className="mt-5 flex h-screen justify-center items-center">
-      <div className="w-1/4  rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl flex flex-col items-center p-5 justify-between">
-        <h1 className="mt-2 text-2xl font-bold text-center">Seller SignUp</h1>
-        <div className="text-center input-box w-full p-3">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Seller Sign Up</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            required
             name="shopName"
-            placeholder="Your Shop Name."
-            className="p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none"
+            required
+            placeholder="Your Shop Name"
             onChange={(e) => setShopName(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
           <input
             type="text"
-            required
             name="name"
-            placeholder="Your Name."
-            className="p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none"
+            required
+            placeholder="Your Name"
             onChange={(e) => setName(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
-
           <input
             type="email"
             required
-            placeholder="Your Email."
-            className="p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none"
+            placeholder="Your Email"
             onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
           <input
             type="number"
             required
-            placeholder="Your Phone Number."
-            className="p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none"
+            placeholder="Your Phone Number"
             onChange={(e) => setPhoneNumber(e.target.value)}
+            className="w-full px-4 py-2 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
 
-          <div className="relative mt-3">
+          {/* Password */}
+          <div className="relative">
             <input
               type={isPasswordVisible ? "text" : "password"}
               required
               placeholder="Password"
-              className="p-2 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none pr-10"
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 pr-10 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
             />
             <span
-              className="absolute right-3 top-3 cursor-pointer text-slate-500"
+              className="absolute right-3 top-2.5 text-slate-500 cursor-pointer"
               onClick={() => setIsPasswordVisible(!isPasswordVisible)}
             >
               {isPasswordVisible ? (
-                <AiFillEyeInvisible size={20} className="text-primary" />
+                <AiFillEyeInvisible size={20} />
               ) : (
-                <AiFillEye size={20} className="text-slate-600"/>
+                <AiFillEye size={20} />
               )}
             </span>
           </div>
 
+          {/* Confirm Password */}
           <input
             type="password"
             required
             placeholder="Confirm Password"
-            className={`p-2 mt-3 shadow-sm hover:shadow-md w-full bg-slate-100 rounded-md text-slate-600 outline-none ${
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className={`w-full px-4 py-2 bg-slate-100 rounded-md text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-300 ${
               password !== confirmPassword ? "border border-red-500" : ""
             }`}
-            onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          {password !== confirmPassword ? (
-            <p className="mt-2 text-left text-xs text-red-500">
-              Password didn't match
-            </p>
-          ) : (
-            passwordError && (
-              <p className="mt-2 text-left text-xs text-red-500">
-                {passwordError}
-              </p>
-            )
+          {/* Error Messages */}
+          {password !== confirmPassword && (
+            <p className="text-xs text-red-500">Passwords don't match</p>
+          )}
+          {passwordError && (
+            <p className="text-xs text-red-500">{passwordError}</p>
+          )}
+          {errorMessage && (
+            <p className="text-xs text-red-500">{errorMessage}</p>
           )}
 
-          {errorMessage ? (
-            <p className="mt-2 text-left text-xs text-red-500">
-              {errorMessage}
-            </p>
-          ) : (
-            ""
-          )}
+          {/* File Upload (optional, style later if needed) */}
+          {/* <input type="file" onChange={(e) => setImage(e.target.files[0])} /> */}
 
-          <p className="mt-4 text-center text-sm text-slate-500">
-            Already have an account?{" "}
-            <Link to={"/seller/login"}>
-              <span className="text-blue-500 cursor-pointer">LogIn</span>
-            </Link>
-          </p>
-        </div>
-        <div className="w-full mb-8 h-12">
-          {/* <div className="flex items-center">
-            {imagePreview && <img src={imagePreview} alt="Image Preview" className="mt-3 w-16 h-16 rounded-md mr-2" />}
-            <input type="file" accept="image/*" onChange={handleImageChange} className="mt-3 text-xs" />
-          </div> */}
-
-          {/* Social Logins */}
-        </div>
-        <form onSubmit={handleSubmit} className="w-full">
           <button
             type="submit"
-            className="hover:bg-blue-400 mt-2 w-full transition-all ease-out bg-primary text-white p-2 rounded-md"
+            className="w-full bg-primary hover:bg-blue-400 text-white py-2 rounded-md transition"
           >
-            SignUp
+            Sign Up
           </button>
+
+          <p className="text-center text-sm text-gray-500 mt-2">
+            Already have an account?{" "}
+            <Link to="/seller/login" className="text-blue-500 hover:underline">
+              Log In
+            </Link>
+          </p>
         </form>
       </div>
     </div>

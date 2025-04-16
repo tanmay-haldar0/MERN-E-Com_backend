@@ -50,9 +50,9 @@ const Cart = () => {
           </div>
         ) : !noCartItem ? (
           // Full Cart View
-          <div className="flex flex-col md:flex-row justify-between gap-6 mt-2">
+          <div className="flex flex-col w-full justify-between md:flex-row gap-4 mb-5 mt-2">
             {/* Products List */}
-            <div className="w-full md:w-3/5 flex flex-col gap-4">
+            <div className="w-full md:w-3/5 flex flex-col gap-6">
               {product.map((item, index) => (
                 <CartProduct
                   key={index}
@@ -64,7 +64,7 @@ const Cart = () => {
             </div>
 
             {/* Checkout Sidebar */}
-            <div className="w-full md:w-[300px] lg:w-[280px] xl:w-[260px] self-start">
+            <div className="w-full md:w-[300px] lg:w-[280px] xl:w-[450px] self-start">
               <CartCheckout />
             </div>
           </div>

@@ -58,8 +58,8 @@ function SignUpPage() {
   };
 
   return (
-    <div className="mt-20 flex justify-center items-center h-screen px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md rounded-lg shadow-lg transition-all ease-out hover:shadow-2xl p-5">
+    <div className="flex justify-center items-center h-screen px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md rounded-lg shadow-md transition-all ease-out hover:shadow-2xl p-5">
         <h1 className="text-2xl font-bold text-center">SignUp</h1>
 
         <div className="text-center input-box w-full p-3">

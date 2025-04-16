@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../redux/actions/product";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
-import { MdEdit, MdOutlineDelete  } from "react-icons/md";
-import {imgServer} from "../../server.js"
+import { MdEdit, MdOutlineDelete } from "react-icons/md";
+import { imgServer } from "../../server.js"
 
 const AllProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
@@ -38,45 +38,41 @@ const AllProducts = () => {
   );
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <SideNav />
-      <div className="flex-1 p-8 ml-64 mt-16">
-        <div className="flex justify-between items-start flex-wrap gap-4">
+      <div className="flex-1 p-4 md:p-8 md:ml-64 mt-16">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start gap-4 flex-wrap">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">
+            <h1 className="text-2xl md:text-4xl font-bold text-gray-900">
               📦 All Products
             </h1>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-2 md:mb-4 text-sm md:text-base">
               View and manage your products here.
             </p>
           </div>
-          <div className="mb-4">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all"
-              onClick={() => navigate("/seller/create-product")}
-            >
-              + Add Product
-            </button>
-          </div>
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-all w-full sm:w-auto"
+            onClick={() => navigate("/seller/create-product")}
+          >
+            + Add Product
+          </button>
         </div>
 
-        {/* Search Input with Search and Clear Icons */}
-        <div className="mb-6 relative w-full">
-          {/* Search Icon (left) */}
+        {/* Search Box */}
+        <div className="mb-6 relative w-full mt-4">
           <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <AiOutlineSearch className="text-gray-500 text-xl" />
           </span>
 
-          {/* Input */}
           <input
             type="text"
             placeholder="Search by name or category..."
-            className="w-full pl-10 pr-10 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-10 py-3 border text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
-          {/* Clear Icon (right) */}
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
@@ -93,49 +89,50 @@ const AllProducts = () => {
             <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-2">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow-lg p-4 flex justify-between items-center hover:shadow-xl transition-all duration-300"
+                  className="bg-white w-full rounded-lg shadow p-2 flex flex-row flex-wrap justify-between items-center gap- hover:shadow-md transition-all duration-300"
                 >
-                  <div className="flex items-center space-x-4">
+                  {/* Image + Name + Category */}
+                  <div className="flex items-center gap-2 flex-shrink">
                     <img
                       src={`${imgServer}${product.images[0]}`}
                       alt={product.name}
-                      className="w-16 h-16 object-cover rounded-lg"
+                      className="w-12 h-12 object-cover rounded-md"
                     />
-                    <div>
-                      <h2 className="text-md font-bold text-gray-800">
+                    <div className="leading-tight max-w-[130px]">
+                      <h2 className="text-sm font-semibold text-gray-800 break-words">
                         {product.name}
                       </h2>
-                      <p className="text-sm text-gray-600">
-                        {product.category}
-                      </p>
+                      <p className="text-xs text-gray-600">{product.category}</p>
                     </div>
+
                   </div>
 
-                  <div className="flex space-x-2">
-                    <button className="bg-green-500 text-xl text-white px-2 py-2 rounded-md hover:bg-green-600 transition-all duration-300">
-                    <MdEdit />
+                  {/* Edit & Delete Buttons */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button className="bg-green-500 text-white text-lg p-1.5 rounded hover:bg-green-600 transition">
+                      <MdEdit />
                     </button>
-                    <button className="bg-red-500 text-xl text-white px-2 py-2 rounded-md hover:bg-red-600 transition-all duration-300">
-                    <MdOutlineDelete />
+                    <button className="bg-red-500 text-white text-lg p-1.5 rounded hover:bg-red-600 transition">
+                      <MdOutlineDelete />
                     </button>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="text-center text-gray-500 mt-8">
-                No products found
-              </p>
+              <p className="text-center text-gray-500 mt-8">No products found</p>
             )}
           </div>
+
         )}
       </div>
-    </div>
+    </div >
   );
 };
+
 
 export default AllProducts;

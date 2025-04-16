@@ -48,8 +48,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="mt-14 flex justify-center items-center h-screen">
-      <div className="w-full max-w-md rounded-lg shadow-lg p-5">
+    <div className="flex justify-center items-center h-screen">
+      <div className="w-full max-w-md rounded-lg shadow-md p-5">
         <h1 className="text-2xl font-bold text-center">Login</h1>
 
         {/* Email/Password Form */}

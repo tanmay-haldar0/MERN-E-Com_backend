@@ -1,16 +1,14 @@
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import SideNav from "../../Components/SideNav";
-import { FaCloudUploadAlt, FaTrash } from "react-icons/fa";
+import { FaCloudUploadAlt, FaTrash, FaChevronDown } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
-import { FaChevronDown } from "react-icons/fa";
 
-// Sortable Image Component
 const SortableImage = ({ image, onRemove }) => {
   return (
     <div className="relative group cursor-grab">
@@ -51,7 +49,6 @@ const CreateProduct = () => {
   const [didSubmit, setDidSubmit] = useState(false);
 
   useEffect(() => {
-    // console.log(success);
     dispatch({ type: "resetProductCreate" });
   }, [dispatch]);
 
@@ -152,10 +149,6 @@ const CreateProduct = () => {
     }
   };
 
-  // Add state at the top of your component
-  const [categorySearch, setCategorySearch] = useState("");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const removeTag = (tagToRemove) => {
     setProductData({
       ...productData,
@@ -167,7 +160,6 @@ const CreateProduct = () => {
     setProductData({ ...productData, tags: [] });
   };
 
-  // console.log(seller);
   const handleSubmit = (e) => {
     e.preventDefault();
     setDidSubmit(true);
@@ -202,6 +194,9 @@ const CreateProduct = () => {
     }
   }, [success, error, didSubmit, navigate]);
 
+  const [categorySearch, setCategorySearch] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleImageChange,
     accept: {
@@ -219,23 +214,20 @@ const CreateProduct = () => {
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
       <SideNav />
-      <div className="flex-1 p-8 ml-64 mt-16">
-        <h1 className="text-4xl font-bold text-gray-900">🛍️ Add New Product</h1>
-        <p className="text-gray-600 mb-6">
-          Fill in the details to add a new product to your store.
-        </p>
+      <div className="flex-1 p-4 sm:p-6 lg:p-8 mt-20 lg:mt-16 lg:ml-64 w-full">
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">🛍️ Add New Product</h1>
+        <p className="text-gray-600 mb-6">Fill in the details to add a new product to your store.</p>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-lg shadow-lg w-full max-w-5xl"
+          className="bg-white p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-5xl mx-auto"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
             <div>
-              <label className="block text-gray-700 font-semibold">
-                Product Name
-              </label>
+              <label className="block text-gray-700 font-semibold">Product Name</label>
               <input
                 type="text"
                 name="name"
@@ -246,19 +238,16 @@ const CreateProduct = () => {
               />
             </div>
 
+            {/* Category */}
             <div>
-              <label className="block text-gray-700 font-semibold">
-                Product Category
-              </label>
+              <label className="block text-gray-700 font-semibold">Product Category</label>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="w-full p-3 mt-2 border rounded-lg flex justify-between items-center focus:ring-blue-400 bg-white"
+                  className="w-full p-3 mt-2 border rounded-lg flex justify-between items-center bg-white"
                 >
-                  {productData.category
-                    ? productData.category
-                    : "-- Select a Category --"}
+                  {productData.category || "-- Select a Category --"}
                   <FaChevronDown className="text-gray-500" />
                 </button>
 
@@ -300,10 +289,9 @@ const CreateProduct = () => {
               </div>
             </div>
 
+            {/* Price, Sale Price, Stock, Tags */}
             <div>
-              <label className="block text-gray-700 font-semibold">
-                New Price ($)
-              </label>
+              <label className="block text-gray-700 font-semibold">New Price ($)</label>
               <input
                 type="number"
                 name="price"
@@ -315,9 +303,7 @@ const CreateProduct = () => {
             </div>
 
             <div>
-              <label className="block text-gray-700 font-semibold">
-                Old Price ($)
-              </label>
+              <label className="block text-gray-700 font-semibold">Old Price ($)</label>
               <input
                 type="number"
                 name="salePrice"
@@ -367,11 +353,6 @@ const CreateProduct = () => {
                   </span>
                 ))}
               </div>
-              {productData.tags.length >= 15 && (
-                <p className="text-xs text-red-500 mt-2">
-                  Tag limit reached (15 max)
-                </p>
-              )}
               {productData.tags.length > 0 && (
                 <button
                   type="button"
@@ -383,10 +364,9 @@ const CreateProduct = () => {
               )}
             </div>
 
+            {/* Toggle Customization */}
             <div>
-              <label className="block text-gray-700 font-semibold">
-                &nbsp;
-              </label>
+              <label className="block text-gray-700 font-semibold">&nbsp;</label>
               <label className="inline-flex items-center mt-2">
                 <span className="relative">
                   <input
@@ -404,10 +384,9 @@ const CreateProduct = () => {
             </div>
           </div>
 
+          {/* Description */}
           <div className="mt-6">
-            <label className="block text-gray-700 font-semibold">
-              Product Description
-            </label>
+            <label className="block text-gray-700 font-semibold">Product Description</label>
             <textarea
               name="description"
               value={productData.description}
@@ -418,20 +397,16 @@ const CreateProduct = () => {
             ></textarea>
           </div>
 
+          {/* Dropzone + Image Previews */}
           <div className="mt-6">
-            <label className="block text-gray-700 font-semibold">
-              Product Images
-            </label>
-
-            {/* Upload Dropzone with Hover + Drag Effect */}
+            <label className="block text-gray-700 font-semibold">Product Images</label>
             <div
               {...getRootProps()}
-              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out
-      ${
-        isDragActive
-          ? "border-blue-500 bg-blue-50 shadow-lg"
-          : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
-      }`}
+              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out ${
+                isDragActive
+                  ? "border-blue-500 bg-blue-50 shadow-lg"
+                  : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+              }`}
             >
               <input {...getInputProps()} />
               <FaCloudUploadAlt
@@ -452,8 +427,7 @@ const CreateProduct = () => {
               </p>
             </div>
 
-            {/* Image Previews */}
-            <div className="flex flex-wrap gap-4 mt-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
               {imagePreviews.map((image) => (
                 <SortableImage
                   key={image.id}
@@ -463,7 +437,6 @@ const CreateProduct = () => {
               ))}
             </div>
 
-            {/* Clear All Button */}
             {imagePreviews.length > 0 && (
               <button
                 type="button"
@@ -475,6 +448,7 @@ const CreateProduct = () => {
             )}
           </div>
 
+          {/* Submit */}
           <div className="mt-8 text-center">
             <button
               type="submit"
