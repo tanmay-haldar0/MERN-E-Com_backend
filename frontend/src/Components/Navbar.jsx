@@ -213,7 +213,7 @@ const Navbar = () => {
           ) : (
             <button className="bg-primary p-2 text-white rounded-md text-center text-sm sm:text-md mr-1">
               <Link to={"/signup"}>
-                <span className="hover:text-blue-500 cursor-pointer">
+                <span className="hover:text-white cursor-pointer">
                   SignUp{" "}
                 </span>
               </Link>

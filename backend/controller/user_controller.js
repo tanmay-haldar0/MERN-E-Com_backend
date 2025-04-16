@@ -27,7 +27,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const user = { name, email, password };
 
     const activationToken = createActivationToken(user);
-    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+    const activationUrl = `https://classiccustom-frontend/activation/${activationToken}`;
 
     console.log("Received request to activate user:", user.email);
     console.log("Activation URL generated:", activationUrl);
