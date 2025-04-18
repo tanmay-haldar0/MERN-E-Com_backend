@@ -34,9 +34,9 @@ function App() {
     loading: state.user.loading || state.seller.loading,
     seller: state.seller,
   }));
-  console.log(seller);
-  console.log(role);
-  console.log(loading);
+  // console.log(seller);
+  // console.log(role);
+  // console.log(loading);
 
   const [delayedLoading, setDelayedLoading] = useState(true);
 

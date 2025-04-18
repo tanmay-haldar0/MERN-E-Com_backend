@@ -54,36 +54,46 @@ const TrackOrder = () => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md space-y-6">
+    <div className="bg-white p-4 sm:p-6 rounded-xl shadow-md space-y-6 w-[90vw] sm:w-full sm:max-w-6xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-800">Track Your Orders</h1>
 
       {/* Order List */}
-      <div className="space-y-4">
-        <h3 className="font-semibold text-gray-700">Your Orders</h3>
-        <div className="flex space-x-4 overflow-x-auto py-2">
-          {orders.map((order) => (
-            <div
-              key={order.orderId}
-              className={`p-4 border rounded-lg cursor-pointer transition-all duration-300 flex-shrink-0 w-64
-              ${activeOrder?.orderId === order.orderId
-                  ? "border-green-500 bg-green-50"
-                  : "hover:bg-gray-100 border-gray-200"
-                }`}
-              onClick={() => setActiveOrder(order)}
-            >
-              <div className="flex justify-between items-center">
-                <div className="text-sm font-semibold text-gray-800">{order.orderId}</div>
-                <div className="text-sm text-gray-500">{order.status}</div>
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold text-gray-700">Your Orders</h3>
+
+        {/* Scrollable Orders Row */}
+        <div className="overflow-x-auto">
+          <div className="flex gap-3 sm:gap-4 py-2 min-w-full">
+            {orders.map((order) => (
+              <div
+                key={order.orderId}
+                className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-all duration-300 flex-shrink-0 w-[65vw] sm:w-[300px]
+            ${activeOrder?.orderId === order.orderId
+                    ? "border-green-500 bg-green-50"
+                    : "hover:bg-gray-100 border-gray-200"
+                  }`}
+                onClick={() => setActiveOrder(order)}
+              >
+                {/* Order ID & Status */}
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                  <div className="text-sm font-semibold text-gray-800 truncate">{order.orderId}</div>
+                  <div className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0 whitespace-nowrap">
+                    {order.status}
+                  </div>
+                </div>
+
+                {/* Items */}
+                <div className="mt-2 text-sm text-gray-600 space-y-1">
+                  {order.items.map((item, index) => (
+                    <p key={index} className="truncate">{item.name}</p>
+                  ))}
+                </div>
               </div>
-              <div className="mt-2 text-sm text-gray-600">
-                {order.items.map((item, index) => (
-                  <p key={index}>{item.name}</p>
-                ))}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
+
 
       {/* Order Details */}
       {activeOrder && (
@@ -91,44 +101,47 @@ const TrackOrder = () => {
           <h3 className="font-semibold text-gray-700">Order Details</h3>
 
           {/* Progress Stepper */}
-          <div className="relative flex items-center justify-between w-full max-w-3xl mx-auto">
+          <div className="flex items-start justify-between w-full gap-2 sm:gap-8 max-w-4xl mx-auto">
             {statusSteps.map((step, index) => {
               const currentIndex = getCurrentPhaseIndex(activeOrder.status);
               const isCompleted = index < currentIndex;
               const isCurrent = index === currentIndex;
 
               return (
-                <div key={index} className="flex-1 flex flex-col items-center relative">
-                  {/* Line between steps */}
-                  {index !== 0 && (
-                    <div className="absolute -left-1/2 top-4 w-full h-1 bg-gray-300 z-0">
-                      <div
-                        className={`h-full transition-all ${index <= currentIndex ? "bg-green-500" : "bg-gray-300"
-                          }`}
-                        style={{ width: "100%" }}
-                      ></div>
-                    </div>
-                  )}
-
-                  {/* Step circle */}
+                <div key={index} className="flex-1 flex flex-col items-center w-full sm:w-auto relative min-w-[60px]">
+                  {/* Step Circle (fixed position) */}
                   <div
-                    className={`z-10 w-10 h-10 rounded-full flex items-center justify-center border-2
-                    ${isCompleted ? "bg-green-500 text-white border-green-500"
+                    className={`z-10 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2
+          ${isCompleted
+                        ? "bg-green-500 text-white border-green-500"
                         : isCurrent
                           ? "bg-blue-500 text-white border-blue-500"
                           : "bg-gray-100 text-gray-400 border-gray-300"
                       }`}
                   >
-                    {step.icon}
+                    <span className="text-xs sm:text-sm">{step.icon}</span>
                   </div>
-                  <span className="mt-2 text-sm text-center">{step.status}</span>
+
+                  {/* Step Label (does not affect circle position) */}
+                  <div className="mt-2 w-[60px] text-center text-[9px] sm:text-sm leading-tight break-words">
+                    {step.status}
+                  </div>
+
+                  {/* Line between steps */}
+                  {index !== statusSteps.length - 1 && (
+                    <div
+                      className={`absolute top-3 sm:top-5 left-[5%] translate-x-1/2 h-1 w-full z-0
+            ${index < currentIndex ? "bg-green-500" : "bg-gray-300"}`}
+                    />
+                  )}
                 </div>
               );
             })}
           </div>
 
+
           {/* Order Info */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3">
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3 text-sm w-full">
             <p><strong>Order ID:</strong> {activeOrder.orderId}</p>
             <p><strong>Date:</strong> {activeOrder.date}</p>
             <p><strong>Shipping Address:</strong> {activeOrder.shippingAddress}</p>
@@ -136,7 +149,7 @@ const TrackOrder = () => {
           </div>
 
           {/* Order Items */}
-          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3">
+          <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3 text-sm w-full">
             <h4 className="text-lg font-semibold text-gray-700">Items</h4>
             <ul className="space-y-2">
               {activeOrder.items.map((item, idx) => (
@@ -153,7 +166,10 @@ const TrackOrder = () => {
         </div>
       )}
     </div>
+
+
   );
 };
+
 
 export default TrackOrder;

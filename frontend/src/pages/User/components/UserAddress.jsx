@@ -47,23 +47,25 @@ const UserAddress = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header with Add Button */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-0">
         <h2 className="text-xl font-semibold">Saved Addresses</h2>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-primary hover:bg-orange-600 text-white px-4 py-2 rounded-md"
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-orange-600 text-white px-4 py-2 rounded-md w-full sm:w-auto"
         >
           <FaPlus /> Add New
         </button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Address List */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         {addresses.map((addr) => (
           <div
             key={addr.id}
             className="p-4 border border-gray-300 rounded-md shadow-sm bg-gray-50"
           >
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start gap-3">
               <div>
                 <p className="font-semibold">{addr.name}</p>
                 <p className="text-sm text-gray-600">{addr.phone}</p>
@@ -71,7 +73,7 @@ const UserAddress = () => {
                   {addr.addressLine}, {addr.city}, {addr.state} - {addr.postalCode}
                 </p>
               </div>
-              <div className="flex space-x-3 text-gray-600">
+              <div className="flex space-x-3 text-gray-600 min-w-fit">
                 <button>
                   <FaEdit className="hover:text-blue-500" />
                 </button>
@@ -84,7 +86,7 @@ const UserAddress = () => {
         ))}
       </div>
 
-      {/* Modal (Dummy) */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-md w-[90%] max-w-md p-6 space-y-4">
@@ -108,6 +110,7 @@ const UserAddress = () => {
         </div>
       )}
     </div>
+
   );
 };
 

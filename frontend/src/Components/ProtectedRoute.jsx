@@ -4,9 +4,9 @@ import { toast } from "react-toastify";
 
 const ProtectedRoute = ({ role, children, redirectTo, roleMismatchMessage }) => {
   const { isAuthenticated, userRole, seller } = useSelector((state) => ({
-    isAuthenticated: state.user.isAuthenticated || state.seller.isAuthenticated,
-    userRole: state.user.role || state.seller.user.role,
-    seller: state.seller
+    isAuthenticated: state.user?.isAuthenticated || state.seller?.isAuthenticated,
+    userRole: state.user?.role || state.seller.user?.role,
+    // seller: state.seller
   }));
 
   // console.log(seller.role)

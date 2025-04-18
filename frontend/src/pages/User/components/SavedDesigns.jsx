@@ -37,43 +37,49 @@ const SavedDesigns = () => {
   };
 
   const handleCreateNewDesign = () => {
-    navigate("/create-design"); // Adjust the route as per your app
+    navigate("/create-design");
   };
 
   return (
-    <div className="relative space-y-6">
-      <h2 className="text-xl font-semibold">Saved Designs</h2>
+    <div className="relative space-y-6 px-4 sm:px-6 md:px-8 pb-20">
+      <h2 className="text-xl font-semibold text-gray-800">Saved Designs</h2>
 
       {designs.length === 0 ? (
         <p className="text-gray-500 text-sm">You have no saved designs.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 [@media(min-width:400px)]:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
+
+
           {designs.map((design) => (
             <div
               key={design.id}
               className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow hover:shadow-md transition-all"
             >
-              <img
-                src={design.image}
-                alt={design.title}
-                className="w-full h-48 object-cover"
-              />
+              <div className="w-full aspect-[4/3]">
+                <img
+                  src={design.image}
+                  alt={design.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="p-4">
-                <h3 className="text-md font-semibold text-gray-800">{design.title}</h3>
+                <h3 className="text-md font-semibold text-gray-800">
+                  {design.title}
+                </h3>
                 <p className="text-sm text-gray-600 mt-1">{design.description}</p>
 
                 <div className="mt-4 flex justify-end space-x-4 text-gray-600">
                   <button
                     onClick={() => handleView(design)}
                     title="View"
-                    className="hover:text-blue-600"
+                    className="hover:text-blue-600 transition-transform hover:scale-110"
                   >
                     <FaEye />
                   </button>
                   <button
                     onClick={() => handleDelete(design.id)}
                     title="Delete"
-                    className="hover:text-red-600"
+                    className="hover:text-red-600 transition-transform hover:scale-110"
                   >
                     <FaTrash />
                   </button>
@@ -84,11 +90,11 @@ const SavedDesigns = () => {
         </div>
       )}
 
-      {/* + Button */}
+      {/* Floating + Button */}
       <button
         onClick={handleCreateNewDesign}
         title="Create New Design"
-        className="fixed bottom-8 right-8 bg-primary hover:bg-orange-600 text-white p-4 rounded-full shadow-lg flex items-center justify-center text-xl z-50"
+        className="fixed bottom-6 right-6 bg-primary hover:bg-orange-600 text-white p-4 rounded-full shadow-lg flex items-center justify-center text-xl z-50 transition-transform hover:scale-110"
       >
         <FaPlus />
       </button>

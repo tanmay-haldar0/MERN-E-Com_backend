@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBoxOpen, FaUndo, FaTimesCircle, FaCheckCircle } from "react-icons/fa";
+import { FaUndo, FaTimesCircle, FaCheckCircle } from "react-icons/fa";
 
 const dummyOrderHistory = [
   {
@@ -49,7 +49,7 @@ const OrderHistory = () => {
           {dummyOrderHistory.map((order) => (
             <div
               key={order.id}
-              className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-md shadow hover:shadow-md transition"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-white border border-gray-200 rounded-md shadow hover:shadow-md transition"
             >
               <div className="flex items-center gap-4">
                 <img
@@ -58,12 +58,15 @@ const OrderHistory = () => {
                   className="w-16 h-16 object-cover rounded-md"
                 />
                 <div>
-                  <p className="font-semibold text-gray-800">{order.productName}</p>
+                  <p className="font-semibold text-gray-800 text-base">
+                    {order.productName}
+                  </p>
                   <p className="text-sm text-gray-500">Order ID: {order.id}</p>
                   <p className="text-sm text-gray-400">{order.date}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 sm:justify-end">
                 {statusIcons[order.status]}
                 <span
                   className={`px-3 py-1 text-sm font-medium rounded-full ${statusStyles[order.status]}`}

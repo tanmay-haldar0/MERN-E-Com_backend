@@ -157,8 +157,8 @@ const AccountDashboard = () => {
 
       {/* Main content with nested routes */}
       {/* Main content with nested routes */}
-      <main className="flex-1 sm:ml-64 p-4 sm:p-6 bg-gray-50 min-h-screen">
-        <div className="bg-white p-1 sm:p-4 rounded-xl shadow-md w-full max-w-6xl mx-auto">
+      <main className="flex-1 sm:ml-64 p-1 sm:p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white p-3 sm:p-4 rounded-xl shadow-md w-full max-w-6xl mx-auto">
           <Routes>
             <Route
               path="personal-info"
