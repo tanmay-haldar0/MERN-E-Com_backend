@@ -13,23 +13,19 @@ import PersonalInformation from "../../Components/UserInfo";
 import TrackOrder from "./components/TrackOrder.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { loadUser } from "../../redux/actions/user";
 import { toast } from "react-toastify";
 import UserAddress from "./components/UserAddress.jsx";
 import SavedDesigns from "./components/SavedDesigns.jsx";
 import OrderHistory from "./components/OrderHistory.jsx";
+import { Routes, Route, NavLink, useNavigate } from "react-router-dom";
+// Import components like before
 
-// ...[imports remain the same]
 const AccountDashboard = () => {
-  const { user } = useSelector((state) => ({
-    user: state.user.user,
-  }));
-
+  const { user } = useSelector((state) => ({ user: state.user.user }));
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const [activeSection, setActiveSection] = useState("Personal Information");
   const [profileImage, setProfileImage] = useState(user?.avatar?.url || "");
   const [newImage, setNewImage] = useState(null);
 
@@ -37,10 +33,15 @@ const AccountDashboard = () => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewImage(reader.result);
-      };
+      reader.onloadend = () => setNewImage(reader.result);
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleConfirmUpload = () => {
+    if (newImage) {
+      setProfileImage(newImage);
+      setNewImage(null);
     }
   };
 
@@ -50,9 +51,7 @@ const AccountDashboard = () => {
         method: "GET",
         credentials: "include",
       });
-
       const data = await res.json();
-
       if (data.success) {
         toast.success("Logged Out Successfully");
         navigate("/login");
@@ -65,117 +64,62 @@ const AccountDashboard = () => {
     }
   };
 
-  const handleConfirmUpload = () => {
-    if (newImage) {
-      setProfileImage(newImage);
-      setNewImage(null);
-    }
-  };
-
   const getInitials = (name) => {
     if (!name) return "S";
-    return name
-      .split(" ")
-      .map((part) => part[0].toUpperCase())
-      .slice(0, 2)
-      .join("");
+    return name.split(" ").map((part) => part[0].toUpperCase()).slice(0, 2).join("");
   };
 
-  const renderSection = () => {
-    switch (activeSection) {
-      case "Track Order":
-        return <TrackOrder />;
-      case "Addresses":
-        return <UserAddress />;
-      case "Saved Designs":
-        return <SavedDesigns />;
-      case "Order History":
-        return <OrderHistory />;
-      case "Personal Information":
-      default:
-        return (
-          <PersonalInformation
-            name={user.name}
-            email={user.email}
-            id={user._id}
-          />
-        );
-    }
-  };
+  const navItems = [
+    { label: "Personal Information", path: "personal-info", icon: <FaUser /> },
+    { label: "Track Order", path: "track-order", icon: <FaBox /> },
+    { label: "Addresses", path: "addresses", icon: <FaMapMarkerAlt /> },
+    { label: "Saved Designs", path: "saved-designs", icon: <FaHeart /> },
+    { label: "Order History", path: "order-history", icon: <FaHistory /> },
+  ];
 
   return (
     <div className="min-h-screen flex mt-14">
-      <aside className="bg-white p-6 shadow-md fixed top-16 left-0 h-full overflow-y-auto z-10">
+      {/* Side Panel */}
+      <aside className="hidden sm:block bg-white p-6 shadow-md fixed top-16 left-0 h-full w-64 overflow-y-auto z-10">
         <div className="flex flex-col items-center">
           <div className="relative w-24 h-24 bg-gray-300 rounded-full mb-3 flex items-center justify-center overflow-hidden group">
             {newImage ? (
-              <img
-                src={newImage}
-                alt="New Profile Preview"
-                className="w-full h-full rounded-full object-cover border-2 border-blue-500"
-              />
+              <img src={newImage} className="w-full h-full rounded-full object-cover border-2 border-blue-500" />
             ) : profileImage ? (
-              <img
-                src={profileImage}
-                alt="Profile"
-                className="w-full h-full rounded-full object-cover"
-              />
+              <img src={profileImage} className="w-full h-full rounded-full object-cover" />
             ) : (
-              <span className="text-2xl font-semibold text-gray-700">
-                {getInitials(user?.name)}
-              </span>
+              <span className="text-2xl font-semibold text-gray-700">{getInitials(user?.name)}</span>
             )}
             <label className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
               <FaCamera className="text-white text-xl" />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpload}
-              />
+              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             </label>
           </div>
 
           {newImage && (
-            <button
-              onClick={handleConfirmUpload}
-              className="my-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
+            <button onClick={handleConfirmUpload} className="my-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md">
               Update
             </button>
           )}
 
-          <h1 className="text-xl font-bold text-gray-800 text-center">
-            {user?.name}
-          </h1>
+          <h1 className="text-xl font-bold text-gray-800 text-center">{user?.name}</h1>
           <p className="text-gray-500 text-sm text-center">{user?.email}</p>
         </div>
 
-        {/* Updated Nav Menu */}
         <nav className="mt-6 space-y-4">
-          {[
-            "Personal Information",
-            "Track Order",
-            "Addresses",
-            "Saved Designs",
-            "Order History",
-          ].map((item) => (
-            <button
-              key={item}
-              className={`w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${
-                activeSection === item
-                  ? "text-primary font-semibold"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-              onClick={() => setActiveSection(item)}
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={`/dashboard/${item.path}`}
+              className={({ isActive }) =>
+                `w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${
+                  isActive ? "text-primary font-semibold" : "text-gray-500 hover:text-gray-700"
+                }`
+              }
             >
-              {item === "Personal Information" && <FaUser />}
-              {item === "Track Order" && <FaBox />}
-              {item === "Addresses" && <FaMapMarkerAlt />}
-              {item === "Saved Designs" && <FaHeart />}
-              {item === "Order History" && <FaHistory />}
-              <span>{item}</span>
-            </button>
+              {item.icon}
+              <span>{item.label}</span>
+            </NavLink>
           ))}
         </nav>
 
@@ -187,10 +131,16 @@ const AccountDashboard = () => {
         </button>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64 p-6 bg-gray-50 min-h-screen">
+      {/* Main content with nested routes */}
+      <main className="flex-1 sm:ml-64 p-6 bg-gray-50 min-h-screen">
         <div className="bg-white p-6 rounded-xl shadow-md">
-          {renderSection()}
+          <Routes>
+            <Route path="personal-info" element={<PersonalInformation name={user?.name} email={user?.email} id={user?._id} />} />
+            <Route path="track-order" element={<TrackOrder />} />
+            <Route path="addresses" element={<UserAddress />} />
+            <Route path="saved-designs" element={<SavedDesigns />} />
+            <Route path="order-history" element={<OrderHistory />} />
+          </Routes>
         </div>
       </main>
     </div>

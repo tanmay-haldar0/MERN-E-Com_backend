@@ -44,7 +44,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      
+
       const tempRole = role;
 
       const res = await fetch(`${server}/${role}/logout`, {
@@ -198,7 +198,7 @@ const Navbar = () => {
                   )}
                 </div>
                 <div className="text-sm hidden sm:flex justify-center items-center">
-                  <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard"}>
+                  <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard/personal-info"}>
                     <div className="flex items-center gap-1 hover:text-primary">
                       <div className="">
                         <span>{getFirstName(user?.name || seller?.name)} </span>
@@ -230,8 +230,9 @@ const Navbar = () => {
       </div>
 
       {/* Side Drawer */}
+      {/* Side Drawer */}
       <div
-        ref={drawerRef}  // Set the ref here
+        ref={drawerRef}
         className={`fixed top-0 sm:hidden left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-50 ${drawerOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
@@ -242,14 +243,32 @@ const Navbar = () => {
           </button>
         </div>
 
-        <div className="flex flex-col p-4 space-y-3">
+        <div className="flex flex-col p-4 space-y-4">
+
+          {/* Profile Section */}
+          {isAuthenticated && (
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                {profilePic ? (
+                  <img src={profilePic} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-sm font-medium">{getInitials(name)}</span>
+                )}
+              </div>
+              <div className="text-sm">
+                <span className="font-medium">{getFirstName(name)}</span>
+                {role == "seller" ? (<span className="block text-xs text-gray-400">Seller</span>) : ("")}
+              </div>
+            </div>
+          )}
+
+          {/* Links */}
           <Link
             to="/"
             onClick={toggleDrawer}
-            className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/") && "text-primary font-semibold"
-              }`}
+            className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/") && "text-primary font-semibold"}`}
           >
-            <MdHome /> Home
+            <MdHome className="text-xl" /> Home
           </Link>
 
           {isAuthenticated && role === "seller" && (
@@ -257,57 +276,96 @@ const Navbar = () => {
               <Link
                 to="/seller/dashboard"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/dashboard") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/dashboard") && "text-primary font-semibold"}`}
               >
-                <MdDashboard /> Dashboard
+                <MdDashboard className="text-xl" /> Dashboard
               </Link>
               <Link
                 to="/seller/create-product"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/create-product") &&
-                  "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/create-product") && "text-primary font-semibold"}`}
               >
-                <MdAddShoppingCart /> Create Product
+                <MdAddBusiness className="text-xl" /> Create Product
               </Link>
               <Link
                 to="/seller/all-products"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/all-products") &&
-                  "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/all-products") && "text-primary font-semibold"}`}
               >
-                <MdAddShoppingCart /> All Product
+                <MdAddShoppingCart className="text-xl" /> All Products
+              </Link>
+              <Link
+                to="/seller/orders"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary relative ${isActive("/seller/orders") && "text-primary font-semibold"}`}
+              >
+                <MdReceiptLong className="text-xl" /> Orders
+                {ordersCount > 0 && (
+                  <span className="absolute right-4 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                    {ordersCount}
+                  </span>
+                )}
+              </Link>
+              <Link
+                to="/seller/coupons"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/coupons") && "text-primary font-semibold"}`}
+              >
+                <MdCardGiftcard className="text-xl" /> Coupons
               </Link>
             </>
           )}
 
-          {(!role || role === "user") && (
+          {(isAuthenticated && role === "user") && (
             <>
               <Link
                 to="/cart"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/cart") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/cart") && "text-primary font-semibold"}`}
               >
-                <MdShoppingCart /> Cart
+                <MdShoppingCart className="text-xl" /> Cart
               </Link>
               <Link
-                to="/dashboard"
+                to="/dashboard/personal-info"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/dashboard") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/dashboard/personal-info") && "text-primary font-semibold"}`}
               >
-                <MdOutlineSpaceDashboard /> Dashboard
+                <MdOutlineSpaceDashboard className="text-xl" /> Dashboard
               </Link>
               <Link
                 to="/shop"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
               >
-                <CiShop /> Shop
+                <CiShop className="text-xl" /> Shop
+              </Link>
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+              >
+                <CiShop className="text-xl" /> Shop
+              </Link>
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+              >
+                <CiShop className="text-xl" /> Shop
+              </Link>
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+              >
+                <CiShop className="text-xl" /> Shop
+              </Link>
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+              >
+                <CiShop className="text-xl" /> Shop
               </Link>
             </>
           )}
@@ -317,31 +375,29 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/login") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/login") && "text-primary font-semibold"}`}
               >
-                <MdLogin /> Login
+                <MdLogin className="text-xl" /> Login
               </Link>
-
               <Link
                 to="/signup"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/signup") && "text-primary font-semibold"
-                  }`}
+                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/signup") && "text-primary font-semibold"}`}
               >
-                <MdPersonAdd /> Signup
+                <MdPersonAdd className="text-xl" /> Signup
               </Link>
             </>
           ) : (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              className="flex items-center gap-2 text-red-600 hover:text-red-700 mt-2"
             >
-              <MdLogout /> Logout
+              <MdLogout className="text-xl" /> Logout
             </button>
           )}
         </div>
       </div>
+
     </div>
   );
 };

@@ -86,7 +86,7 @@ const SideNav = () => {
   
 
   return (
-    <div className="fixed min-h-screen mt-16">
+    <div className="fixed min-h-screen mt-2">
       {/* Sidebar */}
       <aside className="w-64 bg-white p-6 shadow-md hidden md:block">
         <div className="flex flex-col items-center">
