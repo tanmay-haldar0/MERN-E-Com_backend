@@ -20,7 +20,7 @@ router.post(
     }
 
     // Parse and sanitize the incoming data
-    const imageUrls = req.files.map((file) => file.filename);
+    const imageUrls = req.files.map((file) => file.url);
     const tags = Array.isArray(req.body.tags)
       ? req.body.tags
       : req.body.tags?.split(",") || [];

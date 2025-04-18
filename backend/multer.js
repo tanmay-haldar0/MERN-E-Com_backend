@@ -3,6 +3,8 @@ import sharp from "sharp";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import cloudinary from "./clouninary.js";
+import streamifier from "streamifier"; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,38 +40,56 @@ function getFormattedDateTime() {
 // Middleware to compress and rename files
 const handleUploadAndCompress = async (req, res, next) => {
   try {
-    if (!req.files || req.files.length === 0) return next();
+    // Normalize files input: always work with an array
+    const files = req.files || (req.file ? [req.file] : []);
+    if (files.length === 0) return next();
 
-    const uploadDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir);
-    }
+    const uploadedFiles = [];
 
-    const processedFiles = [];
-
-    for (const file of req.files) {
-      const formattedDateTime = getFormattedDateTime();
-      const randomId = Math.round(Math.random() * 1e6);
-      const filename = `img_${formattedDateTime}_${randomId}.jpeg`;
-      const outputPath = path.join(uploadDir, filename);
-
-      await sharp(file.buffer)
+    for (const file of files) {
+      // Compress with sharp
+      const compressedBuffer = await sharp(file.buffer)
         .resize(800)
         .jpeg({ quality: 80 })
-        .toFile(outputPath);
+        .toBuffer();
 
-      processedFiles.push({
+      // Upload to Cloudinary using stream
+      const streamUpload = () =>
+        new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: "your_folder", // Optional: cloudinary folder
+              format: "jpeg",
+            },
+            (error, result) => {
+              if (result) resolve(result);
+              else reject(error);
+            }
+          );
+
+          streamifier.createReadStream(compressedBuffer).pipe(stream);
+        });
+
+      const result = await streamUpload();
+
+      uploadedFiles.push({
         ...file,
-        filename,
-        path: outputPath,
+        url: result.secure_url,
+        public_id: result.public_id,
       });
     }
 
-    req.files = processedFiles;
+    // Assign results back to request
+    if (req.file) {
+      req.file = uploadedFiles[0];
+    } else {
+      req.files = uploadedFiles;
+    }
+
     next();
   } catch (err) {
-    console.error("Image compression failed:", err);
-    res.status(500).send("Failed to process images.");
+    console.error("Image upload failed:", err);
+    res.status(500).send("Failed to upload images.");
   }
 };
  

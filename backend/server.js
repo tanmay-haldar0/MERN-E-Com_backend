@@ -5,12 +5,14 @@ import dotenv from "dotenv";
 import connectDatabase from "./db/db.js";
 
 // config
-if (process.env.NODE_ENV !== "PRODUCTION") {
+// Load .env based on NODE_ENV
+if (process.env.NODE_ENV !== 'PRODUCTION') {
   dotenv.config({
-    path: "./backend/config/.env",
+    path: './backend/config/.env',  // Make sure this path is correct relative to where your app is run
   });
+} else {
+  dotenv.config();  // Default path if NODE_ENV is  'PRODUCTION'
 }
-
 
 // Handle Uncaught error Exception
 process.on("uncaughtException", (err) => {

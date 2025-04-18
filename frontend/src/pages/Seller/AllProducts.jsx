@@ -99,7 +99,7 @@ const AllProducts = () => {
                   {/* Image + Name + Category */}
                   <div className="flex items-center gap-2 flex-shrink">
                     <img
-                      src={`${imgServer}${product.images[0]}`}
+                      src={`${product.images[0]}`}
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded-md"
                     />
