@@ -28,11 +28,15 @@ import AccountDashboard from "./pages/User/AccountPage.jsx"; // Import your acco
 import { Navigate } from "react-router-dom";
 
 function App() {
-  const { isAuthenticated, role, loading } = useSelector((state) => ({
+  const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
     isAuthenticated: state.user.isAuthenticated || state.seller.isAuthenticated,
     role: state.user.role || state.seller.role,
     loading: state.user.loading || state.seller.loading,
+    seller: state.seller,
   }));
+  console.log(seller);
+  console.log(role);
+  console.log(loading);
 
   const [delayedLoading, setDelayedLoading] = useState(true);
 

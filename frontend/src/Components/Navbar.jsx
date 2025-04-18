@@ -12,7 +12,7 @@ import {
   MdPersonAdd,
   MdDashboard,
   MdAddShoppingCart,
-  MdMenu,  // Hamburger icon
+  MdMenu, // Hamburger icon
   MdLogout,
   MdClose,
   MdOutlineSpaceDashboard,
@@ -25,12 +25,18 @@ import logo from "../assets/logo.png";
 import { server } from "../server";
 import { loadSeller, loadUser } from "../redux/actions/user";
 import { toast } from "react-toastify";
-import { FaAngleDown } from "react-icons/fa";
+import {
+  FaAngleDown,
+  FaBox,
+  FaHeart,
+  FaHistory,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 import { CiShop } from "react-icons/ci";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const drawerRef = useRef(null);  // Add a ref for the drawer
+  const drawerRef = useRef(null); // Add a ref for the drawer
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,7 +50,6 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-
       const tempRole = role;
 
       const res = await fetch(`${server}/${role}/logout`, {
@@ -92,8 +97,9 @@ const Navbar = () => {
   const getInitials = (fullName) => {
     if (!fullName || fullName.trim() === "") return "";
     const names = fullName.split(" ");
-    return `${names[0].charAt(0)}${names.length > 1 ? names[names.length - 1].charAt(0) : ""
-      }`.toUpperCase();
+    return `${names[0].charAt(0)}${
+      names.length > 1 ? names[names.length - 1].charAt(0) : ""
+    }`.toUpperCase();
   };
 
   // Close drawer when clicking outside
@@ -131,8 +137,6 @@ const Navbar = () => {
         </div>
 
         <div className="w-auto h-10 flex sm:flex md:flex items-center justify-center">
-
-
           {isAuthenticated && role === "seller" ? (
             <div className="hidden sm:flex gap-4">
               <Link
@@ -183,8 +187,15 @@ const Navbar = () => {
 
           {isAuthenticated ? (
             <div className="relative">
-              <button onClick={() => navigate("/dashboard")} className="flex justify-center items-center">
-                <div className="m-2 rounded-full w-10 h-10 flex items-center justify-center bg-blue-100">
+              <button
+                onClick={() =>
+                  navigate(
+                    role === "seller" ? "/seller/dashboard" : "/dashboard"
+                  )
+                }
+                className="flex justify-center items-center"
+              >
+                <div className="m-2 hidden sm:flex rounded-full w-10 h-10 items-center justify-center bg-blue-100">
                   {profilePic ? (
                     <img
                       src={profilePic}
@@ -198,24 +209,22 @@ const Navbar = () => {
                   )}
                 </div>
                 <div className="text-sm hidden sm:flex justify-center items-center">
-                  <Link to={role === "seller" ? "/seller/dashboard" : "/dashboard/personal-info"}>
-                    <div className="flex items-center gap-1 hover:text-primary">
-                      <div className="">
-                        <span>{getFirstName(user?.name || seller?.name)} </span>
-                        <span className="text-xs text-gray-400">{seller ? "Seller" : ""}</span>
-                      </div>
-                      <FaAngleDown />
+                  <div className="flex items-center gap-1 hover:text-primary">
+                    <div className="">
+                      <span>{getFirstName(user?.name || seller?.name)} </span>
+                      <span className="text-xs text-gray-400">
+                        {seller ? "Seller" : ""}
+                      </span>
                     </div>
-                  </Link>
+                    <FaAngleDown />
+                  </div>
                 </div>
               </button>
             </div>
           ) : (
             <button className="bg-primary p-2 text-white rounded-md text-center text-sm sm:text-md mr-1">
               <Link to={"/signup"}>
-                <span className="hover:text-white cursor-pointer">
-                  SignUp{" "}
-                </span>
+                <span className="hover:text-white cursor-pointer">SignUp </span>
               </Link>
             </button>
           )}
@@ -233,10 +242,11 @@ const Navbar = () => {
       {/* Side Drawer */}
       <div
         ref={drawerRef}
-        className={`fixed top-0 sm:hidden left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-50 ${drawerOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 sm:hidden left-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 z-50 ${
+          drawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        <div className="flex justify-between items-center px-4 py-3 border-b">
+        <div className="flex justify-between items-center px-4 py-1 border-b">
           <h2 className="text-lg font-semibold">Menu</h2>
           <button onClick={toggleDrawer}>
             <MdClose className="text-xl text-gray-600" />
@@ -244,29 +254,43 @@ const Navbar = () => {
         </div>
 
         <div className="flex flex-col p-4 space-y-4">
-
           {/* Profile Section */}
           {isAuthenticated && (
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-                {profilePic ? (
-                  <img src={profilePic} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-sm font-medium">{getInitials(name)}</span>
-                )}
+            <>
+              <div className="flex items-center space-x-3 px-3 py-2">
+                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                  {profilePic ? (
+                    <img
+                      src={profilePic}
+                      alt="Avatar"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-md font-medium">
+                      {getInitials(name)}
+                    </span>
+                  )}
+                </div>
+                <div className="text-md">
+                  <span className="font-medium">{getFirstName(name)}</span>
+                  {/* <div className="font-light text-[9px]">{user?.email || seller.email}</div> */}
+                  {role === "seller" && (
+                    <span className="block text-xs text-gray-400">Seller</span>
+                  )}
+                </div>
               </div>
-              <div className="text-sm">
-                <span className="font-medium">{getFirstName(name)}</span>
-                {role == "seller" ? (<span className="block text-xs text-gray-400">Seller</span>) : ("")}
-              </div>
-            </div>
+              <hr className="border-t border-gray-200 my-4" />
+            </>
           )}
 
           {/* Links */}
           <Link
             to="/"
             onClick={toggleDrawer}
-            className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/") && "text-primary font-semibold"}`}
+            className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/") && "text-primary font-semibold"
+ }`}
           >
             <MdHome className="text-xl" /> Home
           </Link>
@@ -276,32 +300,47 @@ const Navbar = () => {
               <Link
                 to="/seller/dashboard"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/dashboard") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/seller/dashboard") && "text-primary font-semibold"
+ }`}
               >
                 <MdDashboard className="text-xl" /> Dashboard
               </Link>
               <Link
                 to="/seller/create-product"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/create-product") && "text-primary font-semibold"}`}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/seller/create-product") && "text-primary font-semibold"
+ }`}
               >
                 <MdAddBusiness className="text-xl" /> Create Product
               </Link>
               <Link
                 to="/seller/all-products"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/all-products") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/seller/all-products") && "text-primary font-semibold"
+ }`}
               >
                 <MdAddShoppingCart className="text-xl" /> All Products
               </Link>
               <Link
                 to="/seller/orders"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary relative ${isActive("/seller/orders") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary relative ${
+   isActive("/seller/orders") && "text-primary font-semibold"
+ }`}
               >
                 <MdReceiptLong className="text-xl" /> Orders
                 {ordersCount > 0 && (
-                  <span className="absolute right-4 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center">
+                  <span
+                    className="absolute
+ right-4 bg-red-500 text-white text-xs font-semibold rounded-full w-5 h-5 flex items-center justify-center"
+                  >
                     {ordersCount}
                   </span>
                 )}
@@ -309,63 +348,88 @@ const Navbar = () => {
               <Link
                 to="/seller/coupons"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/seller/coupons") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/seller/coupons") && "text-primary font-semibold"
+ }`}
               >
                 <MdCardGiftcard className="text-xl" /> Coupons
               </Link>
             </>
           )}
 
-          {(isAuthenticated && role === "user") && (
+          {isAuthenticated && role === "user" && (
             <>
               <Link
                 to="/cart"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/cart") && "text-primary font-semibold"}`}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/cart") && "text-primary font-semibold"
+ }`}
               >
                 <MdShoppingCart className="text-xl" /> Cart
+              </Link>
+
+              <Link
+                to="/shop"
+                onClick={toggleDrawer}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/shop") && "text-primary font-semibold"
+ }`}
+              >
+                <CiShop className="text-xl" /> Shop
               </Link>
               <Link
                 to="/dashboard/personal-info"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/dashboard/personal-info") && "text-primary font-semibold"}`}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/dashboard/personal-info") && "text-primary font-semibold"
+ }`}
               >
                 <MdOutlineSpaceDashboard className="text-xl" /> Dashboard
               </Link>
               <Link
-                to="/shop"
+                to="/dashboard/track-order"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/dashboard/track-order") && "text-primary font-semibold"
+ }`}
               >
-                <CiShop className="text-xl" /> Shop
+                <FaBox className="text-xl" /> Track Order
               </Link>
               <Link
-                to="/shop"
+                to="/dashboard/addresses"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/dashboard/addresses") && "text-primary font-semibold"
+ }`}
               >
-                <CiShop className="text-xl" /> Shop
+                <FaMapMarkerAlt className="text-xl" /> Address
               </Link>
               <Link
-                to="/shop"
+                to="/dashboard/saved-designs"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/dashboard/saved-designs") && "text-primary font-semibold"
+ }`}
               >
-                <CiShop className="text-xl" /> Shop
+                <FaHeart className="text-xl" /> Saved Designs
               </Link>
               <Link
-                to="/shop"
+                to="/dashboard/order-history"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
+                className={`flex items-center gap-2 px-4 py-1 text-base rounded-md
+ text-gray-700 hover:text-primary ${
+   isActive("/dashboard/order-history") && "text-primary font-semibold"
+ }`}
               >
-                <CiShop className="text-xl" /> Shop
-              </Link>
-              <Link
-                to="/shop"
-                onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/shop") && "text-primary font-semibold"}`}
-              >
-                <CiShop className="text-xl" /> Shop
+                <FaHistory className="text-xl" /> Order History
               </Link>
             </>
           )}
@@ -375,14 +439,20 @@ const Navbar = () => {
               <Link
                 to="/login"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/login") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/login") && "text-primary font-semibold"
+ }`}
               >
                 <MdLogin className="text-xl" /> Login
               </Link>
               <Link
                 to="/signup"
                 onClick={toggleDrawer}
-                className={`flex items-center gap-2 text-gray-700 hover:text-primary ${isActive("/signup") && "text-primary font-semibold"}`}
+                className={`flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-gray-700 hover:text-primary ${
+   isActive("/signup") && "text-primary font-semibold"
+ }`}
               >
                 <MdPersonAdd className="text-xl" /> Signup
               </Link>
@@ -390,14 +460,14 @@ const Navbar = () => {
           ) : (
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700 mt-2"
+              className="flex items-center px-4 py-1 text-base rounded-md
+ gap-2 text-red-600 hover:text-red-700 mt-2"
             >
               <MdLogout className="text-xl" /> Logout
             </button>
           )}
         </div>
       </div>
-
     </div>
   );
 };

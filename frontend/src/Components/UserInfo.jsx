@@ -2,62 +2,65 @@ import React from "react";
 import { FaUser, FaGlobe, FaEnvelope, FaCalendar } from "react-icons/fa";
 
 const PersonalInformation = ({ name, email, id }) => {
-  const [fname, lname] = name.split(" ");
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold text-gray-800">Personal Information</h2>
+    <div className="sm:p-6" key={id}>
+      <h2 className="text-lg sm:2xl font-bold text-gray-800 mb-1">
+        Personal Information
+      </h2>
       <p className="text-gray-500 text-sm mb-6">
         Manage your personal details and contact information.
       </p>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl shadow flex items-center space-x-3 border border-gray-200">
-          <FaUser className="text-primary" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {/* First Name */}
+        <div className="bg-white p-4 rounded-xl shadow flex items-center gap-3 border border-gray-200">
+          <FaUser className="text-primary text-lg min-w-[20px]" />
           <input
             type="text"
             placeholder="First Name"
-            defaultValue={fname}
-            className="w-full p-2 bg-transparent outline-none"
+            defaultValue={name}
+            className="w-full text-sm sm:text-base p-2 bg-transparent outline-none"
           />
         </div>
-        <div className="bg-white p-4 rounded-xl shadow flex items-center space-x-3 border border-gray-200">
-          <FaUser className="text-primary" />
-          <input
-            type="text"
-            placeholder="Last Name"
-            defaultValue={lname}
-            className="w-full p-2 bg-transparent outline-none"
-          />
-        </div>
-        <div className="bg-white p-4 rounded-xl shadow flex items-center space-x-3 border border-gray-200">
-          <FaCalendar className="text-primary" />
+
+
+        {/* Date of Birth */}
+        <div className="bg-white p-4 rounded-xl shadow flex items-center gap-3 border border-gray-200">
+          <FaCalendar className="text-primary text-lg min-w-[20px]" />
           <input
             type="date"
             defaultValue="2005-12-12"
-            className="w-full p-2 bg-transparent outline-none"
+            className="w-full text-sm sm:text-base p-2 bg-transparent outline-none"
           />
         </div>
-        <div className="bg-white p-4 rounded-xl shadow flex items-center space-x-3 border border-gray-200">
-          <FaGlobe className="text-primary" />
+
+        {/* Country */}
+        <div className="bg-white p-4 rounded-xl shadow flex items-center gap-3 border border-gray-200">
+          <FaGlobe className="text-primary text-lg min-w-[20px]" />
           <input
             type="text"
             placeholder="Country / Region"
             defaultValue="West Bengal, India"
-            className="w-full p-2 bg-transparent outline-none"
+            className="w-full text-sm sm:text-base p-2 bg-transparent outline-none"
           />
         </div>
-        <div className="bg-white p-4 rounded-xl shadow flex items-center space-x-3 border border-gray-200 md:col-span-2">
-          <FaEnvelope className="text-primary" />
+
+        {/* Email */}
+        <div className="bg-white p-4 rounded-xl shadow flex items-center gap-3 border border-gray-200 md:col-span-2">
+          <FaEnvelope className="text-primary text-lg min-w-[20px]" />
           <input
             type="email"
             placeholder="Email Address"
             defaultValue={email}
-            className="w-full p-2 bg-transparent outline-none"
+            className="w-full text-sm sm:text-base p-2 bg-transparent outline-none"
           />
         </div>
       </div>
-      <div className="flex items-center justify-end">
-        <button className="mt-6 w-24 bg-primary hover:bg-blue-700 text-white py-2 rounded-md">
+
+      {/* Button */}
+      <div className="flex justify-end mt-6">
+        <button className="w-full sm:w-32 bg-primary hover:bg-blue-700 text-white py-2 px-4 rounded-md transition text-sm sm:text-base">
           Update
         </button>
       </div>

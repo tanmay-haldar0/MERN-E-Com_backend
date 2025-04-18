@@ -66,11 +66,15 @@ const AccountDashboard = () => {
 
   const getInitials = (name) => {
     if (!name) return "S";
-    return name.split(" ").map((part) => part[0].toUpperCase()).slice(0, 2).join("");
+    return name
+      .split(" ")
+      .map((part) => part[0].toUpperCase())
+      .slice(0, 2)
+      .join("");
   };
 
   const navItems = [
-    { label: "Personal Information", path: "personal-info", icon: <FaUser /> },
+    { label: "Personal Info", path: "personal-info", icon: <FaUser /> },
     { label: "Track Order", path: "track-order", icon: <FaBox /> },
     { label: "Addresses", path: "addresses", icon: <FaMapMarkerAlt /> },
     { label: "Saved Designs", path: "saved-designs", icon: <FaHeart /> },
@@ -84,25 +88,43 @@ const AccountDashboard = () => {
         <div className="flex flex-col items-center">
           <div className="relative w-24 h-24 bg-gray-300 rounded-full mb-3 flex items-center justify-center overflow-hidden group">
             {newImage ? (
-              <img src={newImage} className="w-full h-full rounded-full object-cover border-2 border-blue-500" />
+              <img
+                src={newImage}
+                className="w-full h-full rounded-full object-cover border-2 border-blue-500"
+              />
             ) : profileImage ? (
-              <img src={profileImage} className="w-full h-full rounded-full object-cover" />
+              <img
+                src={profileImage}
+                className="w-full h-full rounded-full object-cover"
+              />
             ) : (
-              <span className="text-2xl font-semibold text-gray-700">{getInitials(user?.name)}</span>
+              <span className="text-2xl font-semibold text-gray-700">
+                {getInitials(user?.name)}
+              </span>
             )}
             <label className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
               <FaCamera className="text-white text-xl" />
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
             </label>
           </div>
 
           {newImage && (
-            <button onClick={handleConfirmUpload} className="my-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+            <button
+              onClick={handleConfirmUpload}
+              className="my-2 bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+            >
               Update
             </button>
           )}
 
-          <h1 className="text-xl font-bold text-gray-800 text-center">{user?.name}</h1>
+          <h1 className="text-xl font-bold text-gray-800 text-center">
+            {user?.name}
+          </h1>
           <p className="text-gray-500 text-sm text-center">{user?.email}</p>
         </div>
 
@@ -112,8 +134,10 @@ const AccountDashboard = () => {
               key={item.path}
               to={`/dashboard/${item.path}`}
               className={({ isActive }) =>
-                `w-full text-left px-3 py-2 rounded-md flex items-center space-x-2 ${
-                  isActive ? "text-primary font-semibold" : "text-gray-500 hover:text-gray-700"
+                `w-full text-left px-3 py-2 rounded-md flex text-md items-center space-x-2 ${
+                  isActive
+                    ? "text-primary font-semibold"
+                    : "text-gray-500 hover:text-gray-700"
                 }`
               }
             >
@@ -132,10 +156,20 @@ const AccountDashboard = () => {
       </aside>
 
       {/* Main content with nested routes */}
-      <main className="flex-1 sm:ml-64 p-6 bg-gray-50 min-h-screen">
-        <div className="bg-white p-6 rounded-xl shadow-md">
+      {/* Main content with nested routes */}
+      <main className="flex-1 sm:ml-64 p-4 sm:p-6 bg-gray-50 min-h-screen">
+        <div className="bg-white p-1 sm:p-4 rounded-xl shadow-md w-full max-w-6xl mx-auto">
           <Routes>
-            <Route path="personal-info" element={<PersonalInformation name={user?.name} email={user?.email} id={user?._id} />} />
+            <Route
+              path="personal-info"
+              element={
+                <PersonalInformation
+                  name={user?.name}
+                  email={user?.email}
+                  id={user?._id}
+                />
+              }
+            />
             <Route path="track-order" element={<TrackOrder />} />
             <Route path="addresses" element={<UserAddress />} />
             <Route path="saved-designs" element={<SavedDesigns />} />
