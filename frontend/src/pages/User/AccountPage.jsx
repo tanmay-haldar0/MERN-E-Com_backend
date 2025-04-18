@@ -9,7 +9,7 @@ import {
   FaEdit,
   FaCamera,
 } from "react-icons/fa";
-import PersonalInformation from "../../Components/UserInfo";
+import PersonalInformation from "./components/UserInfo.jsx";
 import TrackOrder from "./components/TrackOrder.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { server } from "../../server";
@@ -167,6 +167,7 @@ const AccountDashboard = () => {
                   name={user?.name}
                   email={user?.email}
                   id={user?._id}
+                  img={user?.avatar?.url}
                 />
               }
             />
