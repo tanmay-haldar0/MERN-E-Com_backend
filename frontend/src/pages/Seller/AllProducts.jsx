@@ -38,9 +38,9 @@ const AllProducts = () => {
   );
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
+    <div className="mt-14 flex flex-col md:flex-row min-h-screen bg-gray-100">
       <SideNav />
-      <div className="flex-1 p-4 md:p-8 md:ml-64 mt-16">
+      <div className="flex-1 p-4 md:p-8 md:ml-64">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start gap-4 flex-wrap">
           <div>

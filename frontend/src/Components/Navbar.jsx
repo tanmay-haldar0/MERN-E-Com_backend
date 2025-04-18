@@ -94,6 +94,8 @@ const Navbar = () => {
   const profilePic = user?.avatar?.url || seller?.avatar?.url || "";
   const ordersCount = 5;
 
+  // console.log(role);
+
   const getInitials = (fullName) => {
     if (!fullName || fullName.trim() === "") return "";
     const names = fullName.split(" ");

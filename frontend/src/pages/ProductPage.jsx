@@ -171,7 +171,7 @@ const ProductPage = () => {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <button className="w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg">
+              <button className="hidden w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg">
                 Customize
               </button>
               <button className="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg">
@@ -195,9 +195,8 @@ const ProductPage = () => {
                 <span
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer ${
-                    star <= rating ? "text-yellow-500" : "text-gray-400"
-                  }`}
+                  className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-400"
+                    }`}
                 >
                   <FaStar />
                 </span>
@@ -253,19 +252,21 @@ const ProductPage = () => {
         {/* Similar Products */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold">Similar Products</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-5">
+          <div className="flex overflow-x-auto  whitespace-nowrap gap-3 mt-5 pb-2">
             {[...Array(6)].map((_, i) => (
-              <ProductCard
-                key={i}
-                imgSrc={product.imgSrc}
-                isSale={product.isSale}
-                productName={product.productName}
-                price={product.price}
-                salePrice={product.salePrice}
-              />
+              <div key={i} className="flex-shrink-0 w-[160px] sm:w-[180px]">
+                <ProductCard
+                  imgSrc={product.imgSrc}
+                  isSale={product.isSale}
+                  productName={product.productName}
+                  price={product.price}
+                  salePrice={product.salePrice}
+                />
+              </div>
             ))}
           </div>
         </div>
+
       </div>
 
       <Footer />

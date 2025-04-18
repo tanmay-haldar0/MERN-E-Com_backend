@@ -214,9 +214,9 @@ const CreateProduct = () => {
   });
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 mt-14">
       <SideNav />
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 mt-20 lg:mt-16 lg:ml-64 w-full">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8  lg:ml-64 w-full">
         <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">🛍️ Add New Product</h1>
         <p className="text-gray-600 mb-6">Fill in the details to add a new product to your store.</p>
 

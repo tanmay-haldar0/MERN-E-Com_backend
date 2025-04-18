@@ -56,9 +56,9 @@ const Orders = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 mt-14">
       <SideNav />
-      <div className="flex-1 p-8 ml-64 mt-16">
+      <div className="flex-1 p-8 ml-64">
         <h1 className="text-4xl font-bold text-gray-900">📋 All Orders</h1>
         <p className="text-gray-600 mb-6">View and manage customer orders here.</p>
 
