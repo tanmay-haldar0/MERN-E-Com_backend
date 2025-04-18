@@ -224,11 +224,15 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
-            <button className="bg-primary p-2 text-white rounded-md text-center text-sm sm:text-md mr-1">
+            <div className="hidden sm:block p-2 text-slate-400 rounded-md text-center text-sm sm:text-md mr-1">
               <Link to={"/signup"}>
-                <span className="hover:text-white cursor-pointer">SignUp </span>
+                <span className="hover:text-primary cursor-pointer">SignUp </span>
               </Link>
-            </button>
+              /
+              <Link to={"/login"}>
+                <span className="hover:text-primary cursor-pointer"> Login </span>
+              </Link>
+            </div>
           )}
           {/* Hamburger Icon for Mobile */}
           <button
