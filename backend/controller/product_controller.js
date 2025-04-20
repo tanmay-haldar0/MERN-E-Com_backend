@@ -88,7 +88,8 @@ router.get(
     }
   })
 );
- 
+
+// Get all products
 router.get(
   "/get-all-products",
   catchAsyncError(async (req, res) => {
@@ -108,6 +109,32 @@ router.get(
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     });
+  })
+);
+
+// Update a products
+router.put(
+  "/update-product/:id",
+  upload.array("images"),
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+      });
+      if (!product) {
+        return res.status(404).json({ message: "Product Not Found" });
+      }
+      if (req.files) {
+        product.images = req.files.map((file) => file.filename);
+        await product.save();
+      }
+      res.status(200).json({ success: true, product });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
   })
 );
 

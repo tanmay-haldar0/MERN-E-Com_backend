@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ProductCard from '../Components/ProductCard';
 import Banner from '../Components/Banner';
 import VBanner from '../Components/VBanner';
@@ -7,77 +7,26 @@ import Carousel from '../Components/Carousel';
 import { FaArrowRight } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import Footer from '../Components/Footer.jsx'
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllProducts } from '../redux/actions/product.js';
 
 const Home = () => {
-  const products = [
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1252605699/photo/veg-momos-on-black-slate-table-top-momos-is-the-popular-dish-of-indian-tibetan-chinese.webp?a=1&b=1&s=612x612&w=0&k=20&c=qil7GGAkjXOSIu6NB19XIlqAy2CYf4U0arY0c5uy05M=',
-      isSale: true,
-      productName: 'Veg Dumplings',
-      price: 29.99,
-      salePrice: 99.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/153444470/photo/pizza.webp?a=1&b=1&s=612x612&w=0&k=20&c=wmp-5NGZUXWag2EGOiwfXQN3Q4TvBYcYJBb8AXFaybo=',
-      isSale: false,
-      productName: 'Medium Sized Pizza',
-      price: 69.49,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1050109420/photo/bedmi-poori-daal-kachori.jpg?s=612x612&w=0&k=20&c=8zpScH9IANsomHG4VsPDNq1aJmVXJWKzSrF8Mttwf_Y=',
-      isSale: true,
-      productName: 'Delicious Kochuri',
-      price: 49.99,
-      salePrice: 99.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1208794199/photo/the-original-stabucks-coffee-for-their-customer-at-the-starbucks-reserve-roastery-in-shanghai.webp?a=1&b=1&s=612x612&w=0&k=20&c=-l3KzfjcZlWR_TkXW_9U-kLxKTYpBKidsecbvQ55mro=',
-      isSale: true,
-      productName: 'Delicious Coffee',
-      price: 29.99,
-      salePrice: 49.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1399371766/photo/bacon-cheeseburger-on-a-toasted-bun.webp?a=1&b=1&s=612x612&w=0&k=20&c=958m1hYPSZn6eNLh00huIwEC85FhGz0pCtIbtaEq5f4=',
-      isSale: false,
-      productName: 'Burger large size',
-      price: 19.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1252605699/photo/veg-momos-on-black-slate-table-top-momos-is-the-popular-dish-of-indian-tibetan-chinese.webp?a=1&b=1&s=612x612&w=0&k=20&c=qil7GGAkjXOSIu6NB19XIlqAy2CYf4U0arY0c5uy05M=',
-      isSale: true,
-      productName: 'Veg Dumplings',
-      price: 29.99,
-      salePrice: 99.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/153444470/photo/pizza.webp?a=1&b=1&s=612x612&w=0&k=20&c=wmp-5NGZUXWag2EGOiwfXQN3Q4TvBYcYJBb8AXFaybo=',
-      isSale: false,
-      productName: 'Medium Sized Pizza',
-      price: 69.49,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1050109420/photo/bedmi-poori-daal-kachori.jpg?s=612x612&w=0&k=20&c=8zpScH9IANsomHG4VsPDNq1aJmVXJWKzSrF8Mttwf_Y=',
-      isSale: true,
-      productName: 'Delicious Kochuri',
-      price: 49.99,
-      salePrice: 99.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1208794199/photo/the-original-stabucks-coffee-for-their-customer-at-the-starbucks-reserve-roastery-in-shanghai.webp?a=1&b=1&s=612x612&w=0&k=20&c=-l3KzfjcZlWR_TkXW_9U-kLxKTYpBKidsecbvQ55mro=',
-      isSale: true,
-      productName: 'Delicious Coffee',
-      price: 29.99,
-      salePrice: 49.99,
-    },
-    {
-      imgSrc: 'https://media.istockphoto.com/id/1399371766/photo/bacon-cheeseburger-on-a-toasted-bun.webp?a=1&b=1&s=612x612&w=0&k=20&c=958m1hYPSZn6eNLh00huIwEC85FhGz0pCtIbtaEq5f4=',
-      isSale: false,
-      productName: 'Burger large size',
-      price: 19.99,
-    },
-    // Add more products as needed
-  ];
+  const dispatch = useDispatch();
+
+  const { homepageProducts = [], isLoading, success, totalPages } = useSelector((state) => state.product);  // Correct state
+  const products = homepageProducts;
+
+  let newProducts = [];
+  let popularProducts = [];
+
+  if (products.length >= 20) {
+    newProducts = products.slice(0, 10);
+    popularProducts = products.slice(10, 20);
+  } else {
+    // Not enough products, show same list for both
+    newProducts = products.slice(0, 10); // up to 10 or whatever is available
+    popularProducts = products.slice(0, 10);
+  }
 
   const categories = [
     {
@@ -146,6 +95,12 @@ const Home = () => {
     },
   ];
 
+
+  const currentPage = 1;
+  useEffect(() => {
+    dispatch(getAllProducts(currentPage, 20));
+  }, [dispatch, currentPage]);
+
   const bannerUrl2 = 'https://media.istockphoto.com/id/2055023629/photo/4k-beautiful-color-gradient-background-with-noise-abstract-pastel-holographic-blurred-grainy.jpg?s=612x612&w=0&k=20&c=l65_0xqN76oYzun9lKf_abnquQ7i8HF3pGkCnVbPKsE='
 
   return (
@@ -175,17 +130,19 @@ const Home = () => {
       </div>
       <div className='flex items-center h-full'>
         <div className='grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-5 gap-2 sm:gap-4'>
-          {products.map((product, index) => (
+          {newProducts.map((product, index) => (
             <ProductCard
               key={index}
-              imgSrc={product.imgSrc}
+              id={product._id}
+              imgSrc={product.images?.[0]}
               isSale={product.isSale}
-              productName={product.productName}
-              price={product.price}
+              productName={product.name}
+              price={product.originalPrice}
               salePrice={product.salePrice}
             />
           ))}
         </div>
+
         <VBanner
           mClass={'mr-8'}
           tColor={'text-white'}
@@ -222,20 +179,22 @@ const Home = () => {
             </Link>
           </div>
           <div className='grid px-2 sm:px-10 mb-8 mt-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-4'>
-            {products.map((product, index) => (
+            {popularProducts.map((product, index) => (
               <ProductCard
                 key={index}
-                imgSrc={product.imgSrc}
+                id={product._id}
+                imgSrc={product.images?.[0]}
                 isSale={product.isSale}
-                productName={product.productName}
-                price={product.price}
+                productName={product.name}
+                price={product.originalPrice}
                 salePrice={product.salePrice}
               />
             ))}
           </div>
+
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </div>
   );
 }

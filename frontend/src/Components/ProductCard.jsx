@@ -1,11 +1,14 @@
 import React from 'react';
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import LazyLoadImage from './LazyLoadImage';
+import { useNavigate } from 'react-router-dom';
 
-const ProductCard = ({ imgSrc, isSale, productName, price, salePrice, rating }) => {
+const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating }) => {
+    const navigate = useNavigate();
+
     const renderStars = (rating) => {
 
-        if(!rating){
+        if (!rating) {
             rating = 4.5;
         }
         const stars = [];
@@ -34,7 +37,7 @@ const ProductCard = ({ imgSrc, isSale, productName, price, salePrice, rating }) 
         <div className="relative rounded-lg p-2 bg-white shadow-md hover:shadow-2xl duration-200 transform hover:scale-105 transition-all ease-out">
             <div className="flex flex-col justify-between">
                 <div className="">
-                <LazyLoadImage src={imgSrc} alt={productName} className='rounded-md w-full bg-slate-200 sm:h-36 h-28 object-cover' />
+                    <LazyLoadImage src={imgSrc} alt={productName} className='rounded-md w-full bg-slate-200 sm:h-36 h-28 object-cover' />
                 </div>
                 <h3 className="sm:text-md text-sm font-semibold mt-2 ">{productName}</h3>
                 {isSale ? (
@@ -54,7 +57,13 @@ const ProductCard = ({ imgSrc, isSale, productName, price, salePrice, rating }) 
                     <p className="sm:text-sm text-xs mt-1 text-slate-500 font-semibold">Value for Price</p>
                 )}
                 <div className="flex items-center mt-2">
-                    <button className='btn w-full bg-primary p-2 rounded-md text-white font-medium text-xs sm:text-sm transition duration-200 transform hover:scale-105'>Buy Now</button>
+                    <button
+                        className='btn w-full bg-primary p-2 rounded-md text-white font-medium text-xs sm:text-sm transition duration-200 transform hover:scale-105'
+                        onClick={() => navigate(`/product/${id}`)}
+                    >
+                        Buy Now
+                    </button>
+
                 </div>
                 {isSale ? (
                     <div className="w-10 h-5 rounded-md bg-red-600 flex items-center justify-center absolute top-0 right-0">

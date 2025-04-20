@@ -26,6 +26,7 @@ import ProtectedRoute from "./Components/ProtectedRoute.jsx";
 import { useState, useEffect } from "react";
 import AccountDashboard from "./pages/User/AccountPage.jsx"; // Import your account dashboard
 import { Navigate } from "react-router-dom";
+import SellerActivationPage from "./pages/Seller/SellerActivationPage.jsx"
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -159,6 +160,7 @@ function App() {
           {/* Other Routes */}
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/activation/:activation_token" element={<ActivationPage />} />
+          <Route path="/seller/activation/:activation_token" element={<SellerActivationPage />} />
         </Routes>
       </Router>
     </div>

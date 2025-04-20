@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import SideNav from "../../Components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProducts } from "../../redux/actions/product";
+import {  getShopAllProducts } from "../../redux/actions/product";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
 import { MdEdit, MdOutlineDelete } from "react-icons/md";
@@ -12,7 +12,9 @@ const AllProducts = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { products } = useSelector((state) => state.product);
+  const { sellerProducts=[] } = useSelector((state) => state.product);
+  const products = sellerProducts;
+  console.log(products)
   const seller = useSelector((state) => state.seller.user);
 
   const dispatch = useDispatch();
@@ -20,7 +22,7 @@ const AllProducts = () => {
 
   useEffect(() => {
     setLoading(true);
-    dispatch(getAllProducts(seller._id));
+    dispatch(getShopAllProducts(seller._id));
   }, [dispatch, seller._id]);
 
   useEffect(() => {

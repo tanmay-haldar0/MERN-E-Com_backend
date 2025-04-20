@@ -1,12 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
 import ProductCard from "../Components/ProductCard";
 import Footer from "../Components/Footer.jsx";
 
 const ProductPage = () => {
-  const [rating, setRating] = useState(5);
+  const { id } = useParams();
+  const { homepageProducts = [], isLoading, success, totalPages } = useSelector((state) => state.product);  // Correct state
+  const products = homepageProducts;
+  const product = products.find((p) => p._id === id); // use `p.id` if using numeric IDs
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([
     {
@@ -30,72 +39,36 @@ const ProductPage = () => {
       userName: "User1",
       userImage: "https://example.com/user1.png",
     };
-
-    setReviews([...reviews, reviewWithRating]);
-    setReview("");
-    setRating(0);
-
     if (review) {
-      setReviews([...reviews, review]);
+      setReviews([...reviews, reviewWithRating]);
       setReview("");
+      setRating(0);
     }
   };
 
-  const { id } = useParams();
-  const imageGallery = [
-    "https://th.bing.com/th/id/OIP.Eep5dR0_b8W6Sr42-afJIAHaHa?w=198&h=198&c=7&r=0&o=5&pid=1.7",
+  if (!product) return <div className="p-10 text-center text-lg font-semibold">Product not found</div>;
+
+  const imageGallery = product.images || [
+    product.imgSrc, // fallback
     "https://th.bing.com/th?id=OIP.J_jSjQfqmzyaRlUZcQ1RlAHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2",
     "https://th.bing.com/th/id/OIP.m_z7TZU1F3OLW5vcYT8DCgAAAA?w=222&h=180&c=7&r=0&o=5&pid=1.7",
-    "https://th.bing.com/th/id/OIP.1m5FWEr7F8NuSAE6L4ASfAHaHa?w=216&h=216&c=7&r=0&o=5&pid=1.7",
   ];
 
   const [fullWidthImage, setFullWidthImage] = useState(imageGallery[0]);
   const [quantity, setQuantity] = useState(1);
 
-  const products = [
-    {
-      id: 1,
-      imgSrc:
-        "https://th.bing.com/th/id/OIP.ciuVLqG4L1s0An4zq27nuwHaHa?w=198&h=198&c=7&r=0&o=5&pid=1.7",
-      productName: "Nike Lebron 16 Low",
-      price: 150.0,
-      salePrice: 199.55,
-      description:
-        "The Lebron 16 Low is built for the biggest and most stylish moments. Lorem ipsum dolor sit amet consectetur adipisicing elit...",
-      rating: 4.5,
-      isSale: true,
-    },
-  ];
-
-  const product = products.find((p) => p.id === parseInt(id));
-
-  if (!product) {
-    return <div>Product not found</div>;
-  }
-
   const renderStars = (rating) => {
-    if (!rating) {
-      rating = 4.5;
-    }
+    if (!rating) rating = 4.5;
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
 
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<FaStar key={`full-${i}`} />);
-    }
-
-    if (hasHalfStar) {
-      stars.push(<FaStarHalfAlt key="half" />);
-    }
-
-    for (let i = stars.length; i < 5; i++) {
-      stars.push(<FaRegStar key={`empty-${i}`} />);
-    }
+    for (let i = 0; i < fullStars; i++) stars.push(<FaStar key={`full-${i}`} />);
+    if (hasHalfStar) stars.push(<FaStarHalfAlt key="half" />);
+    for (let i = stars.length; i < 5; i++) stars.push(<FaRegStar key={`empty-${i}`} />);
 
     return stars;
   };
-
   return (
     <div className="">
       <div className="max-w-7xl mx-auto p-4 sm:p-6 mt-14 mb-8">
@@ -120,7 +93,7 @@ const ProductPage = () => {
             <div className="w-full">
               <img
                 src={fullWidthImage}
-                alt={product.productName}
+                alt={product.name}
                 className="w-full h-[300px] sm:h-[400px] lg:h-full object-cover rounded-lg shadow-md transition duration-300 hover:scale-105"
               />
             </div>
@@ -129,23 +102,23 @@ const ProductPage = () => {
           {/* Product Info */}
           <div className="w-full lg:w-1/2 flex flex-col justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              {product.productName}
+              {product.name}
             </h1>
             <p className="text-gray-500">{product.description}</p>
 
             {/* Price */}
             <div className="flex items-center gap-4">
               <span className="text-xl sm:text-2xl font-bold text-blue-600">
-                ₹ {product.price.toFixed(2)}
+                ₹ {product.originalPrice?.toFixed(2)}
               </span>
-              <span className="text-lg sm:text-xl text-slate-400 line-through">
-                ₹ {product.salePrice.toFixed(2)}
-              </span>
+              {product.salePrice ? (<span className="text-lg sm:text-xl text-slate-400 line-through">
+                ₹ {product.salePrice?.toFixed(2)}
+              </span>): ("")}
             </div>
 
             {/* Rating */}
             <div className="flex items-center text-yellow-500">
-              {renderStars(product.rating)}
+              {renderStars(product?.rating)}
               <span className="ml-2 text-md font-semibold">
                 {product.rating}
               </span>

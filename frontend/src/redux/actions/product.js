@@ -29,14 +29,14 @@ export const createProduct = (newForm) => async (dispatch) => {
 };
 
 
-// get all Products
 
-export const getAllProducts = (id) => async (dispatch) => {
+// Get All Products of a Seller
+export const getShopAllProducts = (id) => async (dispatch) => {
   try {
     dispatch({
       type: "getAllProductsRequest",
     });
- 
+
     // Updated URL with the correct path
     const { data } = await axios.get(`${server}/product/get-seller-all-products/${id}`);
 
@@ -44,10 +44,38 @@ export const getAllProducts = (id) => async (dispatch) => {
       type: "getAllProductsSuccess",
       payload: data.products,
     });
-    // console.log(data);
   } catch (error) {
     dispatch({
       type: "getAllProductsFailed", // ✅ fixed spelling here
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+// Get All Products
+const itemsPerPage = 20;
+
+export const getAllProducts = (page = 1, limit = 20) => async (dispatch) => {
+  try {
+    dispatch({ type: "fullAllProductsRequest" });
+
+    const { data } = await axios.get(
+      `${server}/product/get-all-products?page=${page}&limit=${limit}`
+    );
+
+    // console.log("✅ API Response:", data); // 👈 Add this for debugging
+
+    // Updated dispatch to send both products and totalPages
+    dispatch({
+      type: "fullAllProductsSuccess",
+      payload: {
+        products: data.products,
+        totalPages: data.totalPages,
+      },
+    });
+  } catch (error) {
+    dispatch({
+      type: "fullAllProductsFailed",
       payload: error.response?.data?.message || error.message,
     });
   }
