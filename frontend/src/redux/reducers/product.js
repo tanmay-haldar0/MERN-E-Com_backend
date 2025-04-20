@@ -58,6 +58,26 @@ export const productReducer = createReducer(initialState, (builder) => {
             state.success = false;
         })
 
+        // Delete Product
+        .addCase("deleteProductRequest", (state) => {
+            state.isLoading = true;
+            state.success = false;
+            state.error = null;
+        })
+
+        .addCase("deleteProductSuccess", (state, action) => {
+            state.isLoading = false;
+            state.success = true;
+            // state.deletedProduct = action.payload; // Optional: store info about the deleted product
+        })
+
+        .addCase("deleteProductFailure", (state, action) => {
+            state.isLoading = false;
+            state.success = false;
+            state.error = action.payload;
+        })
+
+
         // Reset product create state
         .addCase("resetProductCreate", (state) => {
             state.success = false;

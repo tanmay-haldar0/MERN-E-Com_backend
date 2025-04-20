@@ -34,7 +34,7 @@ const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating
     };
 
     return (
-        <div className="relative rounded-lg p-2 bg-white shadow-md hover:shadow-2xl duration-200 transform hover:scale-105 transition-all ease-out">
+        <div className="relative rounded-lg p-2 sm:w-[180px] w-[150px] bg-white shadow-md hover:shadow-2xl duration-200 transform hover:scale-105 transition-all ease-out">
             <div className="flex flex-col justify-between">
                 <div className="">
                     <LazyLoadImage src={imgSrc} alt={productName} className='rounded-md w-full bg-slate-200 sm:h-36 h-28 object-cover' />

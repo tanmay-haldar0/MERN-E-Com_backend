@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import SideNav from "../../Components/SideNav";
-import { FaCloudUploadAlt, FaTrash, FaChevronDown } from "react-icons/fa";
+import { FaCloudUploadAlt, FaTrash, FaChevronDown, FaSpinner } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
@@ -47,6 +47,7 @@ const CreateProduct = () => {
   const seller = useSelector((state) => state.seller.user);
   const { success, error } = useSelector((state) => state.product);
   const [didSubmit, setDidSubmit] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     dispatch({ type: "resetProductCreate" });
@@ -133,18 +134,22 @@ const CreateProduct = () => {
   };
 
   const handleTagInput = (e) => {
-    if (
-      e.key === "Enter" &&
-      tagInput.trim() !== "" &&
-      productData.tags.length < 15
-    ) {
-      e.preventDefault();
-      if (!productData.tags.includes(tagInput.trim())) {
+    if (e.key === "Enter" || e.type === "blur") {
+      // Trim input and split by commas
+      const newTags = tagInput
+        .split(",")  // Split by commas
+        .map(tag => tag.trim())  // Trim spaces around each tag
+        .filter(tag => tag !== "" && !productData.tags.includes(tag));  // Remove duplicates and empty tags
+
+      // If there are valid tags, update the product data
+      if (newTags.length > 0) {
         setProductData({
           ...productData,
-          tags: [...productData.tags, tagInput.trim()],
+          tags: [...productData.tags, ...newTags], // Add new tags to the existing ones
         });
       }
+
+      // Clear the input after adding the tags
       setTagInput("");
     }
   };
@@ -163,6 +168,7 @@ const CreateProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setDidSubmit(true);
+    setLoading(true);
 
     const newForm = new FormData();
     productData.images.forEach((image) => newForm.append("images", image));
@@ -182,13 +188,18 @@ const CreateProduct = () => {
   };
 
   useEffect(() => {
-    if (!didSubmit) return;
+    if (!didSubmit) {
+      setLoading(false);
+      return;
+    }
 
     if (error) {
+      setLoading(false);
       toast.error(error);
     }
 
     if (success) {
+      setLoading(false);
       toast.success("Product Created Successfully.");
       navigate("/seller/all-products");
     }
@@ -280,10 +291,10 @@ const CreateProduct = () => {
                     {category.filter((cat) =>
                       cat.toLowerCase().includes(categorySearch.toLowerCase())
                     ).length === 0 && (
-                      <div className="px-4 py-2 text-gray-400">
-                        No categories found
-                      </div>
-                    )}
+                        <div className="px-4 py-2 text-gray-400">
+                          No categories found
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
@@ -332,6 +343,7 @@ const CreateProduct = () => {
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagInput}
+                onBlur={handleTagInput}
                 placeholder="Type and press Enter"
                 className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
                 disabled={productData.tags.length >= 15}
@@ -402,24 +414,21 @@ const CreateProduct = () => {
             <label className="block text-gray-700 font-semibold">Product Images</label>
             <div
               {...getRootProps()}
-              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out ${
-                isDragActive
-                  ? "border-blue-500 bg-blue-50 shadow-lg"
-                  : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
-              }`}
+              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out ${isDragActive
+                ? "border-blue-500 bg-blue-50 shadow-lg"
+                : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+                }`}
             >
               <input {...getInputProps()} />
               <FaCloudUploadAlt
-                className={`mx-auto text-4xl transition-colors duration-300 ${
-                  isDragActive
-                    ? "text-blue-500"
-                    : "text-gray-500 group-hover:text-blue-500"
-                }`}
+                className={`mx-auto text-4xl transition-colors duration-300 ${isDragActive
+                  ? "text-blue-500"
+                  : "text-gray-500 group-hover:text-blue-500"
+                  }`}
               />
               <p
-                className={`mt-2 text-gray-600 transition-colors duration-300 ${
-                  isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
-                }`}
+                className={`mt-2 text-gray-600 transition-colors duration-300 ${isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
+                  }`}
               >
                 {isDragActive
                   ? "Drop the files here..."
@@ -453,8 +462,13 @@ const CreateProduct = () => {
             <button
               type="submit"
               className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all"
+              disabled={loading} // Disable the button when loading
             >
-              Save Product
+              {loading ? (
+                <FaSpinner className="animate-spin mx-auto text-white" /> // Loader icon
+              ) : (
+                "Save Product"
+              )}
             </button>
           </div>
         </form>

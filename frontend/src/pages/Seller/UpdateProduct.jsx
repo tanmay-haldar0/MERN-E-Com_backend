@@ -1,13 +1,15 @@
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 import SideNav from "../../Components/SideNav";
-import { FaCloudUploadAlt, FaTrash, FaChevronDown } from "react-icons/fa";
+import { FaCloudUploadAlt, FaTrash, FaChevronDown, FaSpinner } from "react-icons/fa";
 import { v4 as uuidv4 } from "uuid";
 import { useDropzone } from "react-dropzone";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { createProduct } from "../../redux/actions/product";
+import axios from "axios";
+import { server } from "../../server";
 
 const SortableImage = ({ image, onRemove }) => {
   return (
@@ -39,19 +41,76 @@ SortableImage.propTypes = {
   onRemove: PropTypes.func.isRequired,
 };
 
+
+
 const category = ["mobile", "laptop", "camera", "watch", "headphone"];
 
 const UpdateProduct = () => {
+  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const seller = useSelector((state) => state.seller.user);
   const { success, error } = useSelector((state) => state.product);
   const [didSubmit, setDidSubmit] = useState(false);
+  const [product, setProduct] = useState("");
+  const { sellerProducts = [] } = useSelector((state) => state.product);
+  const [loading, setLoading] = useState(false);
+  const [originalImageURLs, setOriginalImageURLs] = useState([]);
+
+  useEffect(() => {
+    if (product && product._id) {
+      const processedImages = (product.images || []).map((url) => ({
+        id: uuidv4(),
+        preview: url,
+      }));
+
+      setOriginalImageURLs(product.images || []); // Save original
+      setProductData({
+        name: product.name || "",
+        price: product.originalPrice || "",
+        salePrice: product.salePrice || "",
+        description: product.description || "",
+        stock: product.stock || "",
+        category: product.category || "",
+        images: product.images || [],
+        tags: product.tags || [],
+        isCustomizable: product.isCustomizable || false,
+        sellerId: "",
+
+      });
+      setImagePreviews(processedImages);
+    }
+  }, [product]);
+
+
+  useEffect(() => {
+    const existingProduct = sellerProducts.find((p) => p._id === id);
+    // console.log(existingProduct)
+
+    if (existingProduct) {
+      setProduct(existingProduct);
+      // setFullWidthImage(existingProduct.images?.[0] || existingProduct.imgSrc);
+      setLoading(false);
+    } else {
+      axios
+        .get(`${server}/product/get-product/${id}`)
+        .then((res) => {
+          const fetched = res.data.product;
+          const fetchedProduct = Array.isArray(fetched) ? fetched[0] : fetched;
+          setProduct(fetchedProduct);
+        })
+        .catch((err) => {
+          console.error("Error fetching product:", err);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [id, sellerProducts]);
 
   useEffect(() => {
     dispatch({ type: "resetProductCreate" });
   }, [dispatch]);
 
+  // console.log(product) 
   const [productData, setProductData] = useState({
     name: "",
     price: "",
@@ -61,8 +120,13 @@ const UpdateProduct = () => {
     category: "",
     images: [],
     tags: [],
+    sellerId: "",
     isCustomizable: false,
   });
+
+
+
+  // console.log(productData)
 
   const [imagePreviews, setImagePreviews] = useState([]);
   const [tagInput, setTagInput] = useState("");
@@ -133,21 +197,26 @@ const UpdateProduct = () => {
   };
 
   const handleTagInput = (e) => {
-    if (
-      e.key === "Enter" &&
-      tagInput.trim() !== "" &&
-      productData.tags.length < 15
-    ) {
-      e.preventDefault();
-      if (!productData.tags.includes(tagInput.trim())) {
+    if (e.key === "Enter" || e.type === "blur") {
+      // Trim input and split by commas
+      const newTags = tagInput
+        .split(",")  // Split by commas
+        .map(tag => tag.trim())  // Trim spaces around each tag
+        .filter(tag => tag !== "" && !productData.tags.includes(tag));  // Remove duplicates and empty tags
+
+      // If there are valid tags, update the product data
+      if (newTags.length > 0) {
         setProductData({
           ...productData,
-          tags: [...productData.tags, tagInput.trim()],
+          tags: [...productData.tags, ...newTags], // Add new tags to the existing ones
         });
       }
+
+      // Clear the input after adding the tags
       setTagInput("");
     }
   };
+
 
   const removeTag = (tagToRemove) => {
     setProductData({
@@ -163,23 +232,51 @@ const UpdateProduct = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setDidSubmit(true);
+    setLoading(true);
+
+    const currentURLs = imagePreviews
+      .filter((img) => !img.file) // Existing cloud images
+      .map((img) => img.preview);
+
+    const removedImages = originalImageURLs.filter(
+      (url) => !currentURLs.includes(url)
+    );
 
     const newForm = new FormData();
-    productData.images.forEach((image) => newForm.append("images", image));
+    productData.images.forEach((image) => {
+      if (image instanceof File || image instanceof Blob) {
+        newForm.append("images", image);
+      }
+    });
+
     newForm.append("name", productData.name);
     newForm.append("price", productData.price);
     newForm.append("description", productData.description);
     newForm.append("stock", productData.stock);
     newForm.append("category", productData.category);
     newForm.append("isCustomizable", productData.isCustomizable);
-    newForm.append("shopId", seller._id);
+    // newForm.append("shopId", seller._id);
     productData.tags.forEach((tag) => newForm.append("tags", tag));
+
     if (productData.salePrice && !isNaN(parseFloat(productData.salePrice))) {
       newForm.append("salePrice", parseFloat(productData.salePrice));
     }
 
-    dispatch(createProduct(newForm));
+    removedImages.forEach((url) => newForm.append("removedImages", url));
+
+    axios
+      .put(`${server}/product/update-product/${id}`, newForm, {withCredentials:true})
+      .then((res) => {
+        console.log(res);
+        toast.success("Product updated successfully");
+        navigate("/seller/all-products");
+      })
+      .catch((err) => {
+        setLoading(false);
+        toast.error(err?.response?.data?.message || "Error updating product");
+      });
   };
+
 
   useEffect(() => {
     if (!didSubmit) return;
@@ -217,8 +314,8 @@ const UpdateProduct = () => {
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 mt-14">
       <SideNav />
       <div className="flex-1 p-4 sm:p-6 lg:p-8  lg:ml-64 w-full">
-        <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">🛍️ Add New Product</h1>
-        <p className="text-gray-600 mb-6">Fill in the details to add a new product to your store.</p>
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">🛍️ Update Product</h1>
+        <p className="text-gray-600 mb-6">Edit ithe product of your store.</p>
 
         <form
           onSubmit={handleSubmit}
@@ -280,10 +377,10 @@ const UpdateProduct = () => {
                     {category.filter((cat) =>
                       cat.toLowerCase().includes(categorySearch.toLowerCase())
                     ).length === 0 && (
-                      <div className="px-4 py-2 text-gray-400">
-                        No categories found
-                      </div>
-                    )}
+                        <div className="px-4 py-2 text-gray-400">
+                          No categories found
+                        </div>
+                      )}
                   </div>
                 )}
               </div>
@@ -331,10 +428,11 @@ const UpdateProduct = () => {
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleTagInput}
                 placeholder="Type and press Enter"
                 className="w-full p-3 mt-2 border rounded-lg focus:ring-blue-400"
                 disabled={productData.tags.length >= 15}
+                onKeyDown={handleTagInput}  // Optional: still listen for Enter key on desktop
+                onBlur={handleTagInput}     // Add this for mobile (on blur event)
               />
               <div className="flex flex-wrap mt-2 gap-2">
                 {productData.tags.map((tag, index) => (
@@ -402,24 +500,21 @@ const UpdateProduct = () => {
             <label className="block text-gray-700 font-semibold">Product Images</label>
             <div
               {...getRootProps()}
-              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out ${
-                isDragActive
-                  ? "border-blue-500 bg-blue-50 shadow-lg"
-                  : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
-              }`}
+              className={`group w-full mt-4 p-6 border-2 rounded-lg cursor-pointer text-center transition-all duration-300 ease-in-out ${isDragActive
+                ? "border-blue-500 bg-blue-50 shadow-lg"
+                : "border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 hover:shadow-md"
+                }`}
             >
               <input {...getInputProps()} />
               <FaCloudUploadAlt
-                className={`mx-auto text-4xl transition-colors duration-300 ${
-                  isDragActive
-                    ? "text-blue-500"
-                    : "text-gray-500 group-hover:text-blue-500"
-                }`}
+                className={`mx-auto text-4xl transition-colors duration-300 ${isDragActive
+                  ? "text-blue-500"
+                  : "text-gray-500 group-hover:text-blue-500"
+                  }`}
               />
               <p
-                className={`mt-2 text-gray-600 transition-colors duration-300 ${
-                  isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
-                }`}
+                className={`mt-2 text-gray-600 transition-colors duration-300 ${isDragActive ? "text-blue-600" : "group-hover:text-blue-600"
+                  }`}
               >
                 {isDragActive
                   ? "Drop the files here..."
@@ -453,8 +548,13 @@ const UpdateProduct = () => {
             <button
               type="submit"
               className="w-full py-3 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-all"
+              disabled={loading} // Disable the button when loading
             >
-              Save Product
+              {loading ? (
+                <FaSpinner className="animate-spin mx-auto text-white" /> // Loader icon
+              ) : (
+                "Save Product"
+              )}
             </button>
           </div>
         </form>

@@ -1,14 +1,27 @@
 import express from "express";
 import Product from "../model/product.js";
+import dotenv from "dotenv"
 import catchAsyncError from "../middleware/cacheAsyncError.js";
 import { upload, handleUploadAndCompress } from "../multer.js";
+import { v2 as cloudinary } from "cloudinary"
 import Seller from "../model/seller.js";
+import { isSellerAuthenticated } from "../middleware/auth.js";
+
+dotenv.config({ path: './backend/config/.env', });
+
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const router = express.Router();
 
 // Create Product
 router.post(
   "/create-product",
+  isSellerAuthenticated,
   upload.array("images"),
   handleUploadAndCompress,
   catchAsyncError(async (req, res, next) => {
@@ -69,6 +82,7 @@ router.post(
 // Get all product of a seller
 router.get(
   "/get-seller-all-products/:id",
+  isSellerAuthenticated,
   catchAsyncError(async (req, res, next) => {
     try {
       const products = await Product.find({ shopId: req.params.id }).select(
@@ -113,21 +127,74 @@ router.get(
 );
 
 // Update a products
+function getPublicIdFromUrl(url) {
+  try {
+    const parts = url.split("/");
+    const fileWithExtension = parts.pop(); // abc123.jpg
+    const folder = parts.slice(parts.indexOf("upload") + 1).join("/"); // everything after 'upload'
+    const publicId = `${folder}/${fileWithExtension.split(".")[0]}`;
+    return publicId;
+  } catch (err) {
+    return null;
+  }
+}
+
 router.put(
   "/update-product/:id",
+  isSellerAuthenticated,
   upload.array("images"),
+  handleUploadAndCompress,
   catchAsyncError(async (req, res, next) => {
     try {
-      const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-      });
+      const product = await Product.findById(req.params.id);
       if (!product) {
         return res.status(404).json({ message: "Product Not Found" });
       }
-      if (req.files) {
-        product.images = req.files.map((file) => file.filename);
-        await product.save();
+
+      // ✅ Ensure the current seller is the owner of this product
+      if (product.shopId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: "You are not authorized to update this product." });
       }
+
+      // ✅ Handle removed images
+      const removedImages = req.body.removedImages;
+      if (removedImages) {
+        const toDelete = Array.isArray(removedImages) ? removedImages : [removedImages];
+        await Promise.all(
+          toDelete.map(async (url) => {
+            const publicId = getPublicIdFromUrl(url);
+            await cloudinary.uploader.destroy(publicId);
+          })
+        );
+
+        product.images = product.images.filter((url) => !toDelete.includes(url));
+      }
+
+      // ✅ Update fields (excluding restricted ones like `shopId`)
+      const allowedUpdates = [
+        "name",
+        "description",
+        "category",
+        "tags",
+        "originalPrice",
+        "salePrice",
+        "stock",
+        "isCustomizable"
+      ];
+      allowedUpdates.forEach((key) => {
+        if (req.body[key] !== undefined) {
+          product[key] = req.body[key];
+        }
+      });
+
+      // ✅ Add new images
+      if (req.files && req.files.length > 0) {
+        const newImages = req.files.map((file) => file.url);
+        product.images = [...product.images, ...newImages];
+      }
+
+      await product.save();
+
       res.status(200).json({ success: true, product });
     } catch (error) {
       return res.status(500).json({
@@ -137,5 +204,84 @@ router.put(
     }
   })
 );
+
+
+// get a specific product
+router.get("/get-product/:id", catchAsyncError(async (req, res, next) => {
+  try {
+    const product = await Product.find({ _id: req.params.id }).select(
+      "-shop"
+    );
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product Not Found",
+      })
+    }
+    return res.status(200).json({ success: true, product });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    })
+  }
+}));
+
+
+// Delete a Product
+
+router.delete(
+  "/delete-product/:id",
+  isSellerAuthenticated,
+  catchAsyncError(async (req, res, next) => {
+    try {
+      // console.log(req.params.id);
+      const id = req.params.id
+      const dbProduct = await Product.findById(id);
+      // console.log(dbProduct);
+      // const id = req.params.id
+
+      if (!dbProduct) {
+        return res.status(404).json({
+          success: false,
+          message: "Product Not Found",
+        });
+      }
+
+      // Check if the seller owns the product
+      if (dbProduct.shopId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: "You are not authorized to delete this product",
+        });
+      }
+
+
+      // Delete images from Cloudinary
+      if (dbProduct.images && dbProduct.images.length > 0) {
+        await Promise.all(
+          dbProduct.images.map(async (imgUrl) => {
+            const publicId = getPublicIdFromUrl(imgUrl);
+            console.log(publicId)
+            await cloudinary.uploader.destroy(publicId);
+          })
+        );
+      }
+
+      await Product.findByIdAndDelete(id);
+
+      res.status(200).json({
+        success: true,
+        message: "Product deleted successfully",
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  })
+);
+
 
 export default router;

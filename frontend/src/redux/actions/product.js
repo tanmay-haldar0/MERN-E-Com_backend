@@ -8,6 +8,7 @@ export const createProduct = (newForm) => async (dispatch) => {
 
     const config = {
       headers: { "Content-Type": "multipart/form-data" },
+      withCredentials: true,
     };
 
     const { data } = await axios.post(
@@ -38,7 +39,7 @@ export const getShopAllProducts = (id) => async (dispatch) => {
     });
 
     // Updated URL with the correct path
-    const { data } = await axios.get(`${server}/product/get-seller-all-products/${id}`);
+    const { data } = await axios.get(`${server}/product/get-seller-all-products/${id}`, {withCredentials:true});
 
     dispatch({
       type: "getAllProductsSuccess",
@@ -76,6 +77,27 @@ export const getAllProducts = (page = 1, limit = 20) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "fullAllProductsFailed",
+      payload: error.response?.data?.message || error.message,
+    });
+  }
+};
+
+// Delete Product
+export const deleteProduct = (id) => async (dispatch) => {
+  try {
+    dispatch({ type: "deleteProductRequest" });
+
+    const { data } = await axios.delete(`${server}/product/delete-product/${id}`, {
+      withCredentials: true,
+    });
+
+    dispatch({
+      type: "deleteProductSuccess",
+      payload: data.message, // or data.product if your backend returns the deleted product
+    });
+  } catch (error) {
+    dispatch({
+      type: "deleteProductFailure",
       payload: error.response?.data?.message || error.message,
     });
   }

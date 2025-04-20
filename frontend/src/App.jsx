@@ -27,6 +27,7 @@ import { useState, useEffect } from "react";
 import AccountDashboard from "./pages/User/AccountPage.jsx"; // Import your account dashboard
 import { Navigate } from "react-router-dom";
 import SellerActivationPage from "./pages/Seller/SellerActivationPage.jsx"
+import UpdateProduct from "./pages/Seller/UpdateProduct.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -127,6 +128,14 @@ function App() {
             element={
               <ProtectedRoute role="seller" redirectTo="/seller/login" roleMismatchMessage="You are not a seller.">
                 <CreateProduct />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/update-product/:id"
+            element={
+              <ProtectedRoute role="seller" redirectTo="/seller/login" roleMismatchMessage="You are not a seller.">
+                <UpdateProduct />
               </ProtectedRoute>
             }
           />

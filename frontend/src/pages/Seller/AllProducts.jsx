@@ -1,21 +1,23 @@
 import React, { useEffect, useState } from "react";
 import SideNav from "../../Components/SideNav";
 import { useDispatch, useSelector } from "react-redux";
-import {  getShopAllProducts } from "../../redux/actions/product";
+import { deleteProduct, getShopAllProducts } from "../../redux/actions/product";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSearch, AiOutlineClose } from "react-icons/ai";
 import { MdEdit, MdOutlineDelete } from "react-icons/md";
-import { imgServer } from "../../server.js"
+import { FaSpinner } from "react-icons/fa";
+import { toast } from "react-toastify";
+// import toast from "react-hot-toast";
 
 const AllProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { sellerProducts=[] } = useSelector((state) => state.product);
+  const { sellerProducts = [] } = useSelector((state) => state.product);
   const products = sellerProducts;
-  console.log(products)
   const seller = useSelector((state) => state.seller.user);
+  console.log(seller)
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,12 +34,35 @@ const AllProducts = () => {
     }
   }, [products]);
 
-  // Filtered Products
   const filteredProducts = allProducts.filter(
     (product) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       product.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (product) => {
+    setProductToDelete(product);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      setIsDeleting(true);
+      await dispatch(deleteProduct(productToDelete._id)); // ✅ await this
+      toast.success("Product deleted successfully!");
+      await dispatch(getShopAllProducts(seller._id)); // ✅ await this too
+    } catch (error) {
+      toast.error("Failed to delete product!");
+    } finally {
+      setIsDeleting(false);
+      setShowConfirm(false);
+    }
+  };
+  
 
   return (
     <div className="mt-14 flex flex-col md:flex-row min-h-screen bg-gray-100">
@@ -105,21 +130,26 @@ const AllProducts = () => {
                       alt={product.name}
                       className="w-12 h-12 object-cover rounded-md"
                     />
-                    <div className="leading-tight max-w-[130px]">
+                    <div className="leading-tight max-w-[130px] sm:max-w-max">
                       <h2 className="text-sm font-semibold text-gray-800 break-words">
                         {product.name}
                       </h2>
                       <p className="text-xs text-gray-600">{product.category}</p>
                     </div>
-
                   </div>
 
                   {/* Edit & Delete Buttons */}
                   <div className="flex items-center gap-2 ml-auto">
-                    <button className="bg-green-500 text-white text-lg p-1.5 rounded hover:bg-green-600 transition">
+                    <button
+                      className="bg-green-500 text-white text-lg p-1.5 rounded hover:bg-green-600 transition"
+                      onClick={() => navigate(`/seller/update-product/${product._id}`)}
+                    >
                       <MdEdit />
                     </button>
-                    <button className="bg-red-500 text-white text-lg p-1.5 rounded hover:bg-red-600 transition">
+                    <button
+                      className="bg-red-500 text-white text-lg p-1.5 rounded hover:bg-red-600 transition"
+                      onClick={() => handleDeleteClick(product)}
+                    >
                       <MdOutlineDelete />
                     </button>
                   </div>
@@ -129,12 +159,44 @@ const AllProducts = () => {
               <p className="text-center text-gray-500 mt-8">No products found</p>
             )}
           </div>
-
         )}
       </div>
-    </div >
+
+      {/* Delete Confirmation Modal */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Delete Product?</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete <strong>{productToDelete?.name}</strong>?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition flex items-center gap-2"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <FaSpinner className="animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
-
 
 export default AllProducts;

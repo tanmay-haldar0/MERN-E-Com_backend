@@ -1,20 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { FaStar, FaRegStar, FaStarHalfAlt } from "react-icons/fa";
+import axios from "axios";
+import { server } from "../server";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import Footer from "../Components/Footer";
 import ProductCard from "../Components/ProductCard";
-import Footer from "../Components/Footer.jsx";
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { homepageProducts = [], isLoading, success, totalPages } = useSelector((state) => state.product);  // Correct state
-  const products = homepageProducts;
-  const product = products.find((p) => p._id === id); // use `p.id` if using numeric IDs
+  const { homepageProducts = [] } = useSelector((state) => state.product);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
   const [reviews, setReviews] = useState([
@@ -31,31 +29,51 @@ const ProductPage = () => {
       userImage: "https://placehold.co/500",
     },
   ]);
+  const [quantity, setQuantity] = useState(1);
+  const [fullWidthImage, setFullWidthImage] = useState("");
+
+  useEffect(() => {
+    const existingProduct = homepageProducts.find((p) => p._id === id);
+
+    if (existingProduct) {
+      setProduct(existingProduct);
+      setFullWidthImage(existingProduct.images?.[0] || existingProduct.imgSrc);
+      setLoading(false);
+    } else {
+      axios
+        .get(`${server}/product/get-product/${id}`)
+        .then((res) => {
+          const fetched = res.data.product;
+          const fetchedProduct = Array.isArray(fetched) ? fetched[0] : fetched;
+          setProduct(fetchedProduct);
+          setFullWidthImage(fetchedProduct.images?.[0] || fetchedProduct.imgSrc);
+        })
+        .catch((err) => {
+          console.error("Error fetching product:", err);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [id, homepageProducts]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleReviewSubmit = () => {
-    const reviewWithRating = {
-      text: review,
-      rating,
-      userName: "User1",
-      userImage: "https://example.com/user1.png",
-    };
     if (review) {
-      setReviews([...reviews, reviewWithRating]);
+      setReviews([
+        ...reviews,
+        {
+          text: review,
+          rating,
+          userName: "User1",
+          userImage: "https://example.com/user1.png",
+        },
+      ]);
       setReview("");
       setRating(0);
     }
   };
-
-  if (!product) return <div className="p-10 text-center text-lg font-semibold">Product not found</div>;
-
-  const imageGallery = product.images || [
-    product.imgSrc, // fallback
-    "https://th.bing.com/th?id=OIP.J_jSjQfqmzyaRlUZcQ1RlAHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2",
-    "https://th.bing.com/th/id/OIP.m_z7TZU1F3OLW5vcYT8DCgAAAA?w=222&h=180&c=7&r=0&o=5&pid=1.7",
-  ];
-
-  const [fullWidthImage, setFullWidthImage] = useState(imageGallery[0]);
-  const [quantity, setQuantity] = useState(1);
 
   const renderStars = (rating) => {
     if (!rating) rating = 4.5;
@@ -69,12 +87,23 @@ const ProductPage = () => {
 
     return stars;
   };
+
+  if (loading) return <div className="p-10 text-center">Loading...</div>;
+
+  if (!product) return <div className="p-10 text-center text-lg font-semibold">Product not found</div>;
+
+  const imageGallery = product.images || [
+    product.imgSrc,
+    "https://th.bing.com/th?id=OIP.J_jSjQfqmzyaRlUZcQ1RlAHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2",
+    "https://th.bing.com/th/id/OIP.m_z7TZU1F3OLW5vcYT8DCgAAAA?w=222&h=180&c=7&r=0&o=5&pid=1.7",
+  ];
+
   return (
-    <div className="">
+    <div>
       <div className="max-w-7xl mx-auto p-4 sm:p-6 mt-14 mb-8">
         {/* Top Section */}
         <div className="flex flex-col lg:flex-row lg:h-[500px] gap-6">
-          {/* Image Section (Thumbnails + Main Image) */}
+          {/* Images */}
           <div className="flex flex-col-reverse lg:flex-row gap-4 w-full lg:w-1/2">
             {/* Thumbnails */}
             <div className="flex flex-row lg:flex-col gap-2 justify-center lg:w-[90px]">
@@ -101,9 +130,7 @@ const ProductPage = () => {
 
           {/* Product Info */}
           <div className="w-full lg:w-1/2 flex flex-col justify-between gap-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              {product.name}
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{product.name}</h1>
             <p className="text-gray-500">{product.description}</p>
 
             {/* Price */}
@@ -111,17 +138,17 @@ const ProductPage = () => {
               <span className="text-xl sm:text-2xl font-bold text-blue-600">
                 ₹ {product.originalPrice?.toFixed(2)}
               </span>
-              {product.salePrice ? (<span className="text-lg sm:text-xl text-slate-400 line-through">
-                ₹ {product.salePrice?.toFixed(2)}
-              </span>): ("")}
+              {product.salePrice && (
+                <span className="text-lg sm:text-xl text-slate-400 line-through">
+                  ₹ {product.salePrice?.toFixed(2)}
+                </span>
+              )}
             </div>
 
             {/* Rating */}
             <div className="flex items-center text-yellow-500">
               {renderStars(product?.rating)}
-              <span className="ml-2 text-md font-semibold">
-                {product.rating}
-              </span>
+              <span className="ml-2 text-md font-semibold">{product.rating}</span>
             </div>
 
             {/* Quantity Selector */}
@@ -168,8 +195,7 @@ const ProductPage = () => {
                 <span
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-400"
-                    }`}
+                  className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-400"}`}
                 >
                   <FaStar />
                 </span>
@@ -207,9 +233,7 @@ const ProductPage = () => {
                       />
                       <div>
                         <h3 className="font-semibold">{rev.userName}</h3>
-                        <div className="flex text-yellow-500">
-                          {renderStars(rev.rating)}
-                        </div>
+                        <div className="flex text-yellow-500">{renderStars(rev.rating)}</div>
                         <p className="text-slate-600 mt-1">{rev.text}</p>
                       </div>
                     </div>
@@ -225,21 +249,20 @@ const ProductPage = () => {
         {/* Similar Products */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold">Similar Products</h2>
-          <div className="flex overflow-x-auto  whitespace-nowrap gap-3 mt-5 pb-2">
+          <div className="flex overflow-x-auto whitespace-nowrap gap-3 mt-5 pb-2">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="flex-shrink-0 w-[160px] sm:w-[180px]">
                 <ProductCard
                   imgSrc={product.imgSrc}
                   isSale={product.isSale}
-                  productName={product.productName}
-                  price={product.price}
+                  productName={product.name}
+                  price={product.originalPrice}
                   salePrice={product.salePrice}
                 />
               </div>
             ))}
           </div>
         </div>
-
       </div>
 
       <Footer />
