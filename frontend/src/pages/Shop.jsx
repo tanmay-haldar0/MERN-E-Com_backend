@@ -77,7 +77,7 @@ const Shop = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
               </div>
             ) : (
-              <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
                     <ProductCard
