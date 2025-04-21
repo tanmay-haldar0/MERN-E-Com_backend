@@ -10,6 +10,7 @@ import ErrorHandler from "./utils/ErrorHandler.js";
 import user from "./controller/user_controller.js";
 import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
+// import patchUsers from "./patchUser.js" 
 
 const app = express();
 

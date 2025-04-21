@@ -8,7 +8,7 @@ import Seller from "../model/seller.js";
 
 export const isAuthenticated = catchAsyncError(async (req, res, next) => {
   const token = req.cookies.token;
-
+  // console.log(token);
   if (!token) {
     return res
       .status(401)

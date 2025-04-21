@@ -40,7 +40,7 @@ const Shop = () => {
 
   return (
     <>
-      <div className="max-w-[1200px] mx-auto p-4 rounded-lg">
+      <div className="max-w-[1300px] mx-auto p-4 rounded-lg">
         <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6 sm:mb-8 text-center">
           Our Products
         </h1>
@@ -58,7 +58,7 @@ const Shop = () => {
           </button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 justify-stretch w-full">
           {/* Sidebar (Desktop) */}
           <div className="hidden lg:block w-full lg:w-1/4 bg-white shadow-md rounded-lg p-4 h-fit">
             <Filters
@@ -77,7 +77,7 @@ const Shop = () => {
                 <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map((product) => (
                     <ProductCard

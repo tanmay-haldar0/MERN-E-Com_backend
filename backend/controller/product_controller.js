@@ -5,16 +5,9 @@ import catchAsyncError from "../middleware/cacheAsyncError.js";
 import { upload, handleUploadAndCompress } from "../multer.js";
 import { v2 as cloudinary } from "cloudinary"
 import Seller from "../model/seller.js";
-import { isSellerAuthenticated } from "../middleware/auth.js";
-
-dotenv.config({ path: './backend/config/.env', });
-
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { isAuthenticated, isSellerAuthenticated } from "../middleware/auth.js";
+import User from "../model/user.js";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -87,7 +80,9 @@ router.get(
     try {
       const products = await Product.find({ shopId: req.params.id }).select(
         "-shop"
-      );
+      ).sort({
+        createdAt: -1,
+      });
 
       if (!products) {
         return res.status(404).json({ message: "No Products Found" });
@@ -115,7 +110,9 @@ router.get(
     const products = await Product.find()
       .select("-shop")
       .skip(skip)
-      .limit(limit);
+      .limit(limit).sort({
+        createdAt: -1,
+      });
 
     res.status(200).json({
       success: true,
@@ -283,5 +280,63 @@ router.delete(
   })
 );
 
+// Add to cart
+
+router.post(
+  "/add-to-cart/:id",
+  isAuthenticated,
+  catchAsyncError(async (req, res) => {
+    try {
+      const userId = req.user._id;
+      const productId = req.params.id;
+      console.log("the product id is: ", productId)
+
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ success: false, message: "Product not found" });
+      }
+      console.log("the product is: ", product)
+      const newUser = await User.findById(userId);
+      console.log("The user from id is: ", newUser);
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $addToSet: {
+            cart: {
+              productId: new mongoose.Types.ObjectId(productId),
+              shopId: new mongoose.Types.ObjectId(product.shopId),
+              quantity: 1,
+              addedAt: new Date(),
+            },
+          },
+        },
+        { new: true, runValidators: true }
+      );
+
+      console.log("The updated user is: ", updatedUser);
+      if (!updatedUser) {
+        return res.status(404).json({ success: false, message: "User not found during update" });
+      }
+
+      // Check if the product was actually added or if quantity was incremented
+      const updatedCartItem = updatedUser.cart.find(
+        (item) => item.productId.toString() === productId
+      );
+      console.log("the updated cart is: ", updatedCartItem);
+      let message = "Cart updated";
+      if (updatedCartItem && updatedCartItem.quantity > 1) {
+        message = "Product quantity updated";
+      }
+
+      res.status(200).json({
+        success: true,
+        message,
+        cart: updatedUser.cart,
+      });
+    } catch (err) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  })
+);
 
 export default router;

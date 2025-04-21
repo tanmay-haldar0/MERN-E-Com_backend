@@ -32,6 +32,19 @@ const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [fullWidthImage, setFullWidthImage] = useState("");
 
+  const addToCartHandler = async (productId) => {
+    console.log(productId);
+    try {
+      const res = await axios.post(`${server}/product/add-to-cart/${productId}`, {}, {
+        withCredentials: true,
+      });
+      toast.success(res.data.message);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
+    }
+  };
+
+
   useEffect(() => {
     const existingProduct = homepageProducts.find((p) => p._id === id);
 
@@ -174,7 +187,8 @@ const ProductPage = () => {
               <button className="hidden w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg">
                 Customize
               </button>
-              <button className="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg">
+              <button className="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+                onClick={() => addToCartHandler(product._id)}>
                 Add to Cart
               </button>
             </div>
