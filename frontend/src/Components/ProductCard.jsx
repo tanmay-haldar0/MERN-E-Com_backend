@@ -1,13 +1,16 @@
 import React from 'react';
-import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
+import { FaStar, FaStarHalfAlt, FaRegStar, FaShoppingCart } from "react-icons/fa";
 import LazyLoadImage from './LazyLoadImage';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/actions/cart';  // Action to add product to the cart
 
-const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating }) => {
+const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating, variants }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
+    // Function to render star ratings
     const renderStars = (rating) => {
-
         if (!rating) {
             rating = 4.5;
         }
@@ -33,13 +36,33 @@ const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating
         return stars;
     };
 
+    // Add to Cart handler
+    const handleAddToCart = (productId) => {
+        // Assuming quantity is 1 by default, and variant is selected from available variants (if any)
+        const quantity = 1;
+        const variant = variants && variants[0] ? variants[0] : null;  // Assuming variants is an array, select the first one by default
+
+        dispatch(addToCart(productId, quantity, variant));
+    };
+
     return (
         <div className="relative rounded-lg p-2 sm:w-[180px] h-[285px] sm:h-[310px] w-[165px] bg-white shadow-md hover:shadow-2xl duration-200 transform hover:scale-105 transition-all ease-out flex flex-col justify-center ">
             <div className="flex flex-col h-full justify-around">
-                <div className="">
+                <div className="relative">
                     <LazyLoadImage src={imgSrc} alt={productName} className='rounded-md w-full bg-slate-200 sm:h-36 h-28 object-cover' />
+                    
+                    {/* Add to Cart Button */}
+                    <button
+                        className="absolute top-2 right-2 bg-blue-400 text-white p-2 rounded-full shadow-md hover:bg-blue-700 transition duration-300"
+                        onClick={() => handleAddToCart(id)}
+                    >
+                        <FaShoppingCart />
+                    </button>
                 </div>
-                <h3 className="sm:text-md text-sm font-semibold mt-2 ">{productName}</h3>
+                
+                <h3 className="sm:text-md text-sm font-semibold mt-2">{productName}</h3>
+                
+                {/* Price and Sale Price */}
                 {isSale ? (
                     <div className="flex items">
                         <p className="sm:text-sm text-sm font-semibold text-primary">₹{price}</p>
@@ -48,33 +71,36 @@ const ProductCard = ({ id, imgSrc, isSale, productName, price, salePrice, rating
                 ) : (
                     <p className="sm:text-sm text-xs font-semibold text-primary">₹{price}</p>
                 )}
+                
+                {/* Rating */}
                 <div className="flex items-center text-yellow-500">
                     {renderStars(rating)}
                 </div>
-                {isSale ? (
-                    <p className="sm:text-sm text-xs mt-1 text-red-500 font-semibold">Flat 50% off</p>
-                ) : (
-                    <p className="sm:text-sm text-xs mt-1 text-slate-500 font-semibold">Value for Price</p>
-                )}
-
-                {isSale ? (
+                
+                {/* Sale Badge */}
+                {isSale && (
                     <div className="w-10 h-5 rounded-md bg-red-600 flex items-center justify-center absolute top-0 right-0">
                         <p className='text-white text-sm font-medium'>Sale</p>
                     </div>
-                ) : ""}
-                <div className="flex  items-center mt-2">
+                )}
+
+                {/* Product Label (Sale or Value for Price) */}
+                <div className="sm:text-sm text-xs mt-1 text-slate-500 font-semibold">
+                    {isSale ? "Flat 50% off" : "Value for Price"}
+                </div>
+                
+                {/* Buy Now Button */}
+                <div className="flex items-center mt-2">
                     <button
                         className='btn w-full bg-primary p-2 rounded-md text-white font-medium text-xs sm:text-sm transition duration-200 transform hover:scale-105'
                         onClick={() => navigate(`/product/${id}`)}
                     >
                         Buy Now
                     </button>
-
                 </div>
             </div>
-
         </div>
     );
-}
+};
 
 export default ProductCard;

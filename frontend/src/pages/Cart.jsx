@@ -1,40 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { TbShoppingBagPlus } from "react-icons/tb";
 import CartProduct from "../Components/CartProduct";
 import CartCheckout from "../Components/CartCheckout";
 import Footer from "../Components/Footer.jsx";
+import { getCart } from "../redux/actions/cart";
 
 const Cart = () => {
-  const [loading, setLoading] = useState(true);
-  const [noCartItem, setNoCartItem] = useState(false);
+  const dispatch = useDispatch();
 
-  // Simulated loading (replace with actual API call)
+  const { isLoading, cart, error } = useSelector((state) => state.cart);
+
+  const cartItems = Array.isArray(cart?.products) ? cart.products : [];
+  const totalPrice = cart?.totalPrice || 0;
+  const totalQuantity = cart?.totalQuantity || 0;
+
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false); // Set to false after API call completes
-    }, 1500);
-  }, []);
-
-  const product = [
-    {
-      imgSrc:
-        "https://media.istockphoto.com/id/153444470/photo/pizza.webp?a=1&b=1&s=612x612&w=0&k=20&c=wmp-5NGZUXWag2EGOiwfXQN3Q4TvBYcYJBb8AXFaybo=",
-      name: "Medium Sized Pizza",
-      price: "69.49",
-    },
-    {
-      imgSrc:
-        "https://media.istockphoto.com/id/1399371766/photo/bacon-cheeseburger-on-a-toasted-bun.webp?a=1&b=1&s=612x612&w=0&k=20&c=958m1hYPSZn6eNLh00huIwEC85FhGz0pCtIbtaEq5f4=",
-      name: "Large Burger",
-      price: "29.49",
-    },
-    {
-      imgSrc:
-        "https://media.istockphoto.com/id/1252605699/photo/veg-momos-on-black-slate-table-top-momos-is-the-popular-dish-of-indian-tibetan-chinese.webp?a=1&b=1&s=612x612&w=0&k=20&c=qil7GGAkjXOSIu6NB19XIlqAy2CYf4U0arY0c5uy05M=",
-      name: "Veg Dumplings",
-      price: "49.99",
-    },
-  ];
+    dispatch(getCart());
+  }, [dispatch]);
 
   return (
     <>
@@ -44,31 +27,13 @@ const Cart = () => {
         </h1>
 
         {/* Loader */}
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-[50vh]">
             <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
-        ) : !noCartItem ? (
-          // Full Cart View
-          <div className="flex flex-col w-full justify-between md:flex-row gap-4 mb-5 mt-2">
-            {/* Products List */}
-            <div className="w-full md:w-3/5 flex flex-col gap-6">
-              {product.map((item, index) => (
-                <CartProduct
-                  key={index}
-                  imgSrc={item.imgSrc}
-                  name={item.name}
-                  price={item.price}
-                />
-              ))}
-            </div>
-
-            {/* Checkout Sidebar */}
-            <div className="w-full md:w-[300px] lg:w-[280px] xl:w-[450px] self-start">
-              <CartCheckout />
-            </div>
-          </div>
-        ) : (
+        ) : error ? (
+          <div className="text-red-500 text-center mt-10">{error}</div>
+        ) : cartItems.length === 0 ? (
           // Empty Cart View
           <div className="flex justify-center items-center h-[60vh]">
             <div className="flex flex-col items-center justify-center text-center">
@@ -79,6 +44,32 @@ const Cart = () => {
               <button className="bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-200">
                 Shop Now
               </button>
+            </div>
+          </div>
+        ) : (
+          // Full Cart View
+          <div className="flex flex-col w-full justify-between md:flex-row gap-4 mb-5 mt-2">
+            {/* Products List */}
+            <div className="w-full md:w-3/5 flex flex-col gap-6">
+              {cartItems.map((item, index) => (
+                <CartProduct
+                  key={item._id || index}
+                  imgSrc={item.productId?.images?.[0] || ""}
+                  name={item.productId?.name || "Unknown Product"}
+                  price={item.productId?.salePrice ?? item.productId?.originalPrice ?? 0}
+                  quantity={item.quantity}
+                  variant={item.variant}
+                />
+              ))}
+            </div>
+
+            {/* Checkout Sidebar */}
+            <div className="w-full md:w-[300px] lg:w-[280px] xl:w-[450px] self-start">
+              <CartCheckout
+                cartItems={cartItems}
+                totalPrice={totalPrice}
+                totalQuantity={totalQuantity}
+              />
             </div>
           </div>
         )}

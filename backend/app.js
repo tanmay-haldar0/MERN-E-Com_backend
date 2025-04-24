@@ -10,6 +10,7 @@ import ErrorHandler from "./utils/ErrorHandler.js";
 import user from "./controller/user_controller.js";
 import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
+import cart from "./controller/cart_controller.js"
 // import patchUsers from "./patchUser.js" 
 
 const app = express();
@@ -46,6 +47,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api/v2/user", user);
 app.use("/api/v2/seller", seller);
 app.use("/api/v2/product", product);
+app.use("/api/v2/cart", cart);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
