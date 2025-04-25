@@ -40,6 +40,8 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const { cart } = useSelector((state) => state.cart);
+  // console.log(cart?.products?.length);
 
   function getFirstName(fullName) {
     if (!fullName || typeof fullName !== "string") return "";
@@ -180,9 +182,9 @@ const Navbar = () => {
                     Cart
                   </span>
                 </div>
-                <div className="bg-red-500 p-[2px] w-5 h-5 mx-1 text-[10px] hidden sm:flex items-center justify-center rounded-full font-semibold text-white">
-                  2
-                </div>
+                {cart?.products?.length > 0 ? (<div className="bg-red-500 p-[2px] w-5 h-5 mx-1 text-[10px] hidden sm:flex items-center justify-center rounded-full font-semibold text-white">
+                  {cart?.products?.length}
+                </div>) : ("")}
               </button>
             </Link>
           )}

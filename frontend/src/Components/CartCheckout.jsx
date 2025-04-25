@@ -1,11 +1,11 @@
 import React from 'react';
 
-const Checkout = ({ cartItems = [], totalPrice , totalQuantity  }) => {
-  console.log(cartItems); // Confirm items received
+const Checkout = ({ cartItems = [], totalPrice, totalQuantity }) => {
+  // console.log(cartItems); // Confirm items received
 
   const deliveryCharge = 50.0;
   const subtotal = cartItems.reduce(
-    (acc, item) => acc + (item?.price ?? 0) * (item?.quantity ?? 1),
+    (acc, item) => acc + (item?.priceAtAddTime ?? 0) * (item?.quantity ?? 1),
     0
   );
   const finalTotalPrice = (subtotal + deliveryCharge).toFixed(2);
@@ -28,11 +28,11 @@ const Checkout = ({ cartItems = [], totalPrice , totalQuantity  }) => {
           <tbody className="text-gray-700">
             {cartItems.map((item, index) => (
               <tr key={index} className="border-b">
-                <td className="py-2 px-2">{item?.name ?? "Unnamed"}</td>
-                <td className="py-2 px-2">₹{(item?.price ?? 0).toFixed(2)}</td>
+                <td className="py-2 px-2">{item?.productId?.name ?? "Unnamed"}</td>
+                <td className="py-2 px-2">₹{(item?.priceAtAddTime ?? 0).toFixed(2)}</td>
                 <td className="py-2 px-2">{item?.quantity ?? 1}</td>
                 <td className="py-2 px-2">
-                  ₹{((item?.price ?? 0) * (item?.quantity ?? 1)).toFixed(2)}
+                  ₹{((item?.priceAtAddTime ?? 0) * (item?.quantity ?? 1)).toFixed(2)}
                 </td>
               </tr>
             ))}
@@ -56,12 +56,12 @@ const Checkout = ({ cartItems = [], totalPrice , totalQuantity  }) => {
       <div className="md:hidden">
         {cartItems.map((item, index) => (
           <div key={index} className="border-b py-2">
-            <p className="font-medium">{item?.name ?? "Unnamed"}</p>
+            <p className="font-medium">{item?.productId?.name ?? "Unnamed"}</p>
             <p className="text-sm text-gray-700">
-              ₹{(item?.price ?? 0).toFixed(2)} × {item?.quantity ?? 1}
+              ₹{(item?.priceAtAddTime ?? 0).toFixed(2)} × {item?.quantity ?? 1}
             </p>
             <p className="text-sm font-semibold">
-              Total: ₹{((item?.price ?? 0) * (item?.quantity ?? 1)).toFixed(2)}
+              Total: ₹{((item?.priceAtAddTime ?? 0) * (item?.quantity ?? 1)).toFixed(2)}
             </p>
           </div>
         ))}
