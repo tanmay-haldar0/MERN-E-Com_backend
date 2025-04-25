@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../server";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import Footer from "../Components/Footer";
 import ProductCard from "../Components/ProductCard";
+import { addToCart, getCart } from "../redux/actions/cart";
+import { toast } from "react-toastify";
 
 const ProductPage = () => {
   const { id } = useParams();
   const { homepageProducts = [] } = useSelector((state) => state.product);
+  const dispatch = useDispatch();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
+  const [variants, setVariants] = useState("");
   const [reviews, setReviews] = useState([
     {
       text: "Great Product , Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facilis, quae nisi.",
@@ -32,19 +36,6 @@ const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [fullWidthImage, setFullWidthImage] = useState("");
 
-  const addToCartHandler = async (productId) => {
-    console.log(productId);
-    try {
-      const res = await axios.post(`${server}/product/add-to-cart/${productId}`, {}, {
-        withCredentials: true,
-      });
-      toast.success(res.data.message);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong");
-    }
-  };
-
-
   useEffect(() => {
     const existingProduct = homepageProducts.find((p) => p._id === id);
 
@@ -59,7 +50,9 @@ const ProductPage = () => {
           const fetched = res.data.product;
           const fetchedProduct = Array.isArray(fetched) ? fetched[0] : fetched;
           setProduct(fetchedProduct);
-          setFullWidthImage(fetchedProduct.images?.[0] || fetchedProduct.imgSrc);
+          setFullWidthImage(
+            fetchedProduct.images?.[0] || fetchedProduct.imgSrc
+          );
         })
         .catch((err) => {
           console.error("Error fetching product:", err);
@@ -88,22 +81,47 @@ const ProductPage = () => {
     }
   };
 
+  const handleAddToCart = async (productId) => {
+    const quantity = 1;
+    const variant = variants && variants[0] ? variants[0] : null;
+
+    try {
+      const result = await dispatch(addToCart(productId, quantity, variant));
+
+      if (result?.error) {
+        toast.error(result.error.message || "Failed to add to cart");
+      } else {
+        toast.success("Product added to cart successfully");
+        await dispatch(getCart());
+      }
+    } catch (error) {
+      toast.error(error.message || "Something went wrong");
+    }
+  };
+
   const renderStars = (rating) => {
     if (!rating) rating = 4.5;
     const stars = [];
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 !== 0;
 
-    for (let i = 0; i < fullStars; i++) stars.push(<FaStar key={`full-${i}`} />);
+    for (let i = 0; i < fullStars; i++)
+      stars.push(<FaStar key={`full-${i}`} />);
     if (hasHalfStar) stars.push(<FaStarHalfAlt key="half" />);
-    for (let i = stars.length; i < 5; i++) stars.push(<FaRegStar key={`empty-${i}`} />);
+    for (let i = stars.length; i < 5; i++)
+      stars.push(<FaRegStar key={`empty-${i}`} />);
 
     return stars;
   };
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
 
-  if (!product) return <div className="p-10 text-center text-lg font-semibold">Product not found</div>;
+  if (!product)
+    return (
+      <div className="p-10 text-center text-lg font-semibold">
+        Product not found
+      </div>
+    );
 
   const imageGallery = product.images || [
     product.imgSrc,
@@ -143,7 +161,9 @@ const ProductPage = () => {
 
           {/* Product Info */}
           <div className="w-full lg:w-1/2 flex flex-col justify-between gap-4">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">{product.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              {product.name}
+            </h1>
             <p className="text-gray-500">{product.description}</p>
 
             {/* Price */}
@@ -161,7 +181,9 @@ const ProductPage = () => {
             {/* Rating */}
             <div className="flex items-center text-yellow-500">
               {renderStars(product?.rating)}
-              <span className="ml-2 text-md font-semibold">{product.rating}</span>
+              <span className="ml-2 text-md font-semibold">
+                {product.rating}
+              </span>
             </div>
 
             {/* Quantity Selector */}
@@ -187,8 +209,10 @@ const ProductPage = () => {
               <button className="hidden w-full sm:w-1/2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg">
                 Customize
               </button>
-              <button className="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
-                onClick={() => addToCartHandler(product._id)}>
+              <button
+                className="w-full sm:w-1/2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+                onClick={() => handleAddToCart(product._id)}
+              >
                 Add to Cart
               </button>
             </div>
@@ -209,7 +233,9 @@ const ProductPage = () => {
                 <span
                   key={star}
                   onClick={() => setRating(star)}
-                  className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-400"}`}
+                  className={`cursor-pointer ${
+                    star <= rating ? "text-yellow-500" : "text-gray-400"
+                  }`}
                 >
                   <FaStar />
                 </span>
@@ -247,7 +273,9 @@ const ProductPage = () => {
                       />
                       <div>
                         <h3 className="font-semibold">{rev.userName}</h3>
-                        <div className="flex text-yellow-500">{renderStars(rev.rating)}</div>
+                        <div className="flex text-yellow-500">
+                          {renderStars(rev.rating)}
+                        </div>
                         <p className="text-slate-600 mt-1">{rev.text}</p>
                       </div>
                     </div>
