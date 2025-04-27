@@ -1,9 +1,10 @@
 import express from "express";
-import Order from "../model/order";
-import Product from "../model/product";
-import Seller from "../model/seller";
-import catchAsyncError from "../middleware/cacheAsyncError";
-import { isAuthenticated, isSellerAuthenticated } from "../middleware/auth";
+import Order from "../model/order.js";
+import Product from "../model/product.js";
+import Seller from "../model/seller.js";
+import Cart from "../model/cart.js";
+import catchAsyncError from "../middleware/cacheAsyncError.js";
+import { isAuthenticated, isSellerAuthenticated } from "../middleware/auth.js";
 const router = express.Router();
 
 // Create new order
@@ -11,26 +12,36 @@ router.post(
   "/create-order",
   isAuthenticated,
   catchAsyncError(async (req, res, next) => {
-    const { cart, shippingAddress, user, totalPrice, paymentInfo } = req.body;
+    const { shippingAddress, totalPrice, paymentInfo } = req.body;
+    const cart = await Cart.findOne({ userId: req.user._id });
 
-    if (!cart || !cart.length) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Cart is empty." });
+    if (!cart || !cart.products.length) {
+      return res.status(400).json({ success: false, message: "Cart is empty." });
     }
 
     try {
       const shopItemsMap = new Map();
 
-      // Group cart items by shopId
-      for (const item of cart) {
-        const shopId = item.shopId;
+      // Fetch shopId for each product in the cart
+      for (const item of cart.products) {
+        const product = await Product.findById(item.productId);
+
+        if (!product) {
+          throw new Error(`Product ${item.productId} not found`);
+        }
+
+        const shopId = product.shopId.toString(); // Get shopId from the Product model
 
         if (!shopItemsMap.has(shopId)) {
           shopItemsMap.set(shopId, []);
         }
 
-        shopItemsMap.get(shopId).push(item);
+        shopItemsMap.get(shopId).push({
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.priceAtAddTime, // Price when added to cart
+          variant: item.variant,
+        });
       }
 
       // Create an order for each shop
@@ -38,16 +49,16 @@ router.post(
 
       for (const [shopId, items] of shopItemsMap) {
         const subTotal = items.reduce(
-          (acc, item) => acc + item.salePrice * item.qty,
+          (acc, item) => acc + item.price * item.quantity,
           0
         );
 
         const order = await Order.create({
           cart: items,
           shippingAddress,
-          user,
-          totalPrice: subTotal, // Optional: use subTotal if splitting totalPrice per order
-          paymentInfo,
+          userId: req.user._id, // Correct field
+          totalPrice: subTotal,
+          paymentInfo: JSON.stringify(paymentInfo), // Convert to string
           shopId,
         });
 
@@ -69,11 +80,14 @@ router.post(
   })
 );
 
+
+
+
 // Get All Orders (Admin or for dashboard)
 router.get(
   "/admin-orders",
   isAuthenticated,
-  isAdmin,
+  // isAdmin,
   catchAsyncError(async (req, res) => {
     const orders = await Order.find().sort({ createdAt: -1 });
     res.status(200).json({ success: true, orders });

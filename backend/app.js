@@ -11,7 +11,8 @@ import user from "./controller/user_controller.js";
 import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
 import cart from "./controller/cart_controller.js"
-// import patchUsers from "./patchUser.js" 
+import order from "./controller/order_controller.js"
+
 
 const app = express();
 
@@ -30,7 +31,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+ 
 // CORS
 app.use(
   cors({
@@ -48,6 +49,7 @@ app.use("/api/v2/user", user);
 app.use("/api/v2/seller", seller);
 app.use("/api/v2/product", product);
 app.use("/api/v2/cart", cart);
+app.use("/api/v2/order", order);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
