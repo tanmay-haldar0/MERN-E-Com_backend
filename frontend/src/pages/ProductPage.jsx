@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { server } from "../server";
@@ -13,6 +13,7 @@ const ProductPage = () => {
   const { id } = useParams();
   const { homepageProducts = [] } = useSelector((state) => state.product);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -97,6 +98,13 @@ const ProductPage = () => {
     } catch (error) {
       toast.error(error.message || "Something went wrong");
     }
+  };
+
+  // Handle buy now single product
+  const handleBuyNow = () => {
+    navigate("/product/checkout-confirmation", {
+      state: { productId: product._id },
+    });
   };
 
   const renderStars = (rating) => {
@@ -217,7 +225,8 @@ const ProductPage = () => {
               </button>
             </div>
 
-            <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg">
+            <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg"
+            onClick={() => handleBuyNow()}>
               Buy Now
             </button>
           </div>

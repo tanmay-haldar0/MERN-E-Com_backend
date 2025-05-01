@@ -171,7 +171,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/activation/:activation_token" element={<ActivationPage />} />
           <Route path="/seller/activation/:activation_token" element={<SellerActivationPage />} />
-          <Route path="/checkout-confirmation" element={<CheckoutConfirmationPage />} />
+          <Route path="/product/checkout-confirmation" element={<CheckoutConfirmationPage />} />
 
         </Routes>
       </Router>
