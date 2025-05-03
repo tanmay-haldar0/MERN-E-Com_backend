@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { server } from "../server";
-import CheckoutForm from "../components/CheckoutForm";
+import CheckoutForm from "../Components/CheckoutForm";
 import { toast } from "react-toastify";
 
 const ProductCheckoutPage = () => {

@@ -4,7 +4,7 @@ import { clearCart, getCart } from "../redux/actions/cart";
 import axios from "axios";
 import { server } from "../server";
 import { useNavigate } from "react-router-dom";
-import CheckoutForm from "../components/CheckoutForm";
+import CheckoutForm from "../Components/CheckoutForm";
 
 const CartCheckoutPage = () => {
   const dispatch = useDispatch();
