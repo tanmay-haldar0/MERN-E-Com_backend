@@ -28,7 +28,9 @@ import AccountDashboard from "./pages/User/AccountPage.jsx"; // Import your acco
 import { Navigate } from "react-router-dom";
 import SellerActivationPage from "./pages/Seller/SellerActivationPage.jsx"
 import UpdateProduct from "./pages/Seller/UpdateProduct.jsx";
-import CheckoutConfirmationPage from "./pages/CheckoutConfirmationPage.jsx";
+// import CheckoutConfirmationPage from "./pages/CartCheckoutPage.jsx";
+import ProductCheckoutPage from "./pages/ProductCheckoutPage.jsx";
+import CartCheckoutPage from "./pages/CartCheckoutPage.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -171,7 +173,8 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
           <Route path="/activation/:activation_token" element={<ActivationPage />} />
           <Route path="/seller/activation/:activation_token" element={<SellerActivationPage />} />
-          <Route path="/product/checkout-confirmation" element={<CheckoutConfirmationPage />} />
+          <Route path="/checkout/cart" element={<CartCheckoutPage />} />
+        <Route path="/checkout/product/:productId" element={<ProductCheckoutPage />} />
 
         </Routes>
       </Router>

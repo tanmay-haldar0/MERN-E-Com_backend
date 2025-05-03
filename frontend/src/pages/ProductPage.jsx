@@ -102,9 +102,7 @@ const ProductPage = () => {
 
   // Handle buy now single product
   const handleBuyNow = () => {
-    navigate("/product/checkout-confirmation", {
-      state: { productId: product._id },
-    });
+    navigate(`/checkout/product/${product._id}`);
   };
 
   const renderStars = (rating) => {

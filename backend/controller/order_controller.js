@@ -80,6 +80,68 @@ router.post(
   })
 );
 
+// Direct Buy Now (without storing in cart)
+router.post(
+  "/create-order/:productId",
+  isAuthenticated,
+  catchAsyncError(async (req, res, next) => {
+    const { shippingAddress, totalPrice, paymentInfo, quantity } = req.body;
+    const { productId } = req.params; // Get productId from URL parameter
+
+    // Validate if all required fields are provided
+    if (!quantity || !shippingAddress || !totalPrice || !paymentInfo) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
+
+    try {
+      // Fetch the product details
+      const product = await Product.findById(productId);
+
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product not found.",
+        });
+      }
+
+      // Calculate total price based on quantity
+      const productPrice = product.salePrice || product.originalPrice;
+      const totalProductPrice = productPrice * quantity;
+
+      // Create the order
+      const order = await Order.create({
+        cart: [
+          {
+            productId: product._id,
+            quantity: quantity,
+            price: productPrice,
+            variant: null, // Assuming no variants for single product
+          },
+        ],
+        shippingAddress,
+        userId: req.user._id,
+        totalPrice: totalProductPrice,
+        paymentInfo: JSON.stringify(paymentInfo), // Convert paymentInfo to string
+        shopId: product.shopId, // Assuming all products have the same shopId
+      });
+
+      res.status(201).json({
+        success: true,
+        order,
+        message: "Order placed successfully!",
+      });
+    } catch (error) {
+      console.error("Create Order Error:", error);
+      res.status(500).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  })
+);
 
 
 
@@ -184,62 +246,6 @@ router.delete(
   })
 );
 
-// Direct Buy Now (without storing in cart)
-router.post(
-  "/direct-order",
-  isAuthenticated,
-  catchAsyncError(async (req, res) => {
-    const { productId, qty, shippingAddress, user, paymentInfo } = req.body;
 
-    if (!productId || !qty || qty <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid product or quantity",
-      });
-    }
-
-    try {
-      // Fetch product details
-      const product = await Product.findById(productId);
-      if (!product) {
-        return res
-          .status(404)
-          .json({ success: false, message: "Product not found" });
-      }
-
-      const orderItem = {
-        _id: product._id,
-        name: product.name,
-        images: product.images,
-        salePrice: product.salePrice,
-        qty,
-        shopId: product.shopId,
-      };
-
-      const subTotal = product.salePrice * qty;
-
-      const order = await Order.create({
-        cart: [orderItem],
-        shippingAddress,
-        user,
-        totalPrice: subTotal,
-        paymentInfo,
-        shopId: product.shopId,
-      });
-
-      res.status(201).json({
-        success: true,
-        order,
-        message: "Direct order placed successfully!",
-      });
-    } catch (error) {
-      console.error("Direct Order Error:", error);
-      res.status(500).json({
-        success: false,
-        message: error.message,
-      });
-    }
-  })
-);
 
 export default router;
