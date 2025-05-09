@@ -76,6 +76,23 @@ const SearchBar = ({ showMobileSearch, setShowMobileSearch }) => {
     setShowDropdown(false);
   };
 
+  useEffect(() => {
+    if (showMobileSearch) {
+      // Push a state to the browser history
+      window.history.pushState({ mobileSearch: true }, "");
+
+      const handlePopState = (event) => {
+        setShowMobileSearch(false);
+      };
+
+      window.addEventListener("popstate", handlePopState);
+
+      return () => {
+        window.removeEventListener("popstate", handlePopState);
+      };
+    }
+  }, [showMobileSearch]);
+
   return (
     <div className="relative w-full max-w-md" ref={searchBarRef}>
       {/* Desktop: Inline search */}

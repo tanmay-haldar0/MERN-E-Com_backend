@@ -92,13 +92,33 @@ const SearchPage = () => {
     currentPage * PRODUCTS_PER_PAGE
   );
 
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isFilterOpen) {
+        setIsFilterOpen(false);
+        // Push current state back so that the page doesn't actually navigate
+        window.history.pushState(null, "", window.location.href);
+      }
+    };
+
+    if (isFilterOpen) {
+      // Push a new state so that back button becomes available
+      window.history.pushState(null, "", window.location.href);
+      window.addEventListener("popstate", handlePopState);
+    }
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isFilterOpen]);
+
   return (
     <>
       <div className="max-w-[1300px] mx-auto sm:p-4 p-2 sm:mt-14 mt-8 rounded-lg">
         {/* Toggle Filter Button */}
-        <div className="mb-4 flex justify-end md:hidden">
+        <div className="mb-4 flex mt-12 justify-end md:hidden">
           <button
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            className="bg-blue-600 text-white  px-4 py-2 rounded-md"
             onClick={() => setIsFilterOpen(true)}
           >
             Filters
@@ -108,7 +128,7 @@ const SearchPage = () => {
         <div className="flex">
           {/* Sidebar Filters */}
           <div
-            className={`fixed inset-y-0 left-0 z-40 w-3/4 max-w-xs bg-white border-r p-4 transform transition-transform duration-300 ease-in-out ${
+            className={`fixed inset-y-0 left-0 z-[100] w-3/4 max-w-xs bg-white border-r p-4 transform transition-transform duration-300 ease-in-out ${
               isFilterOpen ? "translate-x-0" : "-translate-x-full"
             } md:relative md:translate-x-0 md:w-1/4 md:block`}
           >
@@ -187,7 +207,7 @@ const SearchPage = () => {
           {/* Overlay when sidebar is open (mobile only) */}
           {isFilterOpen && (
             <div
-              className="fixed inset-0 bg-black bg-opacity-30 z-30 md:hidden"
+              className="fixed inset-0 bg-black mt-8 bg-opacity-30 z-30 md:hidden"
               onClick={() => setIsFilterOpen(false)}
             ></div>
           )}
@@ -205,7 +225,7 @@ const SearchPage = () => {
             ) : error ? (
               <p className="text-red-600 text-center">{error}</p>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
                 {paginatedProducts.length > 0 ? (
                   paginatedProducts.map((product) => (
                     <ProductCard
