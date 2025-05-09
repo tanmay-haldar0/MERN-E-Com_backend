@@ -1,9 +1,9 @@
 import express from "express";
 import Product from "../model/product.js";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
 import { upload, handleUploadAndCompress } from "../multer.js";
-import { v2 as cloudinary } from "cloudinary"
+import { v2 as cloudinary } from "cloudinary";
 import Seller from "../model/seller.js";
 import { isAuthenticated, isSellerAuthenticated } from "../middleware/auth.js";
 
@@ -76,11 +76,11 @@ router.get(
   isSellerAuthenticated,
   catchAsyncError(async (req, res, next) => {
     try {
-      const products = await Product.find({ shopId: req.params.id }).select(
-        "-shop"
-      ).sort({
-        createdAt: -1,
-      });
+      const products = await Product.find({ shopId: req.params.id })
+        .select("-shop")
+        .sort({
+          createdAt: -1,
+        });
 
       if (!products) {
         return res.status(404).json({ message: "No Products Found" });
@@ -108,7 +108,8 @@ router.get(
     const products = await Product.find()
       .select("-shop")
       .skip(skip)
-      .limit(limit).sort({
+      .limit(limit)
+      .sort({
         createdAt: -1,
       });
 
@@ -148,13 +149,17 @@ router.put(
 
       // ✅ Ensure the current seller is the owner of this product
       if (product.shopId.toString() !== req.user._id.toString()) {
-        return res.status(403).json({ message: "You are not authorized to update this product." });
+        return res
+          .status(403)
+          .json({ message: "You are not authorized to update this product." });
       }
 
       // ✅ Handle removed images
       const removedImages = req.body.removedImages;
       if (removedImages) {
-        const toDelete = Array.isArray(removedImages) ? removedImages : [removedImages];
+        const toDelete = Array.isArray(removedImages)
+          ? removedImages
+          : [removedImages];
         await Promise.all(
           toDelete.map(async (url) => {
             const publicId = getPublicIdFromUrl(url);
@@ -162,7 +167,9 @@ router.put(
           })
         );
 
-        product.images = product.images.filter((url) => !toDelete.includes(url));
+        product.images = product.images.filter(
+          (url) => !toDelete.includes(url)
+        );
       }
 
       // ✅ Update fields (excluding restricted ones like `shopId`)
@@ -174,7 +181,7 @@ router.put(
         "originalPrice",
         "salePrice",
         "stock",
-        "isCustomizable"
+        "isCustomizable",
       ];
       allowedUpdates.forEach((key) => {
         if (req.body[key] !== undefined) {
@@ -200,28 +207,29 @@ router.put(
   })
 );
 
-
 // get a specific product
-router.get("/get-product/:id", catchAsyncError(async (req, res, next) => {
-  try {
-    const product = await Product.find({ _id: req.params.id }).select(
-      "-shop"
-    );
-    if (!product) {
-      return res.status(404).json({
+router.get(
+  "/get-product/:id",
+  catchAsyncError(async (req, res, next) => {
+    try {
+      const product = await Product.find({ _id: req.params.id }).select(
+        "-shop"
+      );
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: "Product Not Found",
+        });
+      }
+      return res.status(200).json({ success: true, product });
+    } catch (error) {
+      return res.status(500).json({
         success: false,
-        message: "Product Not Found",
-      })
+        message: error.message,
+      });
     }
-    return res.status(200).json({ success: true, product });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: error.message
-    })
-  }
-}));
-
+  })
+);
 
 // Delete a Product
 
@@ -231,7 +239,7 @@ router.delete(
   catchAsyncError(async (req, res, next) => {
     try {
       // console.log(req.params.id);
-      const id = req.params.id
+      const id = req.params.id;
       const dbProduct = await Product.findById(id);
       // console.log(dbProduct);
       // const id = req.params.id
@@ -251,13 +259,12 @@ router.delete(
         });
       }
 
-
       // Delete images from Cloudinary
       if (dbProduct.images && dbProduct.images.length > 0) {
         await Promise.all(
           dbProduct.images.map(async (imgUrl) => {
             const publicId = getPublicIdFromUrl(imgUrl);
-            console.log(publicId)
+            console.log(publicId);
             await cloudinary.uploader.destroy(publicId);
           })
         );
@@ -278,5 +285,74 @@ router.delete(
   })
 );
 
+// Product Search-Suggetions
+router.get(
+  "/search-suggestions",
+  catchAsyncError(async (req, res) => {
+    const { query } = req.query;
+    if (!query || query.trim() === "") {
+      return res.status(400).json({ success: false, message: "Empty query" });
+    }
+
+    const regex = new RegExp(query, "i");
+
+    // Get products with name match first
+    const nameMatches = await Product.find({ name: regex })
+      .select("name _id images")
+      .limit(5);
+
+    // Get products with tag match, excluding ones already found
+    const tagMatches = await Product.find({
+      tags: { $in: [regex] },
+      _id: { $nin: nameMatches.map((p) => p._id) },
+    })
+      .select("name _id images")
+      .limit(5 - nameMatches.length); // Only fetch remaining
+
+    const suggestions = [...nameMatches, ...tagMatches];
+
+    res.status(200).json({ success: true, suggestions });
+  })
+);
+
+// Product Search-Suggetion
+router.get(
+  "/search",
+  catchAsyncError(async (req, res) => {
+    const { q, page = 1 } = req.query;
+
+    if (!q || q.trim() === "") {
+      return res.status(400).json({ success: false, message: "Empty query" });
+    }
+
+    const regex = new RegExp(q, "i");
+
+    const filter = {
+      $or: [
+        { name: regex },
+        { tags: { $in: [regex] } },
+        { description: regex },
+        { category: regex },
+      ],
+    };
+
+    const limit = 20; // 20 products per page
+    const skip = (Number(page) - 1) * limit;
+
+    const totalProducts = await Product.countDocuments(filter);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(filter)
+      .select("name _id images originalPrice salePrice rating category")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      products,
+      totalPages,
+    });
+  })
+);
 
 export default router;

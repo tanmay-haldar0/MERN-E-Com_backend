@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { IoCartOutline } from "react-icons/io5";
+import axios from "axios";
 import {
   MdOutlineKeyboardArrowDown,
   MdShoppingCart,
@@ -31,8 +32,11 @@ import {
   FaHeart,
   FaHistory,
   FaMapMarkerAlt,
+  FaSearch,
 } from "react-icons/fa";
 import { CiShop } from "react-icons/ci";
+import SearchBar from "./SearchBar";
+// import debounce from "lodash.debounce";
 
 const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -49,6 +53,8 @@ const Navbar = () => {
     const parts = fullName.trim().split(" ");
     return parts[0]; // First word
   }
+
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -122,7 +128,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div>
+    <div className="flex justify-around sm:block">
       {/* Navbar */}
       <div className="w-full fixed top-0 left-0 py-2 z-50 flex items-center justify-between px-5 shadow-lg bg-white">
         <div className="flex items-center justify-center h-full">
@@ -131,14 +137,21 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div className="sm:w-2/5 h-10 rounded-md items-center relative bg-slate-100 hidden sm:flex md:flex">
-          <input
-            type="text"
-            placeholder="Search Here"
-            className="p-4 w-full h-8 bg-transparent rounded-md text-slate-600 outline-none"
-          />
-          <MdSearch className="absolute text-gray-600 right-3 text-xl hover:text-primary" />
+        {/* Mobile: Search button in the Parent Component */}
+        <div className="md:hidden absolute right-14 top-3">
+          <button
+            onClick={() => setShowMobileSearch(true)}
+            className="flex items-center gap-2 px-2 py-2 bg-primary text-white rounded-full shadow"
+          >
+            <FaSearch />
+          </button>
         </div>
+
+        {/* Passing showMobileSearch and setShowMobileSearch as props */}
+        <SearchBar
+          showMobileSearch={showMobileSearch}
+          setShowMobileSearch={setShowMobileSearch}
+        />
 
         <div className="w-auto h-10 flex sm:flex md:flex items-center justify-center">
           {isAuthenticated && role === "seller" ? (
@@ -182,9 +195,13 @@ const Navbar = () => {
                     Cart
                   </span>
                 </div>
-                {cart?.products?.length > 0 ? (<div className="bg-red-500 p-[2px] w-5 h-5 mx-1 text-[10px] hidden sm:flex items-center justify-center rounded-full font-semibold text-white">
-                  {cart?.products?.length}
-                </div>) : ("")}
+                {cart?.products?.length > 0 ? (
+                  <div className="bg-red-500 p-[2px] w-5 h-5 mx-1 text-[10px] hidden sm:flex items-center justify-center rounded-full font-semibold text-white">
+                    {cart?.products?.length}
+                  </div>
+                ) : (
+                  ""
+                )}
               </button>
             </Link>
           )}
@@ -228,11 +245,16 @@ const Navbar = () => {
           ) : (
             <div className="hidden sm:block p-2 text-slate-400 rounded-md text-center text-sm sm:text-md mr-1">
               <Link to={"/signup"}>
-                <span className="hover:text-primary cursor-pointer">SignUp </span>
+                <span className="hover:text-primary cursor-pointer">
+                  SignUp{" "}
+                </span>
               </Link>
               /
               <Link to={"/login"}>
-                <span className="hover:text-primary cursor-pointer"> Login </span>
+                <span className="hover:text-primary cursor-pointer">
+                  {" "}
+                  Login{" "}
+                </span>
               </Link>
             </div>
           )}
