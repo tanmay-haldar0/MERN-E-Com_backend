@@ -172,4 +172,22 @@ router.get(
 );
 
 
+// Get all vendor (admin)
+router.get(
+  "/admin-user",
+  catchAsyncError(async (req, res) => {
+    const user = await User.find()
+      .sort({ createdAt: -1 })
+      .select("name email _id"); // Only select needed fields
+
+    const formattedUser = user.map((user) => ({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    }));
+
+    res.status(200).json({ success: true, users: formattedUser });
+  })
+);
+
 export default router;

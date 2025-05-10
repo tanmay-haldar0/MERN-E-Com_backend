@@ -54,8 +54,8 @@ const Cart = () => {
           <h1 className="text-xl sm:text-3xl font-semibold text-slate-800">
             Your Cart :
           </h1>
-          {cartItems.length !== 0
-            ? (<button
+          {cartItems.length !== 0 ? (
+            <button
               onClick={() => setShowModal(true)}
               className="bg-red-500 text-white px-2 py-1 text-sm rounded-md hover:bg-red-600 transition-all duration-200"
             >
@@ -63,14 +63,42 @@ const Cart = () => {
                 <MdDeleteForever />
                 Clear Cart
               </span>
-            </button>) : ("")
-          }
+            </button>
+          ) : (
+            ""
+          )}
         </div>
 
         {/* Loader */}
         {isLoading ? (
-          <div className="flex justify-center items-center h-[50vh]">
-            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="flex flex-col md:flex-row gap-4 mt-6">
+            {/* Skeleton for cart items */}
+            <div className="w-full md:w-3/5 flex flex-col gap-6">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-4 p-4 border rounded-md animate-pulse"
+                >
+                  <div className="w-24 h-24 bg-gray-200 rounded-md"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="w-2/3 h-4 bg-gray-200 rounded"></div>
+                    <div className="w-1/2 h-4 bg-gray-200 rounded"></div>
+                    <div className="w-1/4 h-4 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Skeleton for checkout section */}
+            <div className="w-full md:w-[300px] lg:w-[280px] xl:w-[450px] self-start">
+              <div className="p-4 border rounded-md animate-pulse space-y-3">
+                <div className="w-1/2 h-5 bg-gray-200 rounded"></div>
+                <div className="w-full h-4 bg-gray-200 rounded"></div>
+                <div className="w-3/4 h-4 bg-gray-200 rounded"></div>
+                <div className="w-2/4 h-4 bg-gray-200 rounded"></div>
+                <div className="w-full h-10 bg-gray-300 rounded mt-4"></div>
+              </div>
+            </div>
           </div>
         ) : error ? (
           <div className="text-red-500 text-center mt-10">{error}</div>
@@ -81,7 +109,10 @@ const Cart = () => {
               <p className="text-base sm:text-lg text-slate-600 mb-3">
                 Your Cart is Empty, Add products to continue shopping
               </p>
-              <button className="bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-200" onClick={() => navigate("/shop") }>
+              <button
+                className="bg-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-all duration-200"
+                onClick={() => navigate("/shop")}
+              >
                 Shop Now
               </button>
             </div>

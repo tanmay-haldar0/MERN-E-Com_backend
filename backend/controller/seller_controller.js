@@ -172,4 +172,24 @@ router.get(
 );
 
 
+// Get all vendor (admin)
+router.get(
+  "/admin-seller",
+  catchAsyncError(async (req, res) => {
+    const sellers = await Seller.find()
+      .sort({ createdAt: -1 })
+      .select("name email _id"); // Only select needed fields
+
+    const formattedSellers = sellers.map((seller) => ({
+      id: seller._id,
+      name: seller.name,
+      email: seller.email,
+    }));
+
+    res.status(200).json({ success: true, sellers: formattedSellers });
+  })
+);
+
+
+
 export default router;

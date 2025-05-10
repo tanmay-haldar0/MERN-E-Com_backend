@@ -9,7 +9,12 @@ import { getAllProducts } from "../redux/actions/product"; // <-- import action
 
 const Shop = () => {
   const dispatch = useDispatch();
-  const { homepageProducts = [], isLoading, success, totalPages } = useSelector((state) => state.product);  // Correct state
+  const {
+    homepageProducts = [],
+    isLoading,
+    success,
+    totalPages,
+  } = useSelector((state) => state.product); // Correct state
   // console.log("Products from Redux:", products);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -37,6 +42,16 @@ const Shop = () => {
       product.originalPrice <= selectedPriceRange[1];
     return categoryMatch && priceMatch;
   });
+
+  const ProductCardSkeleton = () => {
+    return (
+      <div className="animate-pulse bg-white rounded-lg shadow p-4 space-y-3">
+        <div className="bg-gray-200 h-40 w-full rounded-md" />
+        <div className="bg-gray-200 h-4 w-3/4 rounded-md" />
+        <div className="bg-gray-200 h-4 w-1/2 rounded-md" />
+      </div>
+    );
+  };
 
   return (
     <>
@@ -73,8 +88,10 @@ const Shop = () => {
           {/* Product Grid */}
           <div className="w-full lg:w-3/4">
             {isLoading ? (
-              <div className="flex justify-center items-center min-h-[300px]">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+                {Array.from({ length: 20 }).map((_, index) => (
+                  <ProductCardSkeleton key={index} />
+                ))}
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
@@ -108,9 +125,7 @@ const Shop = () => {
               >
                 <FaAngleLeft />
               </button>
-              <span className="px-2 text-center">
-                Page {currentPage}
-              </span>
+              <span className="px-2 text-center">Page {currentPage}</span>
               <button
                 className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                 onClick={() => setCurrentPage(currentPage + 1)}
@@ -188,8 +203,9 @@ const Filters = ({
         {categories.map((category) => (
           <button
             key={category}
-            className={`text-sm text-gray-700 ${selectedCategory === category ? "font-bold" : ""
-              }`}
+            className={`text-sm text-gray-700 ${
+              selectedCategory === category ? "font-bold" : ""
+            }`}
             onClick={() => handleCategoryChange(category)}
           >
             {category}

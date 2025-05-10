@@ -8,7 +8,7 @@ const orderSchema = new mongoose.Schema({
   },
   shopId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Shop",
+    ref: "Seller",
     required: true,
   },
   cart: [

@@ -145,16 +145,30 @@ router.post(
 
 
 
-// Get All Orders (Admin or for dashboard)
+// Get all orders (Admin)
 router.get(
   "/admin-orders",
-  isAuthenticated,
-  // isAdmin,
   catchAsyncError(async (req, res) => {
-    const orders = await Order.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, orders });
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email")
+      .populate("shopId", "name");
+
+    const formattedOrders = orders.map((order) => ({
+      id: order._id,
+      orderId: "ORD" + order._id.toString().slice(-4).toUpperCase(),
+      customerName: order.userId?.name || "Unknown",
+      customerEmail: order.userId?.email || "N/A",
+      vendorName: order.shopId?.name || "Unknown",
+      amount: `$${order.totalPrice.toFixed(2)}`,
+      status: order.status || "Pending",
+    }));
+
+    res.status(200).json({ success: true, orders: formattedOrders });
   })
 );
+
+
 
 // Get Orders for Specific User
 router.get(
