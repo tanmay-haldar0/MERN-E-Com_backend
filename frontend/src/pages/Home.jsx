@@ -130,7 +130,7 @@ const Home = () => {
           </button>
         </Link>
       </div>
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center w-full h-full">
         <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
           {isLoading
             ? Array.from({ length: 10 }).map((_, index) => (
