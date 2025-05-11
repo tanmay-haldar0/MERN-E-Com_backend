@@ -13,6 +13,8 @@ import product from "./controller/product_controller.js";
 import cart from "./controller/cart_controller.js"
 import order from "./controller/order_controller.js"
 import admin from "./controller/admin_controller.js"
+import stripeWebhook from "./controller/stripe_webhook.js"
+import payment from "./controller/payment_controller.js"
 
 
 const app = express();
@@ -29,6 +31,8 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 }
 
 // Middlewares
+// express.raw({ type: "application/json" })
+app.use("/api/v2/stripe", stripeWebhook);
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -52,6 +56,7 @@ app.use("/api/v2/product", product);
 app.use("/api/v2/cart", cart);
 app.use("/api/v2/order", order);
 app.use("/api/v2/admin", admin);
+app.use("/api/v2/payment", payment);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
