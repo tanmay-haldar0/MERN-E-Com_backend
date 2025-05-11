@@ -6,6 +6,7 @@ import { server } from "../server";
 import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 import Footer from "../Components/Footer";
 import ProductCard from "../Components/ProductCard";
+import ProductPageSkeleton from "../Components/ProductPageSkeleton";
 import { addToCart, getCart } from "../redux/actions/cart";
 import { toast } from "react-toastify";
 
@@ -120,7 +121,7 @@ const ProductPage = () => {
     return stars;
   };
 
-  if (loading) return <div className="p-10 text-center">Loading...</div>;
+  if (loading) return <ProductPageSkeleton />;
 
   if (!product)
     return (

@@ -4,7 +4,8 @@ import axios from "axios";
 import ProductCard from "../Components/ProductCard";
 import Footer from "../Components/Footer";
 import { server } from "../server.js";
-import { X } from "lucide-react";
+import { MdClose } from "react-icons/md";
+import ProductCardSkeleton from "../Components/ProductCardSkeleton.jsx";
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -128,9 +129,8 @@ const SearchPage = () => {
         <div className="flex">
           {/* Sidebar Filters */}
           <div
-            className={`fixed inset-y-0 left-0 z-[100] w-3/4 max-w-xs bg-white border-r p-4 transform transition-transform duration-300 ease-in-out ${
-              isFilterOpen ? "translate-x-0" : "-translate-x-full"
-            } md:relative md:translate-x-0 md:w-1/4 md:block`}
+            className={`fixed inset-y-0 left-0 z-[100] w-3/4 max-w-xs bg-white border-r p-4 transform transition-transform duration-300 ease-in-out ${isFilterOpen ? "translate-x-0" : "-translate-x-full"
+              } md:relative md:translate-x-0 md:w-1/4 md:block`}
           >
             {/* Close Button (mobile only) */}
             <div className="md:hidden flex justify-end">
@@ -138,7 +138,7 @@ const SearchPage = () => {
                 className="mb-2 text-gray-700"
                 onClick={() => setIsFilterOpen(false)}
               >
-                <X className="w-6 h-6" />
+                <MdClose className="w-6 h-6" />
               </button>
             </div>
 
@@ -219,10 +219,13 @@ const SearchPage = () => {
             </h1>
 
             {loading ? (
-              <div className="flex justify-center items-center min-h-[300px]">
-                <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+              <div className="grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
+                {Array.from({ length: 20 }).map((_, idx) => (
+                  <ProductCardSkeleton key={idx} />
+                ))}
               </div>
             ) : error ? (
+
               <p className="text-red-600 text-center">{error}</p>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
