@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import axios from "axios";
-import { server } from "../../server";
+import { server } from "../server";
 
 const Orders = () => {
   const [searchTerm, setSearchTerm] = useState("");

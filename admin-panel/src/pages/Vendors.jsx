@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import { server } from "../../server";
+import { server } from "../server";
 import axios from "axios";
 
 const Vendors = () => {
