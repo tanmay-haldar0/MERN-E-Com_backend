@@ -12,6 +12,7 @@ import seller from "./controller/seller_controller.js";
 import product from "./controller/product_controller.js";
 import cart from "./controller/cart_controller.js"
 import order from "./controller/order_controller.js"
+import admin from "./controller/admin_controller.js"
 
 
 const app = express();
@@ -50,6 +51,7 @@ app.use("/api/v2/seller", seller);
 app.use("/api/v2/product", product);
 app.use("/api/v2/cart", cart);
 app.use("/api/v2/order", order);
+app.use("/api/v2/admin", admin);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

@@ -172,7 +172,7 @@ router.get(
 );
 
 
-// Get all vendor (admin)
+// Get all user (admin)
 router.get(
   "/admin-user",
   catchAsyncError(async (req, res) => {
