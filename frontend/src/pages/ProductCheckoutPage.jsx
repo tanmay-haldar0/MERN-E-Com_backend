@@ -65,7 +65,7 @@ const ProductCheckoutPage = () => {
       try {
         const stripe = await stripePromise;
         const { data } = await axios.post(
-          `${server}/payment/create-checkout-session`,
+          `${server}/payment/create-checkout-session/buynow/${productId}`,
           { shippingAddress },
           { withCredentials: true }
         );

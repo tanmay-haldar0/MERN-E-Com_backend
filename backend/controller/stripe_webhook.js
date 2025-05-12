@@ -9,7 +9,7 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
-console.log("✅ Stripe Webhook initialized. Secret present?", !!endpointSecret);
+// console.log("✅ Stripe Webhook initialized. Secret present?", !!endpointSecret);
 
 router.post(
   "/", // Mounted as /api/v2/stripe/webhook
@@ -21,7 +21,7 @@ router.post(
     // Step 1: Verify Stripe signature
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-      console.log("✅ Stripe event received:", event.type);
+      // console.log("✅ Stripe event received:", event.type);
     } catch (err) {
       console.error("❌ Webhook signature verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -35,23 +35,40 @@ router.post(
       try {
         userId = session.metadata.userId;
         shippingAddress = JSON.parse(session.metadata.shippingAddress);
-        cartItems = JSON.parse(session.metadata.cart);
+        userId = session.metadata.userId;
+        shippingAddress = JSON.parse(session.metadata.shippingAddress);
 
-        if (!userId || !Array.isArray(cartItems)) {
-          console.error("❌ Invalid metadata:", session.metadata);
-          return res.status(400).send("Invalid metadata in session.");
+        if (session.metadata.cart) {
+          // Cart-based order (existing logic)
+          cartItems = JSON.parse(session.metadata.cart);
+        } else if (session.metadata.productId) {
+          // Buy Now order
+          cartItems = [
+            {
+              productId: session.metadata.productId,
+              quantity: parseInt(session.metadata.quantity || "1", 10),
+              price: parseFloat(session.metadata.price),
+              variant: session.metadata.variant || "",
+            },
+          ];
+        } else {
+          console.error("❌ No valid order metadata found.");
+          return res.status(400).send("Invalid order metadata.");
         }
 
-        console.log("✅ Parsed metadata:", { userId, shippingAddress, cartItems });
+        // console.log("✅ Parsed metadata:", { userId, shippingAddress, cartItems });
       } catch (err) {
         console.error("❌ Failed to parse metadata:", err.message);
         return res.status(400).send("Malformed metadata.");
       }
 
       try {
-        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent, {
-          expand: ["latest_charge"],
-        });
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          session.payment_intent,
+          {
+            expand: ["latest_charge"],
+          }
+        );
 
         const charge = paymentIntent.latest_charge;
         if (!charge) {
@@ -79,10 +96,13 @@ router.post(
           });
         }
 
-        console.log("🛍️ Shop-wise cart items:", [...shopItemsMap.entries()]);
+        // console.log("🛍️ Shop-wise cart items:", [...shopItemsMap.entries()]);
 
         for (const [shopId, items] of shopItemsMap.entries()) {
-          const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+          const total = items.reduce(
+            (acc, item) => acc + item.price * item.quantity,
+            0
+          );
 
           const orderData = {
             cart: items,
@@ -103,11 +123,11 @@ router.post(
           };
 
           const savedOrder = await Order.create(orderData);
-          console.log(`✅ Order created for shop ${shopId}:`, savedOrder._id);
+          // console.log(`✅ Order created for shop ${shopId}:`, savedOrder._id);
         }
 
         await Cart.findOneAndDelete({ userId });
-        console.log("🧹 Cart cleared for user:", userId);
+        // console.log("🧹 Cart cleared for user:", userId);
       } catch (err) {
         console.error("❌ Order creation failed:", err);
         return res.status(500).send("Order processing error.");

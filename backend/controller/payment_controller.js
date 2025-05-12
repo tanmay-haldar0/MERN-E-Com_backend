@@ -9,7 +9,7 @@ import Order from "../model/order.js";
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Create Stripe Checkout Session
+// Create Stripe Checkout Session for cart
 router.post(
   "/create-checkout-session",
   isAuthenticated,
@@ -59,6 +59,64 @@ router.post(
         shippingAddress: JSON.stringify(shippingAddress),
         cart: JSON.stringify(metadataItems),
       },
+    });
+
+    res.json({ sessionId: session.id });
+  })
+);
+// Direct Buy Now checkout Session
+router.post(
+  "/create-checkout-session/buynow/:productId",
+  isAuthenticated,
+  catchAsyncError(async (req, res) => {
+    const { productId } = req.params;
+    const { shippingAddress, quantity = 1 } = req.body;
+
+    if (!shippingAddress) {
+      return res.status(400).json({ success: false, message: "Shipping address is required." });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found." });
+    }
+
+    const productPrice = product.salePrice || product.originalPrice;
+
+    const line_items = [
+      {
+        price_data: {
+          currency: "INR",
+          product_data: {
+            name: product.name,
+            images: [product.images[0]],
+          },
+          unit_amount: Math.round(productPrice * 100),
+        },
+        quantity,
+      },
+    ];
+
+    const metadata = {
+      userId: req.user._id.toString(),
+      shippingAddress: JSON.stringify(shippingAddress),
+      cart: JSON.stringify([
+        {
+          productId: product._id.toString(),
+          quantity,
+          price: productPrice,
+          variant: "", // or send from req.body if needed
+        },
+      ]),
+    };
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items,
+      success_url: `${process.env.CLIENT_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.CLIENT_URL}/product/${productId}`,
+      metadata,
     });
 
     res.json({ sessionId: session.id });
