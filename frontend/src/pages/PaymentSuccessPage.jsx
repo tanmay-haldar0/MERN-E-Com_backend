@@ -14,40 +14,30 @@ function PaymentSuccessPage() {
   const sessionId = searchParams.get("session_id");
 
   const handleDownload = async () => {
-    setIsGeneratingPdf(true);
-    const element = document.getElementById("receipt-content");
-    if (!element) return;
+  setIsGeneratingPdf(true);
+  const element = document.getElementById("receipt-content");
+  if (!element) return;
 
-    const originalRatio = window.devicePixelRatio;
-    window.devicePixelRatio = 3;
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+  });
 
-    const canvas = await html2canvas(element, {
-      scale: 1.25,
-      useCORS: true,
-      logging: false,
-    });
+  const imgData = canvas.toDataURL("image/png");
 
-    window.devicePixelRatio = originalRatio;
+  const imgWidth = 210; // A4 width in mm
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
+  // Create PDF with custom height matching the image
+  const pdf = new jsPDF("p", "mm", [imgHeight + 20, imgWidth]);
 
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = pdf.internal.pageSize.getHeight();
-    const margin = 20;
+  pdf.addImage(imgData, "PNG", 10, 10, imgWidth - 20, imgHeight);
+  pdf.save(`receipt_${sessionId}.pdf`);
 
-    const imgWidth = pdfWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  setIsGeneratingPdf(false);
+};
 
-    const yPosition =
-      (pdfHeight - imgHeight) / 2 > margin
-        ? (pdfHeight - imgHeight) / 2
-        : margin;
-
-    pdf.addImage(imgData, "PNG", margin, yPosition, imgWidth, imgHeight);
-    pdf.save(`receipt_${sessionId}.pdf`);
-    setIsGeneratingPdf(false);
-  };
 
   useEffect(() => {
     const fetchData = async () => {
