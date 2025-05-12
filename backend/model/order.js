@@ -51,10 +51,14 @@ const orderSchema = new mongoose.Schema({
     default: "Pending",
   },
   paymentInfo: {
-    id: String,
-    status: String,
-    type: String, // e.g., "Card", "COD", "UPI"
+    id: { type: String, required: true }, // Stripe PaymentIntent ID
+    status: { type: String, required: true }, // e.g., "succeeded", "requires_payment_method"
+    type: { type: String, required: true }, // e.g., "Card", "UPI", "COD"
+    brand: { type: String }, // e.g., "Visa", "Mastercard"
+    last4: { type: String }, // last 4 digits of card
+    receiptUrl: { type: String }, // Stripe receipt URL
   },
+
   paidAt: {
     type: Date,
   },

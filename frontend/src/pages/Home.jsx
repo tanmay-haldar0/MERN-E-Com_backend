@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import Footer from "../Components/Footer.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../redux/actions/product.js";
+import ProductCardSkeleton from "../Components/ProductCardSkeleton.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -20,7 +21,7 @@ const Home = () => {
     totalPages,
   } = useSelector((state) => state.product); // Correct state
   const products = homepageProducts;
-
+  // const isLoading =true;
   let newProducts = [];
   let popularProducts = [];
 
@@ -93,15 +94,6 @@ const Home = () => {
   const vBannerUrl2 =
     "https://media.istockphoto.com/id/1210469631/vector/happy-holi-festival-poster-design.jpg?s=612x612&w=0&k=20&c=2EX1zNh03M9JdF8Gu8qJKCk0YKdKrV0bCKJBDz2dETw=";
 
-  const ProductCardSkeleton = () => {
-    return (
-      <div className="animate-pulse bg-white rounded-lg shadow p-4 space-y-3">
-        <div className="bg-gray-200 h-40 w-full rounded-md" />
-        <div className="bg-gray-200 h-4 w-3/4 rounded-md" />
-        <div className="bg-gray-200 h-4 w-1/2 rounded-md" />
-      </div>
-    );
-  };
 
   return (
     <div className="max-w-[1740px] mx-auto">
@@ -131,12 +123,15 @@ const Home = () => {
         </Link>
       </div>
       <div className="flex items-center justify-center w-full h-full">
-        <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
-          {isLoading
-            ? Array.from({ length: 10 }).map((_, index) => (
-                <ProductCardSkeleton key={index} />
-              ))
-            : newProducts.map((product, index) => (
+        {isLoading
+          ? (<div className="w-full m-4 grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
+            {Array.from({ length: 20 }).map((_, idx) => (
+              <ProductCardSkeleton key={idx} />
+            ))}
+          </div>)
+          : (
+            <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
+              {newProducts.map((product, index) => (
                 <ProductCard
                   key={index}
                   id={product._id}
@@ -147,7 +142,9 @@ const Home = () => {
                   salePrice={product.salePrice}
                 />
               ))}
-        </div>
+
+            </div>
+          )}
 
         <VBanner mClass={"mr-8"} tColor={"text-white"} bgImgUrl={vBannerUrl2} />
       </div>
@@ -176,28 +173,36 @@ const Home = () => {
               </button>
             </Link>
           </div>
-          <div className="grid px-2 sm:px-10 mb-8 mt-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
+
+          <div className="mb-16">
             {isLoading
-              ? Array.from({ length: 10 }).map((_, index) => (
-                  <ProductCardSkeleton key={index} />
-                ))
-              : popularProducts.map((product, index) => (
-                  <ProductCard
-                    key={index}
-                    id={product._id}
-                    imgSrc={product.images?.[0]}
-                    isSale={product.isSale}
-                    productName={product.name}
-                    price={product.originalPrice}
-                    salePrice={product.salePrice}
-                  />
+              ? (<div className="w-full mt-4 grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
+                {Array.from({ length: 20 }).map((_, idx) => (
+                  <ProductCardSkeleton key={idx} />
                 ))}
+              </div>)
+              : (
+                <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
+                  {newProducts.map((product, index) => (
+                    <ProductCard
+                      key={index}
+                      id={product._id}
+                      imgSrc={product.images?.[0]}
+                      isSale={product.isSale}
+                      productName={product.name}
+                      price={product.originalPrice}
+                      salePrice={product.salePrice}
+                    />
+                  ))}
+
+                </div>
+              )}
           </div>
         </div>
       </div>
 
       <Footer />
-    </div>
+    </div >
   );
 };
 
