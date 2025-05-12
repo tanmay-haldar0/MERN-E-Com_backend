@@ -140,28 +140,6 @@ router.post(
   }
 );
 
-// get orderdetails
-router.get("/order-details", async (req, res) => {
-  try {
-    const sessionId = req.query.session_id;
-    console.log("session id is", sessionId);
-    if (!sessionId) return res.status(400).json({ message: "Missing session_id" });
-
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    const paymentIntentId = session.payment_intent;
-
-    // Find the order(s) by payment intent
-    const orders = await Order.find({ "paymentInfo.id": paymentIntentId }).lean();
-    console.log("orders are: " ,orders);
-    if (!orders.length) return res.status(404).json({ message: "Order not found" });
-
-    // You can return a single order or all (if multi-shop)
-    res.json(orders.length === 1 ? orders[0] : orders);
-  } catch (err) {
-    console.error("Error fetching order details:", err);
-    res.status(500).json({ message: "Failed to retrieve order" });
-  }
-});
 
 
 export default router;

@@ -1,10 +1,12 @@
 import express from "express";
-import Stripe from "stripe";
+// import Stripe from "stripe";
 import { isAuthenticated } from "../middleware/auth.js";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
+import Stripe from "stripe";
+import mongoose from "mongoose";
 import Product from "../model/product.js";
-import Cart from "../model/cart.js";
 import Order from "../model/order.js";
+import Cart from "../model/cart.js";
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -122,5 +124,34 @@ router.post(
     res.json({ sessionId: session.id });
   })
 );
+
+// get orderdetails
+router.get("/order-details", async (req, res) => {
+  try {
+    const sessionId = req.query.session_id;
+    // console.log("session id is", sessionId);
+
+    if (!sessionId) {
+      return res.status(400).json({ message: "Missing session_id" });
+    }
+
+    // Optional: Verify the session exists in Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    // ✅ Correct: search using sessionId, not paymentIntentId
+    const orders = await Order.find({ "paymentInfo.sessionId": sessionId }).populate("cart.productId").lean();
+    // console.log("orders are:", orders);
+
+    if (!orders.length) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+
+    res.json(orders.length === 1 ? orders[0] : orders);
+  } catch (err) {
+    console.error("Error fetching order details:", err);
+    res.status(500).json({ message: "Failed to retrieve order" });
+  }
+});
+
 
 export default router;
