@@ -18,6 +18,7 @@ import Statistics from "./pages/Statistics";
 import AdminLogin from "./pages/AdminLogin";
 import { loadAdminUser } from "./redux/actions/admin";
 import ProtectedRoute from "./components/ProtectedRoutes";
+import { Navigate } from "react-router-dom";
 
 function SkeletonLoader() {
   return (

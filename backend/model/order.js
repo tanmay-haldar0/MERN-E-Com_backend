@@ -52,6 +52,7 @@ const orderSchema = new mongoose.Schema({
   },
   paymentInfo: {
     id: { type: String, required: true }, // Stripe PaymentIntent ID
+    sessionId:{type: String, required: true},
     status: { type: String, required: true }, // e.g., "succeeded", "requires_payment_method"
     type: { type: String, required: true }, // e.g., "Card", "UPI", "COD"
     brand: { type: String }, // e.g., "Visa", "Mastercard"

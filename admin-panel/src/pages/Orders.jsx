@@ -37,6 +37,8 @@ const Orders = () => {
         return "bg-green-100 text-green-600";
       case "Pending":
         return "bg-yellow-100 text-yellow-600";
+      case "Processing":
+        return "bg-blue-400 text-white";
       case "Shipped":
         return "bg-blue-100 text-blue-600";
       case "Cancelled":

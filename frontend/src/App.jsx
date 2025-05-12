@@ -32,6 +32,7 @@ import UpdateProduct from "./pages/Seller/UpdateProduct.jsx";
 import ProductCheckoutPage from "./pages/ProductCheckoutPage.jsx";
 import CartCheckoutPage from "./pages/CartCheckoutPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -216,6 +217,7 @@ function App() {
             element={<ProductCheckoutPage />}
           />
           <Route path="/products" element={<SearchPage />} />
+          <Route path="/payment/success" element={<PaymentSuccessPage />} />
         </Routes>
       </Router>
     </div>
