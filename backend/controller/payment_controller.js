@@ -30,9 +30,10 @@ router.post(
 
       line_items.push({
         price_data: {
-          currency: "usd",
+          currency: "INR",
           product_data: {
             name: product.name,
+            images: [product.images[0]],
           },
           unit_amount: Math.round(item.priceAtAddTime * 100),
         },

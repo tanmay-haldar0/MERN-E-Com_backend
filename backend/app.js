@@ -31,8 +31,7 @@ if (process.env.NODE_ENV !== "PRODUCTION") {
 }
 
 // Middlewares
-// express.raw({ type: "application/json" })
-app.use("/api/v2/stripe", stripeWebhook);
+app.use("/api/v2/stripe", express.raw({ type: "application/json" }), stripeWebhook);
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));

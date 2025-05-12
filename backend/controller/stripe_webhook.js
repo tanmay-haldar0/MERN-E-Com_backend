@@ -8,6 +8,8 @@ import Cart from "../model/cart.js";
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+console.log("Webhook Secret:", process.env.STRIPE_WEBHOOK_SECRET); // Should NOT be undefined
+
 
 router.post(
   "/webhook",
@@ -96,7 +98,7 @@ router.post(
           console.log("✅ Order created for shop:", shopId);
         }
 
-        await Cart.findOneAndDelete({ userId });
+        await Cart.findOneAndDelete({ userId: userId });
         console.log("🧹 Cart cleared for user:", userId);
       } catch (error) {
         console.error("❌ Stripe Order Creation Error:", error);
