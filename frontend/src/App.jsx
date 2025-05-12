@@ -33,6 +33,8 @@ import ProductCheckoutPage from "./pages/ProductCheckoutPage.jsx";
 import CartCheckoutPage from "./pages/CartCheckoutPage.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
+import ResetPasswordPage from "./pages/User/ResetPasswordPage.jsx";
+import ForgotPasswordPage from "./pages/User/ForgotPassword.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -200,6 +202,8 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
           {/* Other Routes */}
           <Route path="*" element={<NotFoundPage />} />

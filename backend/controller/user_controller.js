@@ -190,4 +190,73 @@ router.get(
   })
 );
 
+// forgot password
+
+
+router.post(
+  "/forgot-password",
+  catchAsyncError(async (req, res, next) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const resetToken = jwt.sign({ id: user._id }, process.env.RESET_PASSWORD_SECRET, {
+      expiresIn: "15m",
+    });
+
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordTime = Date.now() + 15 * 60 * 1000;
+    await user.save();
+
+    const resetUrl = `https://classiccustom-frontend.onrender.com/reset-password/${resetToken}`;
+
+    await sendMail({
+      email: user.email,
+      subject: "Reset Your Password",
+      message: `Click the following link to reset your password: ${resetUrl}`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Reset link sent to ${email}`,
+    });
+  })
+);
+
+// Reset Password
+
+router.post(
+  "/reset-password",
+  catchAsyncError(async (req, res, next) => {
+    const { token, newPassword } = req.body;
+
+    try {
+      const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+      const user = await User.findOne({
+        _id: decoded.id,
+        resetPasswordToken: token,
+        resetPasswordTime: { $gt: Date.now() },
+      });
+
+      if (!user) {
+        return res.status(400).json({ success: false, message: "Invalid or expired token" });
+      }
+
+      user.password = newPassword;
+      user.resetPasswordToken = undefined;
+      user.resetPasswordTime = undefined;
+      await user.save();
+
+      res.status(200).json({ success: true, message: "Password has been reset" });
+    } catch (err) {
+      return res.status(400).json({ success: false, message: "Token error: " + err.message });
+    }
+  })
+);
+
+
+
 export default router;
