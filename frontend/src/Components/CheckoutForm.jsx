@@ -59,35 +59,33 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
   );
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
-      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
+    <div className="max-w-5xl mx-auto p-4 mt-16">
+      <h2 className="sm:text-3xl text-xl font-bold text-center mb-4 text-gray-800">
         {title}
       </h2>
 
       {/* Item List */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {items.map((item) => (
           <div
             key={item._id}
-            className="flex flex-col sm:flex-row items-start sm:items-center gap-4 bg-white border border-gray-200 rounded-2xl shadow-md p-4"
+            className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl shadow-sm p-3"
           >
             <img
               src={item.productId.images?.[0] || "/default.jpg"}
               alt={item.productId.name}
-              className="w-28 h-24 object-cover rounded-md"
+              className="w-20 h-20 object-cover rounded-md"
             />
-            <div className="flex-1 w-full">
-              <div className="flex justify-between items-center w-full">
-                <div>
-                  <p className="font-semibold text-lg text-gray-800">
-                    {item.productId.name}
-                  </p>
-                  <p className="text-gray-600 text-sm">Qty: {item.quantity}</p>
-                </div>
-                <p className="text-green-600 font-bold text-lg">
-                  ₹{item.priceAtAddTime * item.quantity}
-                </p>
-              </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm text-gray-800 truncate">
+                {item.productId.name}
+              </p>
+              <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-green-600 font-semibold text-sm whitespace-nowrap">
+                ₹{item.priceAtAddTime * item.quantity}
+              </p>
             </div>
           </div>
         ))}
@@ -111,8 +109,10 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
             >
               <p className="font-semibold">{address.fullName}</p>
               <p className="text-sm">{address.addressLine1}</p>
+              <p className="text-sm">{address.addressLine2}</p>
+              <p className="text-sm">{address.phoneNumber}</p>
               <p className="text-sm">
-                {address.city}, {address.state}
+                {address.city}, {address.state}, {address.country}
               </p>
             </div>
           ))}
@@ -181,43 +181,40 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
 
       {/* Payment */}
       <div className="mt-6 bg-white border border-gray-200 rounded-xl shadow p-6">
-        <h3 className="text-xl font-semibold mb-4 text-gray-800">
-          💳 Payment Method
+        <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-800">
+          💳 Choose a Payment Method
         </h3>
-        <div className="flex gap-4">
-          <div
-            onClick={() => setPaymentMethod("Card")}
-            className={`cursor-pointer p-4 rounded-lg border w-full text-center ${
-              paymentMethod === "Card"
-                ? "bg-green-100 border-green-500"
-                : "border-gray-300"
-            }`}
-          >
-            <FaCcVisa className="text-4xl mx-auto" />
-            <p className="mt-2 text-lg font-semibold">Card</p>
-          </div>
-          <div
-            onClick={() => setPaymentMethod("Razorpay")}
-            className={`cursor-pointer p-4 rounded-lg border w-full text-center ${
-              paymentMethod === "Razorpay"
-                ? "bg-green-100 border-green-500"
-                : "border-gray-300"
-            }`}
-          >
-            <FaStripeS className="text-4xl mx-auto" />
-            <p className="mt-2 text-lg font-semibold">Razorpay</p>
-          </div>
-          <div
-            onClick={() => setPaymentMethod("Paytm")}
-            className={`cursor-pointer p-4 rounded-lg border w-full text-center ${
-              paymentMethod === "Paytm"
-                ? "bg-green-100 border-green-500"
-                : "border-gray-300"
-            }`}
-          >
-            <FaPaypal className="text-4xl mx-auto" />
-            <p className="mt-2 text-lg font-semibold">Paytm</p>
-          </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {[
+            {
+              label: "Card",
+              icon: <FaCcVisa className="text-2xl sm:text-3xl" />,
+            },
+            {
+              label: "Razorpay",
+              icon: <FaStripeS className="text-2xl sm:text-3xl" />,
+            },
+            {
+              label: "Paytm",
+              icon: <FaPaypal className="text-2xl sm:text-3xl" />,
+            },
+          ].map((method) => (
+            <div
+              key={method.label}
+              onClick={() => setPaymentMethod(method.label)}
+              className={`group cursor-pointer p-3 sm:p-4 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-200 shadow-sm hover:shadow-md hover:border-green-400 ${
+                paymentMethod === method.label
+                  ? "bg-green-100 border-green-500"
+                  : "bg-white border-gray-300"
+              }`}
+            >
+              <div className="mb-1">{method.icon}</div>
+              <p className="text-sm sm:text-base font-medium text-gray-700 group-hover:text-green-600">
+                {method.label}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
