@@ -65,6 +65,7 @@ const ProductCheckoutPage = () => {
     );
 
     if (paymentMethod === "Card") {
+      // Stripe flow
       setLoading(true);
       try {
         const stripe = await stripePromise;
@@ -79,8 +80,54 @@ const ProductCheckoutPage = () => {
         alert("Stripe checkout failed.");
         setLoading(false);
       }
+    } else if (paymentMethod === "Razorpay") {
+      // Razorpay flow
+      try {
+        const { data } = await axios.post(
+          `${server}/payment/razorpay-payment/buynow/${productId}`,
+          {
+            productId,
+            quantity: items[0].quantity,
+            shippingAddress,
+          },
+          { withCredentials: true }
+        );
+
+        const options = {
+          key: "rzp_test_NbLA8G39wddNT4", // replace with your actual Razorpay key
+          amount: data.amount,
+          currency: "INR",
+          name: "Classicustom",
+          description: "Product Purchase",
+          image: "https://classiccustom.com/logo.png", // optional
+          order_id: data.orderId,
+          handler: function (response) {
+            toast.success("Payment successful!");
+            navigate("/payment/success");
+          },
+          prefill: {
+            name: data.user?.name || "Guest",
+            email: data.user?.email || "guest@example.com",
+          },
+
+          theme: {
+            color: "#3399cc",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+
+        razorpay.on("payment.failed", function (response) {
+          toast.error("Payment failed: " + response.error.description);
+        });
+
+        razorpay.open();
+      } catch (error) {
+        console.error(error);
+        toast.error("Razorpay payment failed");
+      }
     } else {
-      // Handle Cash on Delivery or other method
+      // Cash on Delivery or other method
       try {
         const { data } = await axios.post(
           `${server}/order/create-order`,
@@ -92,11 +139,11 @@ const ProductCheckoutPage = () => {
           { withCredentials: true }
         );
 
-        alert("Order placed successfully!");
+        toast.success("Order placed successfully!");
         dispatch(clearCart());
         navigate("/shop");
       } catch (error) {
-        alert(error.response?.data?.message || "Failed to place order.");
+        toast.error(error.response?.data?.message || "Failed to place order.");
       }
     }
   };

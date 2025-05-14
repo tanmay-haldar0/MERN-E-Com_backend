@@ -7,9 +7,16 @@ import mongoose from "mongoose";
 import Product from "../model/product.js";
 import Order from "../model/order.js";
 import Cart from "../model/cart.js";
+import Razorpay from "razorpay";
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
 
 // Create Stripe Checkout Session for cart
 router.post(
@@ -124,6 +131,107 @@ router.post(
     res.json({ sessionId: session.id });
   })
 );
+
+
+
+// Cart-based Checkout
+router.post(
+  "/razorpay-payment",
+  isAuthenticated,
+  catchAsyncError(async (req, res) => {
+    const { shippingAddress } = req.body;
+    const cart = await Cart.findOne({ userId: req.user._id });
+
+    if (!cart || !cart.products.length) {
+      return res.status(400).json({ success: false, message: "Cart is empty." });
+    }
+
+    const metadataItems = [];
+    let totalAmount = 0;
+
+    for (const item of cart.products) {
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
+
+      const itemTotal = item.priceAtAddTime * item.quantity;
+      totalAmount += itemTotal;
+
+      metadataItems.push({
+        productId: item.productId.toString(),
+        quantity: item.quantity,
+        price: item.priceAtAddTime,
+        variant: item.variant || "",
+      });
+    }
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(totalAmount * 100), // Amount in paisa
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+      notes: {
+        userId: req.user._id.toString(),
+        shippingAddress: JSON.stringify(shippingAddress),
+        cart: JSON.stringify(metadataItems),
+      },
+    });
+
+    res.json({
+      orderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+    });
+  })
+);
+
+// Direct Buy Now Checkout
+router.post(
+  "/razorpay-payment/buynow/:productId",
+  isAuthenticated,
+  catchAsyncError(async (req, res) => {
+    const { productId } = req.params;
+    const { shippingAddress, quantity = 1 } = req.body;
+
+    if (!shippingAddress) {
+      return res.status(400).json({ success: false, message: "Shipping address is required." });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found." });
+    }
+
+    const productPrice = product.salePrice || product.originalPrice;
+    const totalAmount = productPrice * quantity;
+
+    const metadataItems = [
+      {
+        productId: product._id.toString(),
+        quantity,
+        price: productPrice,
+        variant: "", // or req.body.variant
+      },
+    ];
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: Math.round(totalAmount * 100), // Amount in paisa
+      currency: "INR",
+      receipt: `rcpt_${Date.now()}`,
+      notes: {
+        userId: req.user._id.toString(),
+        shippingAddress: JSON.stringify(shippingAddress),
+        cart: JSON.stringify(metadataItems),
+      },
+    });
+
+    res.json({
+      orderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+      currency: razorpayOrder.currency,
+    });
+  })
+);
+
+
 
 // get orderdetails
 router.get("/order-details", async (req, res) => {
