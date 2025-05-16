@@ -8,6 +8,8 @@ import Product from "../model/product.js";
 import Order from "../model/order.js";
 import Cart from "../model/cart.js";
 import Razorpay from "razorpay";
+import crypto from "crypto";
+
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -236,21 +238,29 @@ router.post(
 // get orderdetails
 router.get("/order-details", async (req, res) => {
   try {
-    const sessionId = req.query.session_id;
-    // console.log("session id is", sessionId);
+    const { session_id, razorpay_order_id } = req.query;
 
-    if (!sessionId) {
-      return res.status(400).json({ message: "Missing session_id" });
+    let orders;
+
+    if (session_id) {
+      // 🔵 Stripe flow
+      const session = await stripe.checkout.sessions.retrieve(session_id);
+
+      orders = await Order.find({
+        "paymentInfo.sessionId": session_id,
+        "paymentInfo.gateway": "Stripe"
+      }).populate("cart.productId").lean();
+    } else if (razorpay_order_id) {
+      // 🟠 Razorpay flow
+      orders = await Order.find({
+        "paymentInfo.sessionId": razorpay_order_id,
+        "paymentInfo.gateway": "Razorpay"
+      }).populate("cart.productId").lean();
+    } else {
+      return res.status(400).json({ message: "Missing session_id or razorpay_order_id" });
     }
 
-    // Optional: Verify the session exists in Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-
-    // ✅ Correct: search using sessionId, not paymentIntentId
-    const orders = await Order.find({ "paymentInfo.sessionId": sessionId }).populate("cart.productId").lean();
-    // console.log("orders are:", orders);
-
-    if (!orders.length) {
+    if (!orders || !orders.length) {
       return res.status(404).json({ message: "Order not found" });
     }
 
@@ -260,6 +270,97 @@ router.get("/order-details", async (req, res) => {
     res.status(500).json({ message: "Failed to retrieve order" });
   }
 });
+
+
+
+// rzp payment verification
+
+// Verify Razorpay Payment and Save Order(s)
+router.post(
+  "/verify-payment",
+  isAuthenticated,
+  catchAsyncError(async (req, res) => {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    // Step 1: Verify Signature
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Invalid payment signature" });
+    }
+
+    // Step 2: Fetch Razorpay Order Notes (metadata)
+    const razorpayOrder = await razorpay.orders.fetch(razorpay_order_id);
+    const { userId, shippingAddress, cart } = razorpayOrder.notes;
+
+    if (!cart || !shippingAddress) {
+      return res.status(400).json({ success: false, message: "Missing order metadata" });
+    }
+
+    const cartItems = JSON.parse(cart);
+    const parsedShippingAddress = JSON.parse(shippingAddress);
+    const shopItemsMap = new Map();
+
+    // Step 3: Group items by shop
+    for (const item of cartItems) {
+      const product = await Product.findById(item.productId);
+      if (!product) continue;
+
+      const shopId = product.shopId.toString();
+      if (!shopItemsMap.has(shopId)) shopItemsMap.set(shopId, []);
+
+      shopItemsMap.get(shopId).push({
+        productId: new mongoose.Types.ObjectId(item.productId),
+        quantity: item.quantity,
+        price: item.price,
+        variant: item.variant || "",
+      });
+    }
+
+    const orders = [];
+
+    // Step 4: Create orders per shop
+    for (const [shopId, items] of shopItemsMap.entries()) {
+      const total = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+      const orderData = {
+        cart: items,
+        shippingAddress: parsedShippingAddress,
+        userId: new mongoose.Types.ObjectId(userId),
+        totalPrice: total,
+        status: "Processing",
+        paymentInfo: {
+          id: razorpay_payment_id,
+          sessionId: razorpay_order_id,
+          status: "Paid",
+          type: "rzp", // Razorpay doesn’t provide card info here; assumed.
+          brand: "",    // Leave empty unless added manually later
+          last4: "",    // Leave empty unless fetched from Payment entity
+          receiptUrl: "", // You can generate Razorpay receipt URLs separately
+          gateway:"Razorpay"
+        },
+        shopId: new mongoose.Types.ObjectId(shopId),
+        paidAt: new Date(),
+      };
+
+      const newOrder = await Order.create(orderData);
+      orders.push(newOrder);
+    }
+
+    // Step 5: Clear cart if it exists
+    await Cart.findOneAndDelete({ userId: new mongoose.Types.ObjectId(userId) });
+
+    res.status(201).json({
+      success: true,
+      orders,
+      message: "Payment verified and order(s) placed successfully!",
+    });
+  })
+);
+
 
 
 export default router;

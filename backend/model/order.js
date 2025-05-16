@@ -58,6 +58,7 @@ const orderSchema = new mongoose.Schema({
     brand: { type: String }, // e.g., "Visa", "Mastercard"
     last4: { type: String }, // last 4 digits of card
     receiptUrl: { type: String }, // Stripe receipt URL
+    gateway: {type: String}
   },
 
   paidAt: {

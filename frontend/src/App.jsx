@@ -35,6 +35,7 @@ import SearchPage from "./pages/SearchPage.jsx";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 import ResetPasswordPage from "./pages/User/ResetPasswordPage.jsx";
 import ForgotPasswordPage from "./pages/User/ForgotPassword.jsx";
+import RZPSuccessPage from "./pages/RZPSuccessPage.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -222,6 +223,7 @@ function App() {
           />
           <Route path="/products" element={<SearchPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
+          <Route path="/payment/rzp/success" element={<RZPSuccessPage />} />
         </Routes>
       </Router>
     </div>

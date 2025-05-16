@@ -21,7 +21,6 @@ router.post(
     // Step 1: Verify Stripe signature
     try {
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-      // console.log("✅ Stripe event received:", event.type);
     } catch (err) {
       console.error("❌ Webhook signature verification failed:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
@@ -35,14 +34,10 @@ router.post(
       try {
         userId = session.metadata.userId;
         shippingAddress = JSON.parse(session.metadata.shippingAddress);
-        userId = session.metadata.userId;
-        shippingAddress = JSON.parse(session.metadata.shippingAddress);
 
         if (session.metadata.cart) {
-          // Cart-based order (existing logic)
           cartItems = JSON.parse(session.metadata.cart);
         } else if (session.metadata.productId) {
-          // Buy Now order
           cartItems = [
             {
               productId: session.metadata.productId,
@@ -52,11 +47,8 @@ router.post(
             },
           ];
         } else {
-          console.error("❌ No valid order metadata found.");
           return res.status(400).send("Invalid order metadata.");
         }
-
-        // console.log("✅ Parsed metadata:", { userId, shippingAddress, cartItems });
       } catch (err) {
         console.error("❌ Failed to parse metadata:", err.message);
         return res.status(400).send("Malformed metadata.");
@@ -65,14 +57,11 @@ router.post(
       try {
         const paymentIntent = await stripe.paymentIntents.retrieve(
           session.payment_intent,
-          {
-            expand: ["latest_charge"],
-          }
+          { expand: ["latest_charge"] }
         );
 
         const charge = paymentIntent.latest_charge;
         if (!charge) {
-          console.error("❌ No charge found in paymentIntent.");
           return res.status(500).send("Charge not found.");
         }
 
@@ -81,7 +70,7 @@ router.post(
         for (const item of cartItems) {
           const product = await Product.findById(item.productId);
           if (!product) {
-            console.warn("⚠️ Product not found in DB for:", item.productId);
+            console.warn("⚠️ Product not found:", item.productId);
             continue;
           }
 
@@ -96,8 +85,6 @@ router.post(
           });
         }
 
-        // console.log("🛍️ Shop-wise cart items:", [...shopItemsMap.entries()]);
-
         for (const [shopId, items] of shopItemsMap.entries()) {
           const total = items.reduce(
             (acc, item) => acc + item.price * item.quantity,
@@ -111,24 +98,23 @@ router.post(
             totalPrice: total,
             status: "Processing",
             paymentInfo: {
-              id: paymentIntent.id,
-              sessionId: session.id,
-              status: paymentIntent.status,
+              id: paymentIntent.id, // Stripe PaymentIntent ID
+              sessionId: session.id, // Stripe session ID
+              status: paymentIntent.status, // e.g., succeeded
               type: charge.payment_method_details?.type || "unknown",
               brand: charge.payment_method_details?.card?.brand || "",
               last4: charge.payment_method_details?.card?.last4 || "",
               receiptUrl: charge.receipt_url || "",
+              gateway: "Stripe", // ✅ NEW FIELD
             },
             shopId: new mongoose.Types.ObjectId(shopId),
             paidAt: new Date(),
           };
 
-          const savedOrder = await Order.create(orderData);
-          // console.log(`✅ Order created for shop ${shopId}:`, savedOrder._id);
+          await Order.create(orderData);
         }
 
         await Cart.findOneAndDelete({ userId });
-        // console.log("🧹 Cart cleared for user:", userId);
       } catch (err) {
         console.error("❌ Order creation failed:", err);
         return res.status(500).send("Order processing error.");
@@ -139,7 +125,5 @@ router.post(
     res.status(200).send("Webhook received.");
   }
 );
-
-
 
 export default router;

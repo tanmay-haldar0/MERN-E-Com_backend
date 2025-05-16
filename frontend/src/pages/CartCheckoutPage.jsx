@@ -71,8 +71,18 @@ const CartCheckoutPage = () => {
           image: "https://classiccustom.com/logo.png", // optional
           order_id: data.orderId,
           handler: function (response) {
+            const {
+              razorpay_order_id,
+              razorpay_payment_id,
+              razorpay_signature,
+            } = response;
+
             toast.success("Payment successful!");
-            navigate("/payment/success");
+
+            // Redirect with query parameters
+            navigate(
+              `/payment/rzp/success?razorpay_order_id=${razorpay_order_id}&razorpay_payment_id=${razorpay_payment_id}&razorpay_signature=${razorpay_signature}`
+            );
           },
           prefill: {
             name: data.user?.name || "Guest",
