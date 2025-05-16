@@ -63,7 +63,6 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
       <h2 className="sm:text-3xl text-xl font-bold text-center mb-4 text-gray-800">
         {title}
       </h2>
-
       {/* Item List */}
       <div className="space-y-3">
         {items.map((item) => (
@@ -90,7 +89,6 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
           </div>
         ))}
       </div>
-
       {/* Shipping */}
       <div className="mt-8 bg-white border border-gray-200 rounded-xl shadow p-6">
         <h3 className="text-xl font-semibold mb-4 text-gray-800">
@@ -178,7 +176,6 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
           </div>
         )}
       </div>
-
       {/* Payment */}
       <div className="mt-6 bg-white border border-gray-200 rounded-xl shadow p-6">
         <h3 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-800">
@@ -217,21 +214,24 @@ const CheckoutForm = ({ title, items, onPlaceOrder }) => {
           ))}
         </div>
       </div>
-
       {/* Summary */}
-      <div className="mt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h3 className="text-2xl font-bold text-gray-800">
-          Total: ₹{totalPrice}
-        </h3>
-        <button
-          onClick={handleSubmit}
-          disabled={isPlacingOrder}
-          className={`bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition font-semibold shadow ${
-            isPlacingOrder ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-        >
-          {isPlacingOrder ? "Placing Order..." : "✅ Confirm & Place Order"}
-        </button>
+      <div className="h-24" />{" "}
+      {/* Spacer so content doesn't get hidden by fixed button */}
+      <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 shadow-md z-50 p-4">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
+            Total: ₹{totalPrice}
+          </h3>
+          <button
+            onClick={handleSubmit}
+            disabled={isPlacingOrder}
+            className={`bg-green-600 text-white py-3 px-6 rounded-lg hover:bg-green-700 transition font-semibold shadow ${
+              isPlacingOrder ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            {isPlacingOrder ? "Placing Order..." : "✅ Confirm & Place Order"}
+          </button>
+        </div>
       </div>
     </div>
   );

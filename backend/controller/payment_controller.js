@@ -300,6 +300,16 @@ router.post(
       return res.status(400).json({ success: false, message: "Missing order metadata" });
     }
 
+    // Check if orders with this Razorpay order/session ID already exist
+    const existingOrders = await Order.find({ "paymentInfo.sessionId": razorpay_order_id });
+    if (existingOrders.length > 0) {
+      return res.status(409).json({
+        success: false,
+        message: "Order(s) for this payment have already been processed.",
+        orders: existingOrders,
+      });
+    }
+
     const cartItems = JSON.parse(cart);
     const parsedShippingAddress = JSON.parse(shippingAddress);
     const shopItemsMap = new Map();
@@ -336,10 +346,10 @@ router.post(
           id: razorpay_payment_id,
           sessionId: razorpay_order_id,
           status: "Paid",
-          type: "rzp", // Razorpay doesn’t provide card info here; assumed.
-          brand: "",    // Leave empty unless added manually later
-          last4: "",    // Leave empty unless fetched from Payment entity
-          receiptUrl: "", // You can generate Razorpay receipt URLs separately
+          type: "rzp",
+          brand: "",
+          last4: "",
+          receiptUrl: "",
           gateway:"Razorpay"
         },
         shopId: new mongoose.Types.ObjectId(shopId),
@@ -360,6 +370,7 @@ router.post(
     });
   })
 );
+
 
 
 
