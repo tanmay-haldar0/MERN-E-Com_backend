@@ -6,6 +6,7 @@ import { server } from "../server";
 import { useNavigate } from "react-router-dom";
 import CheckoutForm from "../Components/CheckoutForm";
 import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "react-toastify";
 
 // Load Stripe outside to prevent recreation on every render
 const stripePromise = loadStripe(
