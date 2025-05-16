@@ -8,7 +8,9 @@ import CheckoutForm from "../Components/CheckoutForm";
 import { loadStripe } from "@stripe/stripe-js";
 
 // Load Stripe outside to prevent recreation on every render
-const stripePromise = loadStripe('pk_test_51RIUVKIHTS4RdlhsPJiLRQttFAb22bEmk4Wyb3X3pdpfQYdgToqIEdEjmbPUECI7CJsc2RS4ieszm55bNgaGX06X00Bd8le8b9');
+const stripePromise = loadStripe(
+  "pk_test_51RIUVKIHTS4RdlhsPJiLRQttFAb22bEmk4Wyb3X3pdpfQYdgToqIEdEjmbPUECI7CJsc2RS4ieszm55bNgaGX06X00Bd8le8b9"
+);
 
 const CartCheckoutPage = () => {
   const dispatch = useDispatch();
@@ -16,7 +18,6 @@ const CartCheckoutPage = () => {
   const { cart } = useSelector((state) => state.cart);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-
 
   useEffect(() => {
     dispatch(getCart());
@@ -49,7 +50,50 @@ const CartCheckoutPage = () => {
         alert("Stripe checkout failed.");
         setLoading(false);
       }
+    } else if (paymentMethod === "Razorpay") {
+      // Razorpay flow
+      try {
+        const { data } = await axios.post(
+          `${server}/payment/razorpay-payment`,
+          {
+            shippingAddress,
+          },
+          { withCredentials: true }
+        );
 
+        const options = {
+          key: "rzp_test_NbLA8G39wddNT4", // replace with your actual Razorpay key
+          amount: data.amount,
+          currency: "INR",
+          name: "Classicustom",
+          description: "Product Purchase",
+          image: "https://classiccustom.com/logo.png", // optional
+          order_id: data.orderId,
+          handler: function (response) {
+            toast.success("Payment successful!");
+            navigate("/payment/success");
+          },
+          prefill: {
+            name: data.user?.name || "Guest",
+            email: data.user?.email || "guest@example.com",
+          },
+
+          theme: {
+            color: "#3399cc",
+          },
+        };
+
+        const razorpay = new window.Razorpay(options);
+
+        razorpay.on("payment.failed", function (response) {
+          toast.error("Payment failed: " + response.error.description);
+        });
+
+        razorpay.open();
+      } catch (error) {
+        console.error(error);
+        toast.error("Razorpay payment failed");
+      }
     } else {
       // Handle Cash on Delivery or other method
       try {
