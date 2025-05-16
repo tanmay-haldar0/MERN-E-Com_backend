@@ -15,10 +15,17 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Please enter your password"],
-    minLength: [8, "Password should be greater than 8 characters"],
-    select: false,
+    required: function () {
+      // Only require password for native (email/password) signups
+      return this.provider === "local";
+    },
   },
+  provider: {
+    type: String,
+    enum: ["local", "google", "facebook", "apple"],
+    default: "local",
+  },
+
   phoneNumber: {
     type: Number,
   },

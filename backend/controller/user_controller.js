@@ -1,13 +1,14 @@
 import express from "express";
 import path from "path";
 import User from "../model/user.js";
-import {upload} from "../multer.js";
+import { upload } from "../multer.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 import sendMail from "../utils/sendMail.js";
 import jwt from "jsonwebtoken";
 import catchAsyncError from "../middleware/cacheAsyncError.js";
 import sendToken from "../utils/jwtToken.js";
-import {isAuthenticated} from "../middleware/auth.js";
+import { isAuthenticated } from "../middleware/auth.js";
+import admin from "../utils/firebaseAdmin.js";
 
 const router = express.Router();
 
@@ -258,5 +259,56 @@ router.post(
 );
 
 
+// Google Login
+router.post("/google-auth", async (req, res) => {
+  const { idToken } = req.body;
+
+  try {
+    if (!idToken) {
+      return res.status(400).json({ message: "ID token is required" });
+    }
+
+    // ✅ Verify the ID token with Firebase
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    let { name, email, picture } = decodedToken;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required in token" });
+    }
+
+    if(name){
+      name = toTitleCase(name);
+    }
+    // 🔎 Check if the user exists in MongoDB
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // 👤 Create a new user if not found
+      user = await User.create({
+        name,
+        email,
+        avatar: { url: picture }, // 👈 nested properly
+        // password: null,
+        provider: "google",
+      });
+
+    }
+
+    sendToken(user, 200, res);
+
+  } catch (err) {
+    console.error("Google auth failed:", err);
+    return res.status(401).json({ message: "Invalid or expired Google token" });
+  }
+});
+
+function toTitleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
 export default router;
+

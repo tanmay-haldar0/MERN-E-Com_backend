@@ -9,12 +9,14 @@ import { server } from "../../server";
 import { toast } from "react-toastify";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook, FaApple } from "react-icons/fa";
+import { signInWithGooglePopup } from "../../firebase";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -37,9 +39,31 @@ const LoginPage = () => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    // Implement Google login logic or redirect
-    toast.info("Google login not implemented yet.");
+  const handleGoogleAuth = async () => {
+    try {
+      setLoadingGoogle(true); // optional
+      const result = await signInWithGooglePopup();
+      const user = result.user;
+
+      const idToken = await user.getIdToken();
+
+      const response = await axios.post(`${server}/user/google-auth`, {
+        idToken,
+      }, { withCredentials: true });
+      dispatch(loadUser());
+
+      // Save token or user if needed
+      // localStorage.setItem("token", response.data.token);
+
+      toast.success(response.data.message);
+      navigate("/");
+
+    } catch (error) {
+      console.error("Google Auth Error:", error);
+      toast.error("Google sign-in failed.");
+    }finally {
+      setLoadingGoogle(false); // optional
+    }
   };
 
   const handleFacebookLogin = () => {
@@ -111,13 +135,13 @@ const LoginPage = () => {
         <div className="w-full mb-2 mt-5">
           <div className="flex items-center justify-center mb-2">
             <div className="h-px w-1/3 bg-gray-300"></div>
-            <span className="px-3 text-xs text-center text-gray-500">or login with</span>
+            <span className="px-3 text-xs text-center text-gray-500">or</span>
             <div className="h-px w-1/3 bg-gray-300"></div>
           </div>
 
-          <div className="flex justify-center gap-4">
+          {/* <div className="flex justify-center gap-4">
             <button
-              onClick={handleGoogleLogin}
+              onClick={handleGoogleAuth}
               className="p-2 border border-gray-300 rounded-full hover:bg-gray-100 transition"
             >
               <FcGoogle size={24} />
@@ -134,7 +158,47 @@ const LoginPage = () => {
             >
               <FaApple size={24} className="text-black" />
             </button>
+          </div> */}
+
+          <div className="mt-3">
+            <button
+              onClick={handleGoogleAuth}
+              type="button"
+              disabled={loadingGoogle}
+              className={`flex items-center justify-center gap-2 w-full border border-gray-300 rounded-md p-2 hover:bg-gray-100 transition
+                       ${loadingGoogle ? "cursor-not-allowed opacity-70" : ""}
+                     `}
+            >
+              {loadingGoogle ? (
+                <svg
+                  className="animate-spin h-5 w-5 text-gray-700"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              ) : (
+                <FcGoogle size={20} />
+              )}
+              <span className="text-sm text-slate-700">
+                {loadingGoogle ? "Signing in..." : "Continue with Google"}
+              </span>
+            </button>
           </div>
+
         </div>
       </div>
     </div>
