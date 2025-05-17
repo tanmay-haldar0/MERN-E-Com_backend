@@ -4,6 +4,7 @@ import axios from "axios";
 import { server } from "../../server.js";
 import { toast } from "react-toastify";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import { ImSpinner2 } from "react-icons/im"; // Spinner icon
 
 function SellerSignUpPage() {
   const [name, setName] = useState("");
@@ -16,19 +17,23 @@ function SellerSignUpPage() {
   const [passwordError, setPasswordError] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [loading, setLoading] = useState(false); // NEW
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setPasswordError("");
+    setLoading(true); // Start loading
 
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters long.");
+      setLoading(false);
       return;
     }
 
     if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
       setPasswordError("Password must contain at least one special character.");
+      setLoading(false);
       return;
     }
 
@@ -42,11 +47,15 @@ function SellerSignUpPage() {
     if (image) newForm.append("file", image);
 
     try {
-      const res = await axios.post(`${server}/seller/create-user/`, newForm, config);
+      const res = await axios.post(
+        `${server}/seller/create-user/`,
+        newForm,
+        config
+      );
 
       if (res.data.message !== "User already exists") {
         toast.success(res.data.message);
-        navigate("/login");
+        navigate("/seller/login");
       } else {
         setErrorMessage(res.data.message);
         toast.error(res.data.message);
@@ -59,12 +68,16 @@ function SellerSignUpPage() {
       toast.error("Something went wrong. Try again.");
       console.log(err);
     }
+
+    setLoading(false); // Stop loading
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Seller Sign Up</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+          Seller Sign Up
+        </h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
@@ -145,9 +158,19 @@ function SellerSignUpPage() {
 
           <button
             type="submit"
-            className="w-full bg-primary hover:bg-blue-400 text-white py-2 rounded-md transition"
+            disabled={loading}
+            className={`w-full bg-primary hover:bg-blue-400 text-white py-2 rounded-md transition flex items-center justify-center ${
+              loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
           >
-            Sign Up
+            {loading ? (
+              <>
+                <ImSpinner2 className="animate-spin mr-2" size={18} />
+                Signing Up...
+              </>
+            ) : (
+              "Sign Up"
+            )}
           </button>
 
           <p className="text-center text-sm text-gray-500 mt-2">

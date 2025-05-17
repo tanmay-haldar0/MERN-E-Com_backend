@@ -74,7 +74,7 @@ const SideNav = () => {
         // Optional: redirect to login or home
         toast.success("Logged Out Successfully");
         // console.log("Logged out:", data.message);
-        navigate("/seller");
+        navigate("/seller/login");
         dispatch(loadSeller());
       } else {
         toast.error("Logout failed:", data.message);

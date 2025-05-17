@@ -84,21 +84,64 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute
+                allowedRoles={["user", "admin"]}
+                redirectTo="/login"
+                roleMismatchMessage="You are not logged in."
+              >
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route path="/cart" element={<Cart />} /> */}
           <Route path="/shop" element={<Shop />} />
-          <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route
+            path="/signup"
+            element={
+              isAuthenticated ? <Navigate to={"/dashboard"} /> : <SignUpPage />
+            }
+          />
+
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <AccountDashboard />
+                ) : (
+                  <Navigate to="/seller/dashboard" />
+                )
+              ) : (
+                <LoginPage/>
+              )
+            }
+          />
           <Route path="/product/:id" element={<ProductPage />} />
 
           {/* Seller routes */}
           <Route path="/seller/signup" element={<SellerSignUpPage />} />
           <Route path="/seller/login" element={<SellerLoginPage />} />
           <Route
-            path="/seller/orders"
+            path="/seller"
             element={
               <ProtectedRoute
                 role="seller"
                 redirectTo="/seller/login"
+                roleMismatchMessage="You are not logged in."
+              >
+                <Navigate to={"/seller/dashboard"} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/seller/orders"
+            element={
+              <ProtectedRoute
+                role="seller"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <Orders />
@@ -110,7 +153,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <Analytics />
@@ -122,7 +165,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <ProfileSettings />
@@ -134,7 +177,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <SellerDashboard />
@@ -146,7 +189,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <CreateProduct />
@@ -158,7 +201,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <UpdateProduct />
@@ -170,7 +213,7 @@ function App() {
             element={
               <ProtectedRoute
                 role="seller"
-                redirectTo="/seller/login"
+                redirectTo="/"
                 roleMismatchMessage="You are not a seller."
               >
                 <AllProducts />
@@ -180,31 +223,39 @@ function App() {
 
           {/* User routes */}
           <Route
-            path="/dashboard/*" // Account page with sub-routes for each section
+            path="/dashboard/*"
             element={
-              <ProtectedRoute
-                role="user"
-                redirectTo="/login"
-                roleMismatchMessage="You are not logged in."
-              >
-                <AccountDashboard />
-              </ProtectedRoute>
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <AccountDashboard />
+                ) : (
+                  <Navigate to="/seller/dashboard" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
             }
           />
+
           <Route
-            path="/dashboard/" // Account page with sub-routes for each section
+            path="/dashboard/"
             element={
-              <ProtectedRoute
-                role="user"
-                redirectTo="/login"
-                roleMismatchMessage="You are not logged in."
-              >
-                <Navigate to={"/dashboard/personal-info"} />
-              </ProtectedRoute>
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <Navigate to="/dashboard/personal-info" />
+                ) : (
+                  <Navigate to="/seller/dashboard" />
+                )
+              ) : (
+                <Navigate to="/seller/dashboard" />
+              )
             }
           />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
 
           {/* Other Routes */}
           <Route path="*" element={<NotFoundPage />} />

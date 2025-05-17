@@ -70,7 +70,7 @@ const Navbar = () => {
       if (data.success) {
         toast.success("Logged Out Successfully");
         navigate("/login");
-        if (tempRole == "user") {
+        if (tempRole == "user" || "admin") {
           dispatch(loadUser());
         }
         if (tempRole == "seller") {
@@ -131,14 +131,22 @@ const Navbar = () => {
     <div className="flex justify-around sm:block">
       {/* Navbar */}
       <div className="w-full fixed top-0 left-0 py-2 z-50 flex items-center justify-between px-5 shadow-lg bg-white">
-        <div className="flex items-center justify-center h-full">
+        {/* Hamburger Icon for Mobile */}
+        <button
+          onClick={toggleDrawer}
+          className="sm:hidden flex items-center left-0 justify-center rounded-md"
+        >
+          <MdMenu className="text-2xl text-gray-700 hover:text-primary" />
+        </button>
+
+        <div className="flex items-center ml-3 justify-center h-full">
           <Link to={"/"}>
-            <img src={logo} alt="Logo" className="sm:h-8 h-6 cursor-pointer" />
+            <img src={logo} alt="Logo" className="sm:h-8 h-7 w-[280px] cursor-pointer" />
           </Link>
         </div>
 
         {/* Mobile: Search button in the Parent Component */}
-        <div className="md:hidden absolute right-14 top-3">
+        <div className="md:hidden absolute right-4 top-3">
           <button
             onClick={() => setShowMobileSearch(true)}
             className="flex items-center gap-2 px-2 py-2 bg-primary text-white rounded-full shadow"
@@ -258,13 +266,6 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-          {/* Hamburger Icon for Mobile */}
-          <button
-            onClick={toggleDrawer}
-            className="sm:hidden flex items-center justify-center rounded-md"
-          >
-            <MdMenu className="text-2xl text-gray-700 hover:text-primary" />
-          </button>
         </div>
       </div>
 
@@ -388,7 +389,7 @@ const Navbar = () => {
             </>
           )}
 
-          {isAuthenticated && role === "user" && (
+          {isAuthenticated && (role === "user" || role === "admin") && (
             <>
               <Link
                 to="/cart"

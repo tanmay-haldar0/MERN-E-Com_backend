@@ -81,7 +81,7 @@ const SellerLoginPage = () => {
 
           <p className="text-center text-sm text-gray-500 mt-4">
             New to ClassiCustom?{' '}
-            <Link to="/signup" className="text-blue-500 hover:underline">
+            <Link to="/seller/signup" className="text-blue-500 hover:underline">
               Sign Up
             </Link>
           </p>

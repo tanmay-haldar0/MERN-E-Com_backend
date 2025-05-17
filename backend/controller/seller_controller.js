@@ -27,10 +27,10 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const user = { name, shopName, phoneNumber, email, password};
 
     const activationToken = createActivationToken(user);
-    const activationUrl = `http://localhost:5173/seller/activation/${activationToken}`;
+    const activationUrl = `${process.env.CLIENT_URL}/seller/activation/${activationToken}`;
 
-    console.log("Received request to activate user:", user.email);
-    console.log("Activation URL generated:", activationUrl);
+    // console.log("Received request to activate user:", user.email);
+    // console.log("Activation URL generated:", activationUrl);
 
     try {
       await sendMail({
