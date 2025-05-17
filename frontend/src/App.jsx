@@ -84,19 +84,21 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          {/* <Route path="/cart" element={<Cart />} /> */}
           <Route
             path="/cart"
             element={
-              <ProtectedRoute
-                allowedRoles={["user", "admin"]}
-                redirectTo="/login"
-                roleMismatchMessage="You are not logged in."
-              >
-                <Cart />
-              </ProtectedRoute>
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <Cart />
+                ) : (
+                  <Navigate to="/seller/dashboard" />
+                )
+              ) : (
+                <LoginPage/>
+              )
             }
           />
-          {/* <Route path="/cart" element={<Cart />} /> */}
           <Route path="/shop" element={<Shop />} />
           <Route
             path="/signup"
@@ -267,10 +269,33 @@ function App() {
             path="/seller/activation/:activation_token"
             element={<SellerActivationPage />}
           />
-          <Route path="/checkout/cart" element={<CartCheckoutPage />} />
+          <Route
+            path="/checkout/cart"
+            element={
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <CartCheckoutPage />
+                ) : (
+                  <Navigate to="/" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
           <Route
             path="/checkout/product/:productId"
-            element={<ProductCheckoutPage />}
+            element={
+              isAuthenticated ? (
+                role === "user" || role === "admin" ? (
+                  <ProductCheckoutPage />
+                ) : (
+                  <Navigate to="/" />
+                )
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
           />
           <Route path="/products" element={<SearchPage />} />
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
