@@ -139,7 +139,7 @@ const ProductCard = ({
         </div>
 
         {/* Buy Now Button */}
-        <div className="flex items-center mt-2">
+        <div className="hidden flex items-center mt-2">
           <button
             className="btn w-full bg-primary p-2 rounded-md text-white font-medium text-xs sm:text-sm transition duration-200 transform hover:scale-105"
             onClick={(e) => {
