@@ -171,16 +171,20 @@ router.get(
 
 
 // Get Orders for Specific User
+// routes/order.js
 router.get(
   "/user-orders",
   isAuthenticated,
   catchAsyncError(async (req, res) => {
-    const orders = await Order.find({ "user._id": req.user._id }).sort({
-      createdAt: -1,
-    });
+    const orders = await Order.find({ "userId": req.user._id })
+      .sort({ createdAt: -1 })
+      .populate("userId", "name") // populate user name only
+      .populate("cart.productId", "name images salePrice"); // populate product fields
+
     res.status(200).json({ success: true, orders });
   })
 );
+
 
 // Get Orders for Seller
 router.get(
