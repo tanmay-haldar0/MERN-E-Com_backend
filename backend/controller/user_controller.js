@@ -28,7 +28,7 @@ router.post("/create-user", upload.single("file"), async (req, res, next) => {
     const user = { name, email, password };
 
     const activationToken = createActivationToken(user);
-    const activationUrl = `https://classiccustom-frontend.onrender.com/activation/${activationToken}`;
+    const activationUrl = `${process.env.CLIENT_URL}/activation/${activationToken}`;
 
     console.log("Received request to activate user:", user.email);
     console.log("Activation URL generated:", activationUrl);
@@ -212,7 +212,7 @@ router.post(
     user.resetPasswordTime = Date.now() + 15 * 60 * 1000;
     await user.save();
 
-    const resetUrl = `https://classiccustom-frontend.onrender.com/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     await sendMail({
       email: user.email,

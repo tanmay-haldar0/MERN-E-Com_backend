@@ -36,6 +36,8 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 import ResetPasswordPage from "./pages/User/ResetPasswordPage.jsx";
 import ForgotPasswordPage from "./pages/User/ForgotPassword.jsx";
 import RZPSuccessPage from "./pages/RZPSuccessPage.jsx";
+import SellerForgotPasswordPage from "./pages/Seller/components/SellerForgotPassword.jsx";
+import SellerResetPasswordPage from "./pages/Seller/components/SellerResetPasswordPage.jsx";
 
 function App() {
   const { isAuthenticated, role, loading, seller } = useSelector((state) => ({
@@ -257,6 +259,11 @@ function App() {
           <Route
             path="/reset-password/:token"
             element={<ResetPasswordPage />}
+          />
+          <Route path="/seller/forgot-password" element={<SellerForgotPasswordPage />} />
+          <Route
+            path="/seller/reset-password/:token"
+            element={<SellerResetPasswordPage />}
           />
 
           {/* Other Routes */}

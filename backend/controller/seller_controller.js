@@ -190,6 +190,72 @@ router.get(
   })
 );
 
+// forgot password
+
+
+router.post(
+  "/forgot-password",
+  catchAsyncError(async (req, res, next) => {
+    const { email } = req.body;
+    const seller = await Seller.findOne({ email });
+
+    if (!seller) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const resetToken = jwt.sign({ id: seller._id }, process.env.RESET_PASSWORD_SECRET, {
+      expiresIn: "15m",
+    });
+
+    seller.resetPasswordToken = resetToken;
+    seller.resetPasswordTime = Date.now() + 15 * 60 * 1000;
+    await seller.save();
+
+    const resetUrl = `${process.env.CLIENT_URL}/seller/reset-password/${resetToken}`;
+
+    await sendMail({
+      email: seller.email,
+      subject: "Reset Your Password",
+      message: `Click the following link to reset your password: ${resetUrl}`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Reset link sent to ${email}`,
+    });
+  })
+);
+
+// Reset Password
+
+router.post(
+  "/reset-password",
+  catchAsyncError(async (req, res, next) => {
+    const { token, newPassword } = req.body;
+
+    try {
+      const decoded = jwt.verify(token, process.env.RESET_PASSWORD_SECRET);
+      const seller = await Seller.findOne({
+        _id: decoded.id,
+        resetPasswordToken: token,
+        resetPasswordTime: { $gt: Date.now() },
+      });
+
+      if (!seller) {
+        return res.status(400).json({ success: false, message: "Invalid or expired token" });
+      }
+
+      seller.password = newPassword;
+      seller.resetPasswordToken = undefined;
+      seller.resetPasswordTime = undefined;
+      await seller.save();
+
+      res.status(200).json({ success: true, message: "Password has been reset" });
+    } catch (err) {
+      return res.status(400).json({ success: false, message: "Token error: " + err.message });
+    }
+  })
+);
 
 
 export default router;

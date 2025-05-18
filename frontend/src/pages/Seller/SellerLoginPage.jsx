@@ -66,7 +66,7 @@ const SellerLoginPage = () => {
           </div>
 
           <div className="flex justify-between text-sm">
-            <Link to="/forgot-password" className="text-blue-500 hover:underline">
+            <Link to="/seller/forgot-password" className="text-blue-500 hover:underline">
               Forgot Password?
             </Link>
           </div>
