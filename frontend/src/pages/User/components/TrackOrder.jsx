@@ -53,17 +53,60 @@ const TrackOrder = () => {
     fetchOrders();
   }, []);
 
+  // Skeleton Loader
   if (loading)
     return (
-      <p className="text-center mt-8 text-gray-500">Loading your orders...</p>
+      <div className="space-y-4 w-[90vw] sm:w-full sm:max-w-6xl mx-auto p-4 sm:p-6">
+        <div className="h-6 w-1/3 bg-gray-300 animate-pulse rounded"></div>
+        <div className="flex gap-3 overflow-x-auto">
+          {Array(3).fill(0).map((_, i) => (
+            <div
+              key={i}
+              className="p-3 sm:p-4 border rounded-lg w-[190px] sm:w-[300px] h-[120px] animate-pulse bg-gray-200"
+            ></div>
+          ))}
+        </div>
+        <div className="space-y-6 mt-6">
+          <div className="h-6 w-1/4 bg-gray-300 animate-pulse rounded"></div>
+          <div className="flex justify-between gap-2 sm:gap-8">
+            {Array(4).fill(0).map((_, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center relative min-w-[60px]">
+                <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse" />
+                <div className="mt-2 h-3 w-10 bg-gray-300 rounded animate-pulse" />
+                {i !== 3 && (
+                  <div className="absolute top-5 left-[5%] translate-x-1/2 h-1 w-full bg-gray-300" />
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/4" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3" />
+            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3" />
+          </div>
+          <div className="space-y-3">
+            <div className="h-5 bg-gray-300 rounded w-1/4 animate-pulse" />
+            {Array(2).fill(0).map((_, i) => (
+              <div key={i} className="flex justify-between items-center">
+                <div className="flex gap-2">
+                  <div className="w-12 h-12 bg-gray-300 rounded animate-pulse" />
+                  <div className="h-4 bg-gray-300 w-32 rounded animate-pulse" />
+                </div>
+                <div className="h-4 bg-gray-300 w-12 rounded animate-pulse" />
+              </div>
+            ))}
+            <div className="h-5 w-20 bg-gray-300 rounded ml-auto animate-pulse" />
+          </div>
+        </div>
+      </div>
     );
 
   if (!loading && orders.length === 0) {
     return (
       <div className="text-center mt-12 space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-700">
-          No orders found
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-700">No orders found</h2>
         <p className="text-gray-500">
           Looks like you haven't placed any orders yet.
         </p>
@@ -84,7 +127,6 @@ const TrackOrder = () => {
       {/* Orders List */}
       <div className="space-y-3">
         <h3 className="text-lg font-semibold text-gray-700">Your Orders</h3>
-
         <div className="overflow-x-auto">
           <div className="flex gap-3 sm:gap-4 py-2 min-w-full">
             {orders.map((order) => (
@@ -98,20 +140,18 @@ const TrackOrder = () => {
   }`}
                 onClick={() => setActiveOrder(order)}
               >
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div className="text-sm font-semibold text-gray-800 truncate space-y-1">
-                    {order.cart.slice(0, 2).map((item, index) => (
-                      <p
-                        key={index}
-                        className="text-[12px] sm:text-sm font-medium break-words leading-snug max-w-[160px] sm:max-w-none whitespace-normal overflow-hidden"
-                      >
-                        {item.productId?.name} ({item?.quantity})
-                      </p>
-                    ))}
-                    {order.cart.length > 2 && (
-                      <p className="text-gray-500 text-xs">+etc.</p>
-                    )}
-                  </div>
+                <div className="text-sm font-semibold text-gray-800 truncate space-y-1">
+                  {order.cart.slice(0, 2).map((item, index) => (
+                    <p
+                      key={index}
+                      className="text-[12px] sm:text-sm font-medium break-words leading-snug max-w-[160px] sm:max-w-none"
+                    >
+                      {item.productId?.name} ({item?.quantity})
+                    </p>
+                  ))}
+                  {order.cart.length > 2 && (
+                    <p className="text-gray-500 text-xs">+etc.</p>
+                  )}
                 </div>
 
                 <div className="mt-1 text-sm text-primary space-y-1">
@@ -174,7 +214,7 @@ const TrackOrder = () => {
             })}
           </div>
 
-          {/* Order Info */}
+          {/* Shipping Info */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3 text-sm w-full">
             <p>
               <strong>Order ID:</strong> {activeOrder._id}
@@ -201,14 +241,13 @@ const TrackOrder = () => {
               </p>
               <p>{activeOrder.shippingAddress.country}</p>
             </div>
-
             <p>
               <strong>Expected Delivery:</strong>{" "}
               {activeOrder.deliveryDate || "N/A"}
             </p>
           </div>
 
-          {/* Items List */}
+          {/* Items */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3 text-sm w-full">
             <h4 className="text-lg font-semibold text-gray-700">Items</h4>
             <ul className="space-y-2">
