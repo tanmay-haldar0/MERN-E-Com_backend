@@ -119,7 +119,7 @@ const ProductCard = ({
             </p>
           </div>
         ) : (
-          <p className="sm:text-sm text-xs font-semibold text-primary">
+          <p className="sm:text-sm text-sm font-semibold text-primary">
             ₹{price}
           </p>
         )}
@@ -139,7 +139,7 @@ const ProductCard = ({
         </div>
 
         {/* Buy Now Button */}
-        <div className="hidden flex items-center mt-2">
+        {/* <div className="hidden flex items-center mt-2">
           <button
             className="btn w-full bg-primary p-2 rounded-md text-white font-medium text-xs sm:text-sm transition duration-200 transform hover:scale-105"
             onClick={(e) => {
@@ -149,7 +149,7 @@ const ProductCard = ({
           >
             Buy Now
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

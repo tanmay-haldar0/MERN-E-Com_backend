@@ -136,7 +136,7 @@ const Home = () => {
                   key={index}
                   id={product._id}
                   imgSrc={product.images?.[0]}
-                  isSale={product.isSale}
+                  isSale={!!product.salePrice}
                   productName={product.name}
                   price={product.originalPrice}
                   salePrice={product.salePrice}
@@ -188,7 +188,7 @@ const Home = () => {
                       key={index}
                       id={product._id}
                       imgSrc={product.images?.[0]}
-                      isSale={product.isSale}
+                      isSale={!!product.salePrice}
                       productName={product.name}
                       price={product.originalPrice}
                       salePrice={product.salePrice}
