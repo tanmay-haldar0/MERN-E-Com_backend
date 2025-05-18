@@ -18,10 +18,14 @@ const TrackOrder = () => {
 
   const getCurrentPhaseIndex = (status) => {
     switch (status) {
-      case "Shipped": return 1;
-      case "Out for Delivery": return 2;
-      case "Delivered": return 3;
-      default: return 0;
+      case "Shipped":
+        return 1;
+      case "Out for Delivery":
+        return 2;
+      case "Delivered":
+        return 3;
+      default:
+        return 0;
     }
   };
 
@@ -32,7 +36,9 @@ const TrackOrder = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get(`${server}/order/user-orders`, { withCredentials: true });
+        const res = await axios.get(`${server}/order/user-orders`, {
+          withCredentials: true,
+        });
         setOrders(res.data.orders);
         if (res.data.orders.length > 0) {
           setActiveOrder(res.data.orders[0]);
@@ -47,13 +53,20 @@ const TrackOrder = () => {
     fetchOrders();
   }, []);
 
-  if (loading) return <p className="text-center mt-8 text-gray-500">Loading your orders...</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-8 text-gray-500">Loading your orders...</p>
+    );
 
   if (!loading && orders.length === 0) {
     return (
       <div className="text-center mt-12 space-y-4">
-        <h2 className="text-2xl font-semibold text-gray-700">No orders found</h2>
-        <p className="text-gray-500">Looks like you haven't placed any orders yet.</p>
+        <h2 className="text-2xl font-semibold text-gray-700">
+          No orders found
+        </h2>
+        <p className="text-gray-500">
+          Looks like you haven't placed any orders yet.
+        </p>
         <Link
           to="/shop"
           className="inline-block px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
@@ -77,24 +90,40 @@ const TrackOrder = () => {
             {orders.map((order) => (
               <div
                 key={order._id}
-                className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-all duration-300 flex-shrink-0 w-[65vw] sm:w-[300px]
-                ${activeOrder?._id === order._id
-                    ? "border-green-500 bg-green-50"
-                    : "hover:bg-gray-100 border-gray-200"
-                  }`}
+                className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-all duration-300 flex-shrink-0 w-[190px] sm:w-[300px] h-[120px] flex flex-col justify-between
+  ${
+    activeOrder?._id === order._id
+      ? "border-green-500 bg-green-50"
+      : "hover:bg-gray-100 border-gray-400"
+  }`}
                 onClick={() => setActiveOrder(order)}
               >
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                  <div className="text-sm font-semibold text-gray-800 truncate">{order._id}</div>
-                  <div className="text-xs sm:text-sm text-gray-500 mt-1 sm:mt-0 whitespace-nowrap">
-                    {order.status}
+                  <div className="text-sm font-semibold text-gray-800 truncate space-y-1">
+                    {order.cart.slice(0, 2).map((item, index) => (
+                      <p
+                        key={index}
+                        className="text-[12px] sm:text-sm font-medium break-words leading-snug max-w-[160px] sm:max-w-none whitespace-normal overflow-hidden"
+                      >
+                        {item.productId?.name} ({item?.quantity})
+                      </p>
+                    ))}
+                    {order.cart.length > 2 && (
+                      <p className="text-gray-500 text-xs">+etc.</p>
+                    )}
                   </div>
                 </div>
 
-                <div className="mt-2 text-sm text-gray-600 space-y-1">
-                  {order.cart.map((item, index) => (
-                    <p key={index} className="truncate">{item.name}</p>
-                  ))}
+                <div className="mt-1 text-sm text-primary space-y-1">
+                  {order.status}
+                </div>
+
+                <div className="text-xs sm:text-sm text-gray-500 mt-2 sm:mt-0 whitespace-nowrap">
+                  {new Date(order.createdAt).toLocaleDateString("en-GB", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "2-digit",
+                  })}
                 </div>
               </div>
             ))}
@@ -115,15 +144,19 @@ const TrackOrder = () => {
               const isCurrent = index === currentIndex;
 
               return (
-                <div key={index} className="flex-1 flex flex-col items-center w-full sm:w-auto relative min-w-[60px]">
+                <div
+                  key={index}
+                  className="flex-1 flex flex-col items-center w-full sm:w-auto relative min-w-[60px]"
+                >
                   <div
                     className={`z-10 w-7 h-7 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2
-                    ${isCompleted
+                    ${
+                      isCompleted
                         ? "bg-green-500 text-white border-green-500"
                         : isCurrent
-                          ? "bg-blue-500 text-white border-blue-500"
-                          : "bg-gray-100 text-gray-400 border-gray-300"
-                      }`}
+                        ? "bg-blue-500 text-white border-blue-500"
+                        : "bg-gray-100 text-gray-400 border-gray-300"
+                    }`}
                   >
                     <span className="text-xs sm:text-sm">{step.icon}</span>
                   </div>
@@ -143,10 +176,36 @@ const TrackOrder = () => {
 
           {/* Order Info */}
           <div className="bg-gray-50 p-4 rounded-lg shadow-sm space-y-3 text-sm w-full">
-            <p><strong>Order ID:</strong> {activeOrder._id}</p>
-            <p><strong>Date:</strong> {new Date(activeOrder.createdAt).toLocaleDateString()}</p>
-            <p><strong>Shipping Address:</strong> {activeOrder.shippingAddress}</p>
-            <p><strong>Expected Delivery:</strong> {activeOrder.deliveryDate || "N/A"}</p>
+            <p>
+              <strong>Order ID:</strong> {activeOrder._id}
+            </p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {new Date(activeOrder.createdAt).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+              })}
+            </p>
+            <div className="text-sm text-gray-700 leading-snug">
+              <p>
+                <strong>{activeOrder.shippingAddress.fullName}</strong>
+              </p>
+              <p>{activeOrder.shippingAddress.phoneNumber}</p>
+              <p>{activeOrder.shippingAddress.addressLine1}</p>
+              <p>{activeOrder.shippingAddress.addressLine2}</p>
+              <p>
+                {activeOrder.shippingAddress.city},{" "}
+                {activeOrder.shippingAddress.state} -{" "}
+                {activeOrder.shippingAddress.postalCode}
+              </p>
+              <p>{activeOrder.shippingAddress.country}</p>
+            </div>
+
+            <p>
+              <strong>Expected Delivery:</strong>{" "}
+              {activeOrder.deliveryDate || "N/A"}
+            </p>
           </div>
 
           {/* Items List */}
@@ -154,14 +213,28 @@ const TrackOrder = () => {
             <h4 className="text-lg font-semibold text-gray-700">Items</h4>
             <ul className="space-y-2">
               {activeOrder.cart.map((item, idx) => (
-                <li key={idx} className="flex justify-between">
-                  <span>{item.name} (x{item.quantity})</span>
-                  <span>${item.price * item.quantity}</span>
+                <li
+                  key={idx}
+                  className="flex justify-between items-start sm:items-center gap-2 sm:gap-4"
+                >
+                  <div className="flex">
+                    <img
+                      src={item.productId?.images[0]}
+                      alt=""
+                      className="w-12 sm:w-16 h-12 sm:h-16 object-cover rounded-md"
+                    />
+                    <p className="ml-2 sm:ml-4 text-sm font-semibold break-words leading-snug max-w-[160px] sm:max-w-none">
+                      {item.productId?.name} (x {item.quantity})
+                    </p>
+                  </div>
+                  <span className="text-base sm:text-lg font-semibold whitespace-nowrap">
+                    ₹ {item.price * item.quantity}
+                  </span>
                 </li>
               ))}
             </ul>
-            <div className="mt-4 font-semibold">
-              Total: ${calculateTotal(activeOrder.cart)}
+            <div className="mt-4 font-semibold text-lg text-right">
+              Total: ₹ {calculateTotal(activeOrder.cart)}
             </div>
           </div>
         </div>
