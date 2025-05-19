@@ -141,18 +141,18 @@ const TrackOrder = () => {
                 onClick={() => setActiveOrder(order)}
               >
                 <div className="text-sm font-semibold text-gray-800 truncate space-y-1">
-                  {order.cart.slice(0, 2).map((item, index) => (
+                  {order.cart.slice(0, 1).map((item, index) => (
                     <p
                       key={index}
                       className="text-[12px] sm:text-sm font-medium break-words leading-snug max-w-[160px] sm:max-w-none"
                     >
-                      {item.productId?.name} ({item?.quantity})
+                      {item.productId?.name} {" X "} {item?.quantity}
                     </p>
                   ))}
-                  {order.cart.length > 2 && (
-                    <p className="text-gray-500 text-xs">+etc.</p>
+                  {order.cart.length > 1 && (
+                    <p className="text-gray-500 text-xs"> & ({order.cart.length}) Others. </p>
                   )}
-                </div>
+                </div> 
 
                 <div className="mt-1 text-sm text-primary space-y-1">
                   {order.status}
@@ -262,11 +262,11 @@ const TrackOrder = () => {
                       alt=""
                       className="w-12 sm:w-16 h-12 sm:h-16 object-cover rounded-md"
                     />
-                    <p className="ml-2 sm:ml-4 text-sm font-semibold break-words leading-snug max-w-[160px] sm:max-w-none">
+                    <p className="ml-2 sm:ml-4 text-sm font-medium break-words leading-snug max-w-[160px] sm:max-w-none">
                       {item.productId?.name} (x {item.quantity})
                     </p>
                   </div>
-                  <span className="text-base sm:text-lg font-semibold whitespace-nowrap">
+                  <span className="text-base sm:text-md font-medium whitespace-nowrap">
                     ₹ {item.price * item.quantity}
                   </span>
                 </li>
