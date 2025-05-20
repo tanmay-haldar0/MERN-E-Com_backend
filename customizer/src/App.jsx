@@ -20,7 +20,7 @@ export default function App() {
       height: 500,
     },
     mask: {
-      borderRadius: 30,
+      borderRadius: 20,
       cutouts: [{ x: 20, y: 20, width: 130, height: 100, cutoutRadius: 15 }, { x: 103, y: 130, width: 40, height: 40, cutoutRadius: 100 }],
     },
   };
@@ -65,15 +65,15 @@ export default function App() {
 
   return (
     <>
-      <div className="flex justify-end  w-full p-2 bg-gray-400">
+      <div className="flex justify-end fixed top-0 z-40 w-full p-2 bg-gray-400">
         <ToggleView is3D={is3D} />
       </div>
       <div className="flex flex-col h-screen">
 
         {/* ... your toolbar and canvas layout ... */}
-        <div className="flex flex-1">
+        <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
           <Toolbar />
-          <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
+          <div className="h-full w-fullgi">
             {is3D ? <Canvas3D /> : (
               <Canvas2D
                 config={canvasConfig}
@@ -95,7 +95,7 @@ export default function App() {
 
 
           {/* Right Status Panel */}
-          <div className="hidden sm:block w-64 p-4 bg-white border-l">
+          {/* <div className="hidden sm:block w-64 p-4 bg-white border-l">
             <h2 className="text-lg font-semibold mb-2">Layer Status</h2>
             {selectedElement ? (
               <div className="text-sm">
@@ -106,7 +106,7 @@ export default function App() {
             ) : (
               <p className="text-gray-500">No layer selected.</p>
             )}
-          </div>
+          </div> */}
         </div>
 
       </div>

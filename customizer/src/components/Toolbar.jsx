@@ -110,9 +110,10 @@ const Toolbar = ({ onAddImage, onAddText, onExport }) => {
   };
 
   return (
-    <div className="flex h-full relative z-50">
-      {/* Sidebar */}
-      <div className="flex flex-col w-16 bg-white border-r shadow z-50">
+    <>
+      {/* Sidebar fixed on left, vertical, with pt-16 */}
+      <div className="fixed top-0 left-0 h-full w-16 bg-white border-r shadow z-30 flex flex-col pt-14">
+        {/* Tabs */}
         <Tab label="Uploads" icon={<FiUpload />} tab="uploads" />
         <Tab label="Text" icon={<FiType />} tab="text" />
         <Tab label="Export" icon={<FiDownload />} tab="export" />
@@ -121,10 +122,19 @@ const Toolbar = ({ onAddImage, onAddText, onExport }) => {
       {/* Sliding Panel */}
       {panelOpen && (
         <>
-          {/* Mobile overlay */}
           {isMobile ? (
             <div className="fixed inset-0 bg-black/50 z-40 flex">
-              <div className="w-[80%] max-w-xs bg-white p-4 shadow-lg relative overflow-y-auto">
+              <div
+                className="bg-white p-4 shadow-lg relative overflow-y-auto"
+                style={{
+                  width: "80%",
+                  maxWidth: "20rem",
+                  top: "64px",
+                  height: "calc(100vh - 64px)",
+                  position: "fixed",
+                  left: 0,
+                }}
+              >
                 <button
                   onClick={() => setPanelOpen(false)}
                   className="absolute top-2 right-2 text-gray-500 hover:text-red-600"
@@ -136,8 +146,13 @@ const Toolbar = ({ onAddImage, onAddText, onExport }) => {
               <div className="flex-1" onClick={() => setPanelOpen(false)} />
             </div>
           ) : (
-            // Desktop inline panel
-            <div className="w-64 bg-white border-r shadow p-4 overflow-y-auto relative">
+            // Desktop panel fixed next to sidebar with correct top and height
+            <div
+              className="bg-white fixed z-30 border-r w-64 shadow left-16 p-4 top-14 overflow-y-auto"
+              style={{
+                height: "calc(100vh - 64px)",
+              }}
+            >
               <button
                 onClick={() => setPanelOpen(false)}
                 className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
@@ -149,7 +164,7 @@ const Toolbar = ({ onAddImage, onAddText, onExport }) => {
           )}
         </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -1,138 +1,110 @@
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import { Stage, Layer, Rect, Group, Image, Text, Transformer } from "react-konva";
+import React, { useRef, useState, useEffect } from "react";
+import { Stage, Layer, Image, Text, Transformer, Group, Rect } from "react-konva";
 import useImage from "use-image";
 
 const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) => {
   const stageRef = useRef();
   const trRef = useRef();
-  const [dragging, setDragging] = useState(false);
-
-  const [stageScale, setStageScale] = useState(1);
-  const [stagePosition, setStagePosition] = useState({ x: 0, y: 0 });
-
-  const MIN_SCALE = 1;
-  const MAX_SCALE = 5;
+  const containerRef = useRef();
 
   const { mask, canvasSize } = config;
   const strokeWidth = 1.5;
-  const borderRadius = mask.borderRadius || 0;
+  const borderRadius = mask?.borderRadius || 0;
 
-  const addElement = useCallback(
-    (item) => {
-      const id = `el-${Date.now()}`;
+  // Stage size to fit container
+  const [stageSize, setStageSize] = useState({ width: window.innerWidth, height: window.innerHeight });
+  // Zoom & pan state
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
 
-      if (item.type === "image") {
-        const img = new window.Image();
-        img.src = item.src;
+  // Spacebar detection for pan
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === "Space") setIsPanning(true);
+    };
+    const handleKeyUp = (e) => {
+      if (e.code === "Space") setIsPanning(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, []);
 
-        img.onload = () => {
-          const maxDimension = 200;
-          let width = img.naturalWidth;
-          let height = img.naturalHeight;
-
-          if (width > height) {
-            if (width > maxDimension) {
-              height = (height / width) * maxDimension;
-              width = maxDimension;
-            }
-          } else {
-            if (height > maxDimension) {
-              width = (width / height) * maxDimension;
-              height = maxDimension;
-            }
-          }
-
-          const newItem = {
-            ...item,
-            id,
-            x: canvasSize.width / 2 - width / 2,
-            y: canvasSize.height / 2 - height / 2,
-            width,
-            height,
-            rotation: 0,
-          };
-          setElements((prev) => [...prev, newItem]);
-          setSelectedId(id);
-        };
-      } else {
-        const defaultWidth = 200;
-        const defaultHeight = 200;
-        const newItem = {
-          ...item,
-          id,
-          x: canvasSize.width / 2 - defaultWidth / 2,
-          y: canvasSize.height / 2 - defaultHeight / 2,
-          width: defaultWidth,
-          height: defaultHeight,
-          rotation: 0,
-        };
-        setElements((prev) => [...prev, newItem]);
-        setSelectedId(id);
-      }
-    },
-    [canvasSize, setElements, setSelectedId]
-  );
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setDragging(false);
-
-    const data = e.dataTransfer.getData("application/json");
-    if (!data) return;
-    const parsed = JSON.parse(data);
-    addElement(parsed);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Delete" && selectedId) {
-      setElements((prev) => prev.filter((el) => el.id !== selectedId));
-      setSelectedId(null);
-    }
+  // Update stage size when container resizes
+  // Center the canvas in the viewport
+  const centerCanvas = (containerWidth, containerHeight) => {
+    const offsetX = (containerWidth - canvasSize.width * scale) / 2;
+    const offsetY = (containerHeight - canvasSize.height * scale) / 2;
+    setPosition({ x: offsetX, y: offsetY });
   };
 
   useEffect(() => {
-    const stage = stageRef.current;
-    stage.container().tabIndex = 1;
-    stage.container().focus();
-    stage.container().addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      stage.container().removeEventListener("keydown", handleKeyDown);
+    const updateSize = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setStageSize({ width: rect.width, height: rect.height });
+        centerCanvas(rect.width, rect.height); // <-- center canvas after sizing
+      }
     };
-  }, [selectedId]);
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, [canvasSize.width, canvasSize.height, scale]); // depend on canvas size & scale
 
+  // Zoom on wheel
   const handleWheel = (e) => {
     e.evt.preventDefault();
-    const scaleBy = 1.05;
     const stage = stageRef.current;
-    const oldScale = stageScale;
-
+    const oldScale = stage.scaleX();
     const pointer = stage.getPointerPosition();
+
     const mousePointTo = {
-      x: (pointer.x - stagePosition.x) / oldScale,
-      y: (pointer.y - stagePosition.y) / oldScale,
+      x: (pointer.x - stage.x()) / oldScale,
+      y: (pointer.y - stage.y()) / oldScale,
     };
 
-    const direction = e.evt.deltaY > 0 ? -1 : 1;
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, direction > 0 ? oldScale * scaleBy : oldScale / scaleBy));
+    const scaleBy = 1.05;
+    const newScale = e.evt.deltaY > 0 ? oldScale / scaleBy : oldScale * scaleBy;
+    setScale(newScale);
 
     const newPos = {
       x: pointer.x - mousePointTo.x * newScale,
       y: pointer.y - mousePointTo.y * newScale,
     };
-
-    setStageScale(newScale);
-    setStagePosition(newPos);
+    setPosition(newPos);
   };
 
-  const resetView = () => {
-    setStageScale(1);
-    setStagePosition({ x: 0, y: 0 });
+  // Enable dragging stage only if panning (spacebar) or two-finger touch
+  const handleMouseDown = (e) => {
+    if (isPanning || e.evt.touches?.length === 2) {
+      stageRef.current.draggable(true);
+    } else {
+      stageRef.current.draggable(false);
+    }
   };
 
+  const handleDragEnd = (e) => {
+    if (isPanning || e.evt.touches?.length === 2) {
+      const { x, y } = e.target.position();
+      setPosition({ x, y });
+    }
+  };
+
+  // Deselect when clicking empty stage
+  const checkDeselect = (e) => {
+    if (e.target === e.target.getStage()) {
+      setSelectedId(null);
+    }
+  };
+
+  // Canvas elements (image or text)
   const CanvasElement = ({ el, isSelected, onSelect, onChange }) => {
     const shapeRef = useRef();
-    const [image] = useImage(el.src);
+    const [image] = el.type === "image" ? useImage(el.src) : [null];
 
     useEffect(() => {
       if (isSelected && shapeRef.current && trRef.current) {
@@ -161,54 +133,107 @@ const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) 
           x: node.x(),
           y: node.y(),
           rotation: node.rotation(),
-          width: Math.max(5, node.width() * scaleX),
-          height: Math.max(5, node.height() * scaleY),
+          width: node.width() * scaleX,
+          height: node.height() * scaleY,
         });
       },
     };
 
     if (el.type === "image") {
       return <Image image={image} {...commonProps} />;
-    }
-
-    if (el.type === "text") {
+    } else if (el.type === "text") {
       return <Text fontSize={el.fontSize || 24} {...commonProps} />;
     }
-
     return null;
   };
 
-  const checkDeselect = (e) => {
-    if (e.target === e.target.getStage()) {
-      setSelectedId(null);
-    }
+  // Handle file drop - add new image centered in visible viewport
+  const handleDrop = (e) => {
+    e.preventDefault();
+
+    const files = e.dataTransfer.files;
+    [...files].forEach((file) => {
+      if (!file.type.startsWith("image")) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const stage = stageRef.current;
+
+        // Mask area center in canvas coordinates
+        const canvasCenter = {
+          x: config.canvasSize.width / 2,
+          y: config.canvasSize.height / 2,
+        };
+
+        const scale = stage.scaleX();
+        const stagePos = stage.position();
+
+        // Convert canvas center to screen coordinates
+        const screenCenter = {
+          x: canvasCenter.x * scale + stagePos.x,
+          y: canvasCenter.y * scale + stagePos.y,
+        };
+
+        // Convert back to canvas coordinates
+        const dropX = (screenCenter.x - stagePos.x) / scale;
+        const dropY = (screenCenter.y - stagePos.y) / scale;
+
+        const imageObj = new window.Image();
+        imageObj.src = reader.result;
+        imageObj.onload = () => {
+          const maxWidth = 150; // smaller default size
+          const aspectRatio = imageObj.width / imageObj.height;
+          const width = Math.min(imageObj.width, maxWidth);
+          const height = width / aspectRatio;
+
+          const newId = Date.now().toString();
+          const imageElement = {
+            id: newId,
+            type: "image",
+            src: reader.result,
+            x: dropX - width / 2,
+            y: dropY - height / 2,
+            width,
+            height,
+          };
+
+          // Add element and select it to activate transformer
+          setElements((prev) => [...prev, imageElement]);
+          setSelectedId(newId);
+        };
+      };
+      reader.readAsDataURL(file);
+    });
   };
+
 
   return (
     <div
+      ref={containerRef}
       style={{
-        width: canvasSize.width + strokeWidth * 2,
-        height: canvasSize.height + strokeWidth * 2,
-        margin: "auto",
+        width: "100%",        // full width of parent
+        height: "100%",       // full height of parent
         position: "relative",
+        overflow: "hidden",   // <-- prevents stage from overflowing
       }}
       onDrop={handleDrop}
       onDragOver={(e) => e.preventDefault()}
-      onDragEnter={() => setDragging(true)}
-      onDragLeave={() => setDragging(false)}
     >
       <Stage
-        width={canvasSize.width}
-        height={canvasSize.height}
+        width={stageSize.width}
+        height={stageSize.height}
         ref={stageRef}
-        style={{ display: "block", position: "relative", zIndex: 1 }}
-        onClick={checkDeselect}
+        scaleX={scale}
+        scaleY={scale}
+        x={position.x}
+        y={position.y}
         onWheel={handleWheel}
-        scaleX={stageScale}
-        scaleY={stageScale}
-        x={stagePosition.x}
-        y={stagePosition.y}
-        draggable={stageScale > 1}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleMouseDown}
+        onDragEnd={handleDragEnd}
+        onClick={checkDeselect}
+        style={{ background: "#eee", touchAction: "none" }}
+        draggable={false} // default, enable only on pan
       >
         <Layer>
           <Group
@@ -229,39 +254,46 @@ const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) 
               ctx.quadraticCurveTo(0, 0, r, 0);
               ctx.closePath();
 
-              if (mask.cutouts) {
-                mask.cutouts.forEach((cutout) => {
-                  const { x, y, width, height, cutoutRadius = 0 } = cutout;
-                  const cr = Math.min(cutoutRadius, width / 2, height / 2);
-                  ctx.moveTo(x + cr, y);
-                  ctx.lineTo(x + width - cr, y);
-                  ctx.quadraticCurveTo(x + width, y, x + width, y + cr);
-                  ctx.lineTo(x + width, y + height - cr);
-                  ctx.quadraticCurveTo(x + width, y + height, x + width - cr, y + height);
-                  ctx.lineTo(x + cr, y + height);
-                  ctx.quadraticCurveTo(x, y + height, x, y + height - cr);
-                  ctx.lineTo(x, y + cr);
-                  ctx.quadraticCurveTo(x, y, x + cr, y);
-                  ctx.closePath();
-                });
-              }
+              mask.cutouts?.forEach((cutout) => {
+                const { x, y, width, height, cutoutRadius = 0 } = cutout;
+                const cr = Math.min(cutoutRadius, width / 2, height / 2);
+
+                ctx.moveTo(x + cr, y);
+                ctx.lineTo(x + width - cr, y);
+                ctx.quadraticCurveTo(x + width, y, x + width, y + cr);
+                ctx.lineTo(x + width, y + height - cr);
+                ctx.quadraticCurveTo(x + width, y + height, x + width - cr, y + height);
+                ctx.lineTo(x + cr, y + height);
+                ctx.quadraticCurveTo(x, y + height, x, y + height - cr);
+                ctx.lineTo(x, y + cr);
+                ctx.quadraticCurveTo(x, y, x + cr, y);
+                ctx.closePath();
+              });
 
               ctx.clip("evenodd");
             }}
           >
-            <Rect x={0} y={0} width={canvasSize.width} height={canvasSize.height} fill="#fff" listening={false} />
+            <Rect
+              x={0}
+              y={0}
+              width={canvasSize.width}
+              height={canvasSize.height}
+              fill="#fff"
+              listening={false}
+            />
             {elements.map((el) => (
               <CanvasElement
                 key={el.id}
                 el={el}
                 isSelected={el.id === selectedId}
                 onSelect={() => setSelectedId(el.id)}
-                onChange={(newEl) => {
-                  setElements((prev) => prev.map((item) => (item.id === newEl.id ? newEl : item)));
-                }}
+                onChange={(newEl) =>
+                  setElements((prev) => prev.map((item) => (item.id === newEl.id ? newEl : item)))
+                }
               />
             ))}
           </Group>
+
           {selectedId && (
             <Transformer
               ref={trRef}
@@ -270,89 +302,8 @@ const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) 
               }
             />
           )}
-
-          <Rect
-            x={0}
-            y={0}
-            width={canvasSize.width}
-            height={canvasSize.height}
-            stroke="green"
-            strokeWidth={strokeWidth}
-            dash={[8, 4]}
-            cornerRadius={borderRadius}
-            listening={false}
-           />
-
-          {mask.cutouts?.map((cutout, i) => (
-            <Rect
-              key={i}
-              x={cutout.x}
-              y={cutout.y}
-              width={cutout.width}
-              height={cutout.height}
-              fill="rgba(255, 0, 0, 0.2)"
-              stroke="red"
-              strokeWidth={2}
-              dash={[4, 4]}
-              cornerRadius={cutout.cutoutRadius}
-              listening={false}
-             />
-))}
-
         </Layer>
       </Stage>
-
-      {/* <svg
-        width={canvasSize.width + strokeWidth * 2}
-        height={canvasSize.height + strokeWidth * 2}
-        style={{ position: "absolute", top: 0, left: 0, pointerEvents: "none", zIndex: 2 }}
-      >
-        <rect
-          x={strokeWidth / 2}
-          y={strokeWidth / 2}
-          width={canvasSize.width + strokeWidth - 1}
-          height={canvasSize.height + strokeWidth - 1}
-          rx={borderRadius}
-          ry={borderRadius}
-          fill="none"
-          stroke="green"
-          strokeWidth={strokeWidth}
-          strokeDasharray="8 4"
-        />
-        {mask.cutouts?.map((cutout, i) => (
-          <g key={i}>
-            <rect
-              x={cutout.x + strokeWidth / 2}
-              y={cutout.y + strokeWidth / 2}
-              width={cutout.width}
-              height={cutout.height}
-              fill="rgba(255, 0, 0, 0.2)"
-              stroke="red"
-              strokeWidth={2}
-              rx={cutout.cutoutRadius}
-              ry={cutout.cutoutRadius}
-              strokeDasharray="4 4"
-            />
-          </g>
-        ))}
-      </svg> */}
-
-      <button
-        onClick={resetView}
-        style={{
-          position: "absolute",
-          bottom: 20,
-          right: 20,
-          zIndex: 10,
-          backgroundColor: "#f0f0f0",
-          padding: "8px 12px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
-          cursor: "pointer",
-        }}
-      >
-        Recenter
-      </button>
     </div>
   );
 };
