@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+  @apply bg-gray-100 text-gray-800;
+}
+
+button.btn {
+  @apply bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600 transition;
+}

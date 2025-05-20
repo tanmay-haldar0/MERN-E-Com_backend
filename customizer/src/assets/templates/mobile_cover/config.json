@@ -1,0 +1,9 @@
+{
+  "canvasSize": { "width": 300, "height": 600 },
+  "mask": {
+    "borderRadius": 20,
+    "cutouts": [
+      { "x": 20, "y": 20, "width": 90, "height": 120 }
+    ]
+  }
+}
