@@ -3,7 +3,7 @@
   "mask": {
     "borderRadius": 20,
     "cutouts": [
-      { "x": 20, "y": 20, "width": 90, "height": 120 }
+      { "x": 20, "y": 20, "width": 120, "height": 120 }
     ]
   }
 }

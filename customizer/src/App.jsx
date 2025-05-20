@@ -21,7 +21,7 @@ export default function App() {
     },
     mask: {
       borderRadius: 30,
-      cutouts: [{ x: 20, y: 20, width: 70, height: 100 }],
+      cutouts: [{ x: 20, y: 20, width: 130, height: 100, cutoutRadius: 15 }, { x: 103, y: 130, width: 40, height: 40, cutoutRadius: 100 }],
     },
   };
 
@@ -108,6 +108,7 @@ export default function App() {
             )}
           </div>
         </div>
+
       </div>
     </>
   );
