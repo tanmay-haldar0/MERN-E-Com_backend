@@ -2,6 +2,7 @@ import React from "react";
 import Toolbar from "./components/Toolbar";
 import LayerControls from "./components/LayerControls";
 import CanvasStage from "./components/CanvasStage";
+import {phoneCoverTemplate, mugTemplate} from "./templates/templateConfig";
 
 export default function App() {
   return (
@@ -37,8 +38,8 @@ export default function App() {
           </div>
 
           {/* Canvas */}
-          <div className="w-[300px] sm:w-[350px] md:w-[270px] p-2 bg-gray-400 border shadow-md rounded-md overflow-hidden mt-16">
-            <CanvasStage />
+          <div className="p-2 bg-white border shadow-md rounded-md overflow-hidden mt-16">
+            <CanvasStage template={mugTemplate} />
           </div>
         </main>
       </div>
