@@ -2,7 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { Stage, Layer, Image, Text, Transformer, Group, Rect } from "react-konva";
 import useImage from "use-image";
 
-const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) => {
+const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId, onExposeRecenter }) => {
+
   const stageRef = useRef();
   const trRef = useRef();
   const containerRef = useRef();
@@ -17,6 +18,21 @@ const Canvas2D = ({ config, elements, setElements, selectedId, setSelectedId }) 
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
+
+  useEffect(() => {
+    if (typeof onExposeRecenter === 'function') {
+      const centerCanvas = () => {
+        const container = containerRef.current?.getBoundingClientRect();
+        if (!container) return;
+
+        const offsetX = (container.width - canvasSize.width * scale) / 2;
+        const offsetY = (container.height - canvasSize.height * scale) / 2;
+        setPosition({ x: offsetX, y: offsetY });
+      };
+      onExposeRecenter(centerCanvas);
+    }
+  }, [canvasSize, scale, onExposeRecenter]);
+
 
   // Spacebar detection for pan
   useEffect(() => {

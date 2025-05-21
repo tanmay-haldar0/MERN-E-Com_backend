@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import Sidebar from "./components/Sidebar";
 import ToggleView from "./components/ToggleView";
 import Canvas2D from "./components/Canvas2D";
@@ -13,6 +13,7 @@ export default function App() {
 
   const [elements, setElements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
+  const recenterRef = useRef(null);
 
   const canvasConfig = {
     canvasSize: {
@@ -47,6 +48,10 @@ export default function App() {
     setSelectedId(null);
   };
 
+  const handleExposeRecenter = (fn) => {
+    recenterRef.current = fn;
+  };
+
   const bringToFront = () => {
     if (!selectedElement) return;
     setElements((prev) => {
@@ -73,7 +78,7 @@ export default function App() {
         {/* ... your toolbar and canvas layout ... */}
         <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
           <Toolbar />
-          <div className="h-full w-fullgi">
+          <div className="h-full w-full">
             {is3D ? <Canvas3D /> : (
               <Canvas2D
                 config={canvasConfig}
@@ -81,9 +86,17 @@ export default function App() {
                 setElements={setElements}
                 selectedId={selectedId}
                 setSelectedId={setSelectedId}
+                onExposeRecenter={handleExposeRecenter}
               />
             )}
           </div>
+
+          <button
+            onClick={() => recenterRef.current?.()}
+            className="absolute bottom-4 right-4 z-50 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
+          >
+            Recenter Canvas
+          </button>
 
           {/* Floating action panel */}
           <ElementActionsPanel
