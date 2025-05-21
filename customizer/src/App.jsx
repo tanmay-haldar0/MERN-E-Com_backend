@@ -6,6 +6,7 @@ import Canvas3D from "./components/Canvas3D";
 import Toolbar from "./components/Toolbar";
 import { useCanvasStore } from "./hooks/useCanvasStore";
 import ElementActionsPanel from "./components/ElementActionsPanel";
+import configFile from "./assets/templates/mug/config.json";
 
 export default function App() {
   const [is3D, setIs3D] = useState(false);
@@ -15,16 +16,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null);
   const recenterRef = useRef(null);
 
-  const canvasConfig = {
-    canvasSize: {
-      width: 250,
-      height: 500,
-    },
-    mask: {
-      borderRadius: 20,
-      cutouts: [{ x: 20, y: 20, width: 130, height: 100, cutoutRadius: 15 }, { x: 103, y: 130, width: 40, height: 40, cutoutRadius: 100 }],
-    },
-  };
+  const canvasConfig = configFile;
 
   const addElement = useCallback((item) => {
     const id = `el-${Date.now()}`;
@@ -95,7 +87,7 @@ export default function App() {
             onClick={() => recenterRef.current?.()}
             className="absolute bottom-4 right-4 z-50 px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
           >
-            Recenter Canvas
+            Recenter
           </button>
 
           {/* Floating action panel */}
