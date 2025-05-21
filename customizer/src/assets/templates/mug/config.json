@@ -7,5 +7,5 @@
     "borderRadius": 10,
     "cutouts": []
   },
-  "modelPath":"./assets/templates/mug/mug.glb"
+  "modelPath":"/assets/templates/mug/mug.glb"
 }

@@ -7,6 +7,9 @@ import Toolbar from "./components/Toolbar";
 import { useCanvasStore } from "./hooks/useCanvasStore";
 import ElementActionsPanel from "./components/ElementActionsPanel";
 import configFile from "./assets/templates/mug/config.json";
+import mugModel from './assets/templates/mug/mug.glb';
+// and then pass mugModel to Canvas3D component
+
 
 export default function App() {
   const [is3D, setIs3D] = useState(false);
@@ -17,6 +20,10 @@ export default function App() {
   const recenterRef = useRef(null);
 
   const canvasConfig = configFile;
+
+  const onToggle = useCallback(() => {
+    setIs3D(prev => !prev);
+  }, []);
 
   const addElement = useCallback((item) => {
     const id = `el-${Date.now()}`;
@@ -60,10 +67,27 @@ export default function App() {
     });
   };
 
+
+  const stageRef = useRef(null);
+  const [texture, setTexture] = useState(null);
+
+  // Whenever elements change or user triggers, update texture
+  useEffect(() => {
+    if (!is3D && stageRef.current) {
+      const dataUrl = stageRef.current.toDataURL({ pixelRatio: 2 });
+      const loader = new THREE.TextureLoader();
+      loader.load(dataUrl, (loadedTexture) => {
+        setTexture(loadedTexture);
+      });
+    }
+  }, [elements, is3D]);
+
+  
   return (
     <>
       <div className="flex justify-end fixed top-0 z-40 w-full p-2 bg-gray-400">
-        <ToggleView is3D={is3D} />
+        <ToggleView is3D={is3D} onToggle={onToggle} />
+
       </div>
       <div className="flex flex-col h-screen">
 
@@ -71,7 +95,7 @@ export default function App() {
         <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
           <Toolbar />
           <div className="h-full w-full">
-            {is3D ? <Canvas3D /> : (
+            {is3D ? <Canvas3D modelPath={mugModel} /> : (
               <Canvas2D
                 config={canvasConfig}
                 elements={elements}
