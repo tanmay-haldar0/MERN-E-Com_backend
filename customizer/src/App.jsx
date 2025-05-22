@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import ToggleView from "./components/ToggleView";
 import Canvas2D from "./components/Canvas2D";
@@ -8,8 +8,7 @@ import { useCanvasStore } from "./hooks/useCanvasStore";
 import ElementActionsPanel from "./components/ElementActionsPanel";
 import configFile from "./assets/templates/mug/config.json";
 import mugModel from './assets/templates/mug/mug.glb';
-// and then pass mugModel to Canvas3D component
-
+import * as THREE from 'three';
 
 export default function App() {
   const [is3D, setIs3D] = useState(false);
@@ -18,12 +17,12 @@ export default function App() {
   const [elements, setElements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const recenterRef = useRef(null);
+  const stageRef = useRef(null);
+  const [texture, setTexture] = useState(null);
 
   const canvasConfig = configFile;
 
-  const onToggle = useCallback(() => {
-    setIs3D(prev => !prev);
-  }, []);
+  const selectedElement = elements.find(el => el.id === selectedId) || null;
 
   const addElement = useCallback((item) => {
     const id = `el-${Date.now()}`;
@@ -40,20 +39,14 @@ export default function App() {
     setSelectedId(id);
   }, []);
 
-  const selectedElement = elements.find(el => el.id === selectedId) || null;
-
   const deleteElement = () => {
     setElements(elements.filter(el => el.id !== selectedId));
     setSelectedId(null);
   };
 
-  const handleExposeRecenter = (fn) => {
-    recenterRef.current = fn;
-  };
-
   const bringToFront = () => {
     if (!selectedElement) return;
-    setElements((prev) => {
+    setElements(prev => {
       const filtered = prev.filter(el => el.id !== selectedId);
       return [...filtered, selectedElement];
     });
@@ -61,41 +54,71 @@ export default function App() {
 
   const sendToBack = () => {
     if (!selectedElement) return;
-    setElements((prev) => {
+    setElements(prev => {
       const filtered = prev.filter(el => el.id !== selectedId);
       return [selectedElement, ...filtered];
     });
   };
 
+  const handleExposeRecenter = (fn) => {
+    recenterRef.current = fn;
+  };
 
-  const stageRef = useRef(null);
-  const [texture, setTexture] = useState(null);
+  const generateWhiteTexture = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#1D4ED8';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL();
+    console.log("Generating white texture data URL", dataUrl.slice(0, 100));
+    const loader = new THREE.TextureLoader();
+    loader.load(dataUrl, (whiteTexture) => {
+      console.log("White texture loaded:", whiteTexture);
+      setTexture(whiteTexture);
+    });
+  };
 
-  // Whenever elements change or user triggers, update texture
-  useEffect(() => {
-    if (!is3D && stageRef.current) {
+
+  const generateStageTexture = () => {
+    if (stageRef.current && elements.length > 0) {
       const dataUrl = stageRef.current.toDataURL({ pixelRatio: 2 });
+      console.log("Generating texture from stage data URL", dataUrl.slice(0, 100)); // print start of data URL
       const loader = new THREE.TextureLoader();
       loader.load(dataUrl, (loadedTexture) => {
+        console.log("Texture loaded:", loadedTexture);
         setTexture(loadedTexture);
       });
+    } else {
+      console.log("No elements - using white texture");
+      generateWhiteTexture();
     }
-  }, [elements, is3D]);
+  };
 
-  
+
+  const onToggle = useCallback(() => {
+    if (!is3D) {
+      // Before switching to 3D, update texture
+      generateStageTexture();
+    }
+    setIs3D(prev => !prev);
+  }, [is3D, elements]);
+
   return (
     <>
       <div className="flex justify-end fixed top-0 z-40 w-full p-2 bg-gray-400">
         <ToggleView is3D={is3D} onToggle={onToggle} />
-
       </div>
-      <div className="flex flex-col h-screen">
 
-        {/* ... your toolbar and canvas layout ... */}
+      <div className="flex flex-col h-screen">
         <div className="flex-1 bg-gray-100 flex items-center justify-center relative">
           <Toolbar />
+
           <div className="h-full w-full">
-            {is3D ? <Canvas3D modelPath={mugModel} /> : (
+            {is3D ? (
+              <Canvas3D modelPath={mugModel} texture={texture} />
+            ) : (
               <Canvas2D
                 config={canvasConfig}
                 elements={elements}
@@ -103,6 +126,7 @@ export default function App() {
                 selectedId={selectedId}
                 setSelectedId={setSelectedId}
                 onExposeRecenter={handleExposeRecenter}
+                stageRef={stageRef}
               />
             )}
           </div>
@@ -114,30 +138,13 @@ export default function App() {
             Recenter
           </button>
 
-          {/* Floating action panel */}
           <ElementActionsPanel
             selectedElement={selectedElement}
             onDelete={deleteElement}
             onBringToFront={bringToFront}
             onSendToBack={sendToBack}
           />
-
-
-          {/* Right Status Panel */}
-          {/* <div className="hidden sm:block w-64 p-4 bg-white border-l">
-            <h2 className="text-lg font-semibold mb-2">Layer Status</h2>
-            {selectedElement ? (
-              <div className="text-sm">
-                <p><strong>ID:</strong> {selectedElement.id}</p>
-                <p><strong>Type:</strong> {selectedElement.type}</p>
-                <p><strong>Position:</strong> {JSON.stringify(selectedElement.position || { x: selectedElement.x, y: selectedElement.y })}</p>
-              </div>
-            ) : (
-              <p className="text-gray-500">No layer selected.</p>
-            )}
-          </div> */}
         </div>
-
       </div>
     </>
   );
