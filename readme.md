@@ -75,11 +75,9 @@ npm run dev
 
 
 ## ✅ Todo / Future Improvements
-- 🔐 OAuth login (Google, GitHub)
 - 📊 Sales analytics dashboard
-- 📦 Inventory management
+- 📦 3D view of Custom Designed product 
 - 🛒 Product reviews and ratings
-- 📱 Mobile responsiveness enhancements
 
 ---
 
