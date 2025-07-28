@@ -264,6 +264,13 @@ const Navbar = () => {
                   Login{" "}
                 </span>
               </Link>
+              /
+              <Link to={"/seller"}>
+                <span className="hover:text-primary cursor-pointer">
+                  {" "}
+                  Seller{" "}
+                </span>
+              </Link>
             </div>
           )}
         </div>

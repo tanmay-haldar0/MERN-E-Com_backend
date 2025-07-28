@@ -3,8 +3,8 @@ import React from 'react';
 const VBanner = ({ bgImgUrl, mClass, tColor }) => {
     return (
         <div style={{
-            backgroundImage: `url(${bgImgUrl})`, // Replace with your image // Adjust height as needed
-        }} className={`h-[570px] ${mClass} hidden sm:block bg-no-repeat object-cover mt-6 w-1/4 rounded-lg shadow-lg text-center ${tColor}`}>
+            backgroundImage: `url(${bgImgUrl})`, objectFit:"cover", // Replace with your image // Adjust height as needed
+        }} className={`h-[620px] ${mClass} hidden sm:block bg-no-repeat object-cover mt-6 w-[250px] rounded-lg shadow-lg text-center ${tColor}`}>
             <div className='flex justify-center items-center flex-col rounded-md w-full h-full' style={{
                 backgroundColor: 'rgba(0, 0, 0, 0.4)'
             }}>

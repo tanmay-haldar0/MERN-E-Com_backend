@@ -3,22 +3,28 @@ import React, { useState, useEffect } from 'react';
 const Carousel = () => {
     const items = [
         {
-            image: 'https://plus.unsplash.com/premium_photo-1683619761464-6b7c9a2716a8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFzdCUyMGZvb2R8ZW58MHx8MHx8fDA%3D',
+            image: 'https://www.optamark.com/blog/wp-content/uploads/2023/08/banner-5.jpg',
             alt: 'Slide 1',
-            title: 'Eat Your Desired Fastfood',
-            description: 'Live for food',
+            title: 'Customized Water Bottle ',
+            description: 'Stay hydrated in style',
         },
         {
-            image: 'https://media.istockphoto.com/id/1244678181/photo/aloe-vera-drink.webp?a=1&b=1&s=612x612&w=0&k=20&c=Xtk4VcJ2FPNscy74rPrPIvqTxf0wIdAL4L0EPXvbJFY=',
+            image: 'https://www.jasani.ae/web/image/175076/Bags%20Factory%20Website%20Header%20%282%29%20%281%29%20%281%29.png',
             alt: 'Slide 2',
-            title: 'Drink Healthy',
-            description: 'Chill with a lemonade',
+            title: 'New Bags Collection',
+            description: 'Carry the bags with style',
         },
         {
-            image: 'https://media.istockphoto.com/id/1279889705/photo/table-top-view-of-indian-food.webp?a=1&b=1&s=612x612&w=0&k=20&c=CGIhW2oj5fRqSu5_wPZOqNItTEsjXfBmM1NA6MXpHZE=',
-            alt: 'Slide 3',
-            title: 'Explore the Indian Cuisine',
-            description: 'Dip in the ocean of Indian Food',
+            image: 'https://www.themessycorner.in/cdn/shop/collections/Mens_wallet_-_Mobile-02_1200x1200_crop_center.png?v=1691585887',
+            alt: 'Slide 2',
+            title: 'Customized Wallets',
+            description: 'Keep your essentials organized',
+        },
+        {
+            image: 'https://www.optamark.com/blog/wp-content/uploads/2023/09/banner-3.jpg',
+            alt: 'Slide 2',
+            title: 'Classic Cofee Mug Collection',
+            description: 'Sip your coffee in style',
         },
     ];
 
@@ -33,7 +39,7 @@ const Carousel = () => {
     }, [items.length]);
 
     return (
-        <div className="relative w-full h-42 sm:h-68 md:h-72 lg:h-[300px] overflow-hidden mt-[52px] rounded-lg shadow">
+        <div className="relative w-full h-42 sm:h-68 md:h-72 lg:h-[300px] overflow-hidden mt-[62px] rounded-lg shadow">
             <div
                 className="flex transition-transform duration-1000 ease-in-out"
                 style={{ transform: `translateX(-${currentIndex * 100}%)` }}

@@ -10,6 +10,8 @@ import Footer from "../Components/Footer.jsx";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../redux/actions/product.js";
 import ProductCardSkeleton from "../Components/ProductCardSkeleton.jsx";
+import FlashSaleBanner from "../Components/FlashSaleBanner.jsx";
+import PromoBannerBlock from "../Components/PromoBannerBlock.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -37,49 +39,60 @@ const Home = () => {
   const categories = [
     {
       ctImg:
-        "https://media.istockphoto.com/id/511484502/photo/double-cheese-and-bacon-cheeseburger.webp?a=1&b=1&s=612x612&w=0&k=20&c=Us0joN2d51ced9vo3zcDjJLID_p_INwtS2rTa-SLWZQ=",
-      ctName: "Burger",
+        "https://media.istockphoto.com/id/180756294/photo/wallet.jpg?s=612x612&w=0&k=20&c=sc6I6KsEbiv9Y4BtKji8w5rBYono2X63-ipfhYk6Ytg=",
+      ctName: "Wallet",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/622004942/photo/hot-pizza-slice.jpg?s=612x612&w=0&k=20&c=gMZDa3NcObXW5DDQUGmYzxiDuWYpWxJAIkhQm8_BgsI=",
-      ctName: "Pizza",
+        "https://www.photoland.in/wp-content/uploads/2022/08/keychain-Hexagon-front-1-600x600.jpg",
+      ctName: "Keychain",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/1029369962/photo/dumplings-stuffed-noodles.jpg?s=612x612&w=0&k=20&c=500NQJjDtFXRfkGg_yHuFMQoKXjeb37yqPnBaZ9g2sQ=",
-      ctName: "Dumplings",
+        "https://m.media-amazon.com/images/I/61fok09o6TL.jpg",
+      ctName: "Water Bottle",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/1174632449/photo/side-view-of-hot-latte-coffee-with-latte-art-in-a-ceramic-green-cup-and-saucer-isolated-on.webp?a=1&b=1&s=612x612&w=0&k=20&c=61FLuInL5v9dVRMbaGXUOLZBluqvBulRSiCsphy38Y0=",
-      ctName: "Coffee",
+        "https://assets.winni.in/product/primary/2022/5/60843.jpeg?dpr=2&w=220",
+      ctName: "Coffee Mug",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/853020286/photo/motichoor-laddu.webp?a=1&b=1&s=612x612&w=0&k=20&c=q6ndetY_1397xqUKbAuJdcXTJchM8DbRe4NI1g360d4=",
-      ctName: "Laddoo",
+        "https://media.istockphoto.com/id/180756294/photo/wallet.jpg?s=612x612&w=0&k=20&c=sc6I6KsEbiv9Y4BtKji8w5rBYono2X63-ipfhYk6Ytg=",
+      ctName: "Wallet",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/1313630445/photo/colourful-fruit-and-vegetable-salad.jpg?s=612x612&w=0&k=20&c=LGKYHqUiXjASPhJVj5YUuQo86eRfw_uSqbfp_vXC4gQ=",
-      ctName: "Salad",
+        "https://www.photoland.in/wp-content/uploads/2022/08/keychain-Hexagon-front-1-600x600.jpg",
+      ctName: "Keychain",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/853964590/photo/shahi-paneer-or-paneer-kadai.jpg?s=612x612&w=0&k=20&c=5Td9IzgPaYJAKc95dCiysN8X2R5DlZA3opMKqMh5mzY=",
-      ctName: "Paneer",
+        "https://m.media-amazon.com/images/I/61fok09o6TL.jpg",
+      ctName: "Water Bottle",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/1133687689/photo/perfect-fried-chicken-pieces-flying-around-in-red-white-striped-box.jpg?s=612x612&w=0&k=20&c=xll2Onu2PQF4K7F1Tea7trdB9A9_zMDSxx-Cw1BIA6M=",
-      ctName: "Fried Chicken",
+        "https://assets.winni.in/product/primary/2022/5/60843.jpeg?dpr=2&w=220",
+      ctName: "Coffee Mug",
     },
     {
       ctImg:
-        "https://media.istockphoto.com/id/1128295890/photo/mix-berries-with-leaf-various-fresh-berries-isolated-on-white-background-raspberry-blueberry.jpg?s=612x612&w=0&k=20&c=47bMwJ9FRQzMBmEK0tPVmX5sg4CkOI4rgi_xH7X16cA=",
-      ctName: "Fruits",
+        "https://media.istockphoto.com/id/180756294/photo/wallet.jpg?s=612x612&w=0&k=20&c=sc6I6KsEbiv9Y4BtKji8w5rBYono2X63-ipfhYk6Ytg=",
+      ctName: "Wallet",
     },
+    {
+      ctImg:
+        "https://www.photoland.in/wp-content/uploads/2022/08/keychain-Hexagon-front-1-600x600.jpg",
+      ctName: "Keychain",
+    },
+    {
+      ctImg:
+        "https://m.media-amazon.com/images/I/61fok09o6TL.jpg",
+      ctName: "Water Bottle",
+    },
+
   ];
 
   const currentPage = 1;
@@ -99,8 +112,35 @@ const Home = () => {
     <div className="max-w-[1740px] mx-auto">
       <Carousel />
 
+      <FlashSaleBanner endTime="2025-08-05T23:59:59" />
+
+      {/* Promo Banner Grid Blocks */}
+      <section className="my-5 px-3 sm:px-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <PromoBannerBlock
+            title="🧴 Beauty Bonanza"
+            subtitle="Up to 60% off on brands"
+            icon="💄"
+            gradient="bg-gradient-to-tr from-pink-600 to-rose-400"
+          />
+          <PromoBannerBlock
+            title="📱 Tech Mania"
+            subtitle="Smartphones and gadgets"
+            icon="📱"
+            gradient="bg-gradient-to-r from-gray-800 via-gray-600 to-gray-400"
+          />
+          <PromoBannerBlock
+            title="🎁 Gift Zone"
+            subtitle="Perfect gifts for all occasions"
+            icon="🎉"
+            gradient="bg-gradient-to-br from-yellow-400 via-orange-400 to-red-500"
+          />
+        </div>
+      </section>
+
+
       {/* Category Heading */}
-      <h1 className="mt-5 pl-3 sm:pl-10 sm:text-2xl text-lg font-semibold">
+      <h1 className="mt-8 pl-3 sm:pl-10 sm:text-2xl text-lg font-semibold">
         Category
       </h1>
       <div className="sm:mt-2 sm:px-8 lg:px-10 w-full h-28 flex items-center hide-scrollbar sm:overflow-x-hidden overflow-x-auto overflow-y-hidden">
@@ -114,23 +154,23 @@ const Home = () => {
       </div>
 
       {/* New Product Heading and grid */}
-      <div className="sm:mt-8 mt-2 sm:pl-10 px-3 flex items-center justify-between">
+      <div className="sm:mt-5 mt-2 sm:pl-10 px-3 flex items-center justify-between">
         <h1 className="sm:text-2xl text-lg font-semibold">New Products</h1>
         <Link to={"/shop"}>
-          <button className="btn bg-primary font-medium text-white text-sm sm:text-md flex items-center justify-center p-2 rounded-3xl px-5 sm:mr-8">
+          <button className="btn bg-primary font-medium text-white text-sm sm:text-md flex items-center justify-center p-1 rounded-3xl px-3 sm:mr-8">
             See More <FaArrowRight className="ml-2" />
           </button>
         </Link>
       </div>
       <div className="flex items-center justify-center w-full h-full">
         {isLoading
-          ? (<div className="w-full m-4 grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
-            {Array.from({ length: 20 }).map((_, idx) => (
+          ? (<div className="w-full sm:m-4 m-2 grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-2">
+            {Array.from({ length: 10 }).map((_, idx) => (
               <ProductCardSkeleton key={idx} />
             ))}
           </div>)
           : (
-            <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
+            <div className="grid px-2 sm:px-5  mt-5 grid-cols-2 md:grid-cols-5  gap-4 sm:gap-3 md:gap-4">
               {newProducts.map((product, index) => (
                 <ProductCard
                   key={index}
@@ -149,40 +189,58 @@ const Home = () => {
         <VBanner mClass={"mr-8"} tColor={"text-white"} bgImgUrl={vBannerUrl2} />
       </div>
 
-      {/* Sale Banner */}
-      <Banner
-        bannerUrl={bannerUrl2}
-        bannerTitle={"Sale! 50% Off on most of the Products"}
-        bannerDescription={
-          "Experience the best deals in your favorite e-commerce store"
-        }
-      />
+      {/* Promo Banner Grid Blocks */}
+      <section className="my-5 mt-10 px-3 sm:px-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <PromoBannerBlock
+            title="🔥 Hot Trends"
+            subtitle="Shop the latest fashion"
+            icon="👗"
+            gradient="bg-gradient-to-r from-pink-500 via-red-400 to-yellow-400"
+          />
+          <PromoBannerBlock
+            title="🎒 Back to School"
+            subtitle="Essentials starting ₹199"
+            icon="🎓"
+            gradient="bg-gradient-to-br from-blue-600 via-cyan-400 to-green-300"
+          />
+          <PromoBannerBlock
+            title="🏋️‍♂️ Fitness Deals"
+            subtitle="Gear up for your workout"
+            icon="💪"
+            gradient="bg-gradient-to-r from-indigo-700 via-purple-500 to-pink-500"
+          />
+        </div>
+      </section>
+
 
       {/* Popular Products Heading and grid */}
-      <div className="flex items-center justify-center h-full">
-        <VBanner mClass={"ml-8"} tColor={"text-white"} bgImgUrl={vBannerUrl} />
+      <div className="flex items-center justify-center h-full mb-16">
+        <div className="sm:w-1/4 hidden sm:flex items-center justify-center">
+          <VBanner mClass={"mr-0 mt-8"} tColor={"text-white"} bgImgUrl={vBannerUrl} />
+        </div>
 
-        <div className="">
+        <div className="sm:w-3/4 w-full">
           <div className="sm:mt-5 mt-2 sm:pl-10 px-3 flex items-center justify-between">
             <h1 className="sm:text-2xl text-lg font-semibold">
               Popular Products
             </h1>
             <Link to={"/shop"}>
-              <button className="btn bg-primary font-medium text-white text-sm sm:text-md flex items-center justify-center p-2 rounded-3xl px-5 sm:mr-8">
+              <button className="btn bg-primary font-medium text-white text-sm sm:text-md flex items-center justify-center p-1 rounded-3xl px-3 sm:mr-8">
                 See More <FaArrowRight className="ml-2" />
               </button>
             </Link>
           </div>
 
-          <div className="mb-16">
+          <div className="h-full">
             {isLoading
               ? (<div className="w-full mt-4 grid grid-cols-2 md:grid-cols-5 sm:gap-4 gap-3">
-                {Array.from({ length: 20 }).map((_, idx) => (
+                {Array.from({ length: 10 }).map((_, idx) => (
                   <ProductCardSkeleton key={idx} />
                 ))}
               </div>)
               : (
-                <div className="grid px-2 sm:px-10 mt-5 grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-4">
+                <div className="grid px-2 sm:px-5 mt-5 grid-cols-2 md:grid-cols-5  gap-4 sm:gap-3">
                   {newProducts.map((product, index) => (
                     <ProductCard
                       key={index}
